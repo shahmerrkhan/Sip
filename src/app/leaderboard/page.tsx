@@ -1,0 +1,130 @@
+'use client';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { useRoles } from '@/hooks/useRoles';
+
+type Mentor = {
+  id: string; firstName: string; lastName: string; role: string; company: string;
+  xp: number; sipCount: number; badges: string; isOpen: boolean;
+};
+
+const BADGE_META: Record<string, { label: string; emoji: string; color: string }> = {
+  'first-sip':  { label: 'First Sip',  emoji: '☕', color: '#D97706' },
+  'regular':    { label: 'Regular',    emoji: '🔥', color: '#DC2626' },
+  'veteran':    { label: 'Veteran',    emoji: '⚡', color: '#7C3AED' },
+  'legend':     { label: 'Legend',     emoji: '💎', color: '#0891B2' },
+  'goat':       { label: 'GOAT',       emoji: '🐐', color: '#059669' },
+};
+
+const AVATARS = ['#0A66C2', '#7C3AED', '#059669', '#DC2626', '#D97706', '#0891B2'];
+const RANK_COLORS = ['#F59E0B', '#94A3B8', '#CD7F32'];
+const RANK_LABELS = ['🥇', '🥈', '🥉'];
+
+export default function Leaderboard() {
+  const [mentors, setMentors] = useState<Mentor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { isMentor, isSeeker, loaded: rolesLoaded } = useRoles();
+
+  useEffect(() => {
+    fetch('/api/mentor?leaderboard=true')
+      .then(r => r.json())
+      .then(data => { setMentors(data); setLoading(false); });
+  }, []);
+
+  return (
+    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
+
+      {/* NAV */}
+      <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          <Link href="/" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>directory</Link>
+          {rolesLoaded && isMentor && <Link href="/dashboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>mentor dashboard</Link>}
+          {rolesLoaded && isSeeker && <Link href="/seekers" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>seeker dashboard</Link>}
+        </div>
+      </motion.nav>
+
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '100px 40px 80px' }}>
+
+        {/* HEADER */}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: 56, textAlign: 'center' }}>
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            style={{ fontSize: 56, marginBottom: 16 }}>🏆</motion.div>
+          <h1 style={{ fontSize: 48, fontWeight: 700, letterSpacing: -2.5, marginBottom: 12 }}>Leaderboard</h1>
+          <p style={{ color: '#8B949E', fontSize: 16 }}>The people showing up the hardest. Earn XP every time someone requests a sip.</p>
+        </motion.div>
+
+        {/* XP LEGEND */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 48 }}>
+          {Object.entries(BADGE_META).map(([key, b]) => (
+            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#161B22', border: '1px solid rgba(255,255,255,0.07)', padding: '8px 16px', borderRadius: 20 }}>
+              <span style={{ fontSize: 15 }}>{b.emoji}</span>
+              <span style={{ fontSize: 13, color: '#8B949E' }}>{b.label}</span>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* LIST */}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {[1,2,3,4,5].map(n => (
+              <motion.div key={n} animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 1.4, repeat: Infinity, delay: n * 0.1 }}
+                style={{ background: '#161B22', borderRadius: 16, height: 80 }} />
+            ))}
+          </div>
+        ) : mentors.length === 0 ? (
+          <div style={{ textAlign: 'center', color: '#8B949E', padding: '80px 0' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>☕</div>
+            <p>No mentors yet. Be the first to go live.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {mentors.map((m, i) => (
+              <motion.div key={m.id}
+                initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: i * 0.07 }}
+                whileHover={{ borderColor: 'rgba(112,181,249,0.3)', x: 4 }}
+                style={{ background: i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.06)` : '#161B22', border: `1px solid ${i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.25)` : 'rgba(255,255,255,0.07)'}`, borderRadius: 16, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s', cursor: 'default' }}>
+
+                {/* rank */}
+                <div style={{ width: 36, textAlign: 'center', fontSize: i < 3 ? 22 : 14, color: i < 3 ? RANK_COLORS[i] : '#8B949E', fontWeight: 700, fontFamily: 'Space Mono', flexShrink: 0 }}>
+                  {i < 3 ? RANK_LABELS[i] : `#${i + 1}`}
+                </div>
+
+                {/* avatar */}
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: AVATARS[i % AVATARS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>
+                  {m.firstName[0]}{m.lastName[0]}
+                </div>
+
+                {/* info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 2 }}>{m.firstName} {m.lastName}</div>
+                  <div style={{ color: '#8B949E', fontSize: 13 }}>{m.role} @ {m.company}</div>
+                  {m.badges && (
+                    <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                      {m.badges.split(',').filter(Boolean).map(b => (
+                        <span key={b} style={{ fontSize: 11, padding: '2px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#C9D1D9' }}>
+                          {BADGE_META[b]?.emoji} {BADGE_META[b]?.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* xp + sips */}
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: i === 0 ? '#F59E0B' : '#70B5F9', fontFamily: 'Space Mono' }}>{m.xp.toLocaleString()}</div>
+                  <div style={{ color: '#8B949E', fontSize: 12 }}>XP</div>
+                  <div style={{ color: '#5BDB8A', fontSize: 12, marginTop: 2 }}>{m.sipCount} sips</div>
+                </div>
+
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

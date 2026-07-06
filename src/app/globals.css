@@ -1,26 +1,53 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  font-size: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+h1, h2, h3, h4, p, span, div {
+  color: inherit;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #0D1117 !important;
+  color: #E6EDF3 !important;
+  font-family: 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input, textarea, button, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+@media (min-width: 640px) {
+  .desktop-only { display: inline !important; }
+}
+
+@media (max-width: 639px) {
+  .desktop-only { display: none !important; }
+}
+
+.cl-footer,
+.cl-footerAction,
+.cl-footerActionText,
+.cl-footerActionLink,
+.cl-internal-b3fm6y,
+.cl-badge,
+[class*="cl-footer"],
+[class*="cl-internal"] {
+  opacity: 1 !important;
+  color: #C9D1D9 !important;
+}
+
+.cl-footerActionLink {
+  color: #70B5F9 !important;
+  font-weight: 600 !important;
 }

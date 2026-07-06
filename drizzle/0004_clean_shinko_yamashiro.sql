@@ -1,0 +1,1 @@
+ALTER TABLE "seekers" ADD COLUMN "last_checkin_at" timestamp;

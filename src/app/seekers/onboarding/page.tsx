@@ -1,0 +1,85 @@
+﻿'use client';
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+
+export default function SeekerOnboarding() {
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+  const [form, setForm] = useState({ age: '', linkedin: '', interests: [] as string[] });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/api/seeker').then(r => r.ok ? r.json() : null).then(data => {
+      if (data) setForm({ age: data.age ? String(data.age) : '', linkedin: data.linkedin || '', interests: data.interests ? data.interests.split(',').filter(Boolean) : [] });
+    });
+  }, []);
+
+  const TOPICS = ['tech', 'startups', 'design', 'VC', 'AI/ML', 'product', 'finance', 'research', 'co-op', 'grad school'];
+  const toggle = (t: string) => setForm(f => ({ ...f, interests: f.interests.includes(t) ? f.interests.filter(x => x !== t) : [...f.interests, t] }));
+
+  useEffect(() => {
+    if (isLoaded && !user) router.push('/');
+  }, [isLoaded, user, router]);
+
+  const input: React.CSSProperties = { width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#E6EDF3', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
+  const label: React.CSSProperties = { fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 8, fontWeight: 500 };
+
+  async function handleSubmit() {
+    if (form.linkedin && !/^(https?:\/\/)?(www\.)?linkedin\.com\/.+/i.test(form.linkedin.trim())) {
+      setError('Please enter a valid LinkedIn profile URL.');
+      return;
+    }
+    if (form.age && (Number(form.age) < 13 || Number(form.age) > 100)) {
+      setError('Enter a real age between 13 and 100.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    const res = await fetch('/api/seeker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ age: form.age ? Number(form.age) : null, linkedin: form.linkedin, interests: form.interests.join(',') }),
+    });
+    if (!res.ok) { setError('Something went wrong. Try again.'); setLoading(false); return; }
+    router.push('/seekers');
+  }
+
+  return (
+    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+        <Link href="/seekers" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>skip for now →</Link>
+      </nav>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '120px 40px 80px' }}>
+        <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1.5, marginBottom: 12 }}>Tell us a bit about you</h1>
+        <p style={{ color: '#8B949E', fontSize: 15, marginBottom: 36 }}>Helps mentors understand who&apos;s reaching out. All optional.</p>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={label}>Age</label>
+          <input value={form.age} onChange={e => setForm(f => ({ ...f, age: e.target.value.replace(/\D/g, '') }))} placeholder="optional" style={input} />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={label}>LinkedIn profile</label>
+          <input value={form.linkedin} onChange={e => setForm(f => ({ ...f, linkedin: e.target.value }))} placeholder="linkedin.com/in/yourname" style={input} />
+        </div>
+        <div style={{ marginBottom: 28 }}>
+          <label style={label}>What are you into?</label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {TOPICS.map(t => (
+              <button key={t} onClick={() => toggle(t)} style={{ padding: '7px 16px', borderRadius: 20, border: '1px solid', borderColor: form.interests.includes(t) ? '#0A66C2' : 'rgba(255,255,255,0.1)', background: form.interests.includes(t) ? 'rgba(10,102,194,0.2)' : 'transparent', color: form.interests.includes(t) ? '#70B5F9' : '#8B949E', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t}</button>
+            ))}
+          </div>
+        </div>
+        {error && <div style={{ color: '#F87171', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleSubmit} disabled={loading}
+          style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+          {loading ? 'saving...' : 'continue →'}
+        </motion.button>
+      </div>
+    </div>
+  );
+}

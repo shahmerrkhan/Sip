@@ -1,0 +1,1 @@
+ALTER TABLE "seekers" ADD COLUMN "last_match_email_at" timestamp;

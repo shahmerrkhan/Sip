@@ -1,0 +1,49 @@
+import { auth } from '@clerk/nextjs/server';
+import { db } from '@/db';
+import { asks, mentors } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+import { transporter } from '@/lib/mailer';
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const mentorResult = await db.select().from(mentors).where(eq(mentors.clerkId, userId));
+  const mentor = mentorResult[0];
+  if (!mentor) return NextResponse.json({ error: 'No mentor profile' }, { status: 403 });
+
+  const { answer } = await req.json();
+  if (!answer) return NextResponse.json({ error: 'Answer is required' }, { status: 400 });
+  if (answer.length > 1000) return NextResponse.json({ error: 'Answer is too long' }, { status: 400 });
+
+  const existing = await db.select().from(asks).where(eq(asks.id, id));
+  if (!existing[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (existing[0].mentorId !== mentor.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  const updated = await db.update(asks)
+    .set({ answer, status: 'answered', answeredAt: new Date() })
+    .where(eq(asks.id, id))
+    .returning();
+
+  const a = updated[0];
+
+  await transporter.sendMail({
+    from: `Sip <${process.env.GMAIL_USER}>`,
+    to: a.seekerEmail,
+    subject: `${mentor.firstName} answered your question`,
+    html: `
+      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0D1117;color:#E6EDF3;padding:40px;border-radius:16px;">
+        <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip</div>
+        <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">${mentor.firstName} answered you</h2>
+        <p style="color:#8B949E;font-size:13px;margin-bottom:8px;">You asked:</p>
+        <p style="color:#C9D1D9;font-size:14px;line-height:1.7;margin-bottom:16px;">"${a.question}"</p>
+        <p style="color:#8B949E;font-size:13px;margin-bottom:8px;">Their answer:</p>
+        <p style="color:#C9D1D9;font-size:14px;line-height:1.7;margin-bottom:24px;">"${a.answer}"</p>
+      </div>
+    `,
+  });
+
+  return NextResponse.json(a);
+}

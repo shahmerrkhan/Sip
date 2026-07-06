@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1783312154289,
+      "tag": "0000_yielding_ender_wiggin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783312644069,
+      "tag": "0001_modern_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783314828168,
+      "tag": "0002_wet_wong",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783314930702,
+      "tag": "0003_puzzling_thena",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783315354537,
+      "tag": "0004_clean_shinko_yamashiro",
+      "breakpoints": true
+    }
+  ]
+}
