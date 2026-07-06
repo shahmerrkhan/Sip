@@ -1,4 +1,4 @@
-
+﻿
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
@@ -6,7 +6,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useRoles } from '@/hooks/useRoles';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Suspense } from 'react';
 
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
@@ -27,7 +26,7 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; border: string; 
   declined: { bg: 'rgba(248,113,113,0.1)', color: '#F87171', border: 'rgba(248,113,113,0.3)', label: 'declined' },
 };
 
-function SeekersContent() {
+export default function Seekers() {
   const { user } = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -325,12 +324,5 @@ function SeekersContent() {
         )}
       </AnimatePresence>
     </div>
-  );
-}
-export default function Seekers() {
-  return (
-    <Suspense fallback={null}>
-      <SeekersContent />
-    </Suspense>
   );
 }
