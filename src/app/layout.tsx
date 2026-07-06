@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider appearance={{
-      baseTheme: dark,
+      theme: dark,
       variables: { colorPrimary: '#0A66C2', colorBackground: '#161B22' },
     }}>
     <html lang="en">
