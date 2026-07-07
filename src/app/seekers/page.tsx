@@ -5,6 +5,8 @@ import { useUser } from '@clerk/nextjs';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useRoles } from '@/hooks/useRoles';
 import Link from 'next/link';
+import Logo from '@/components/Logo';
+import RoleSwitchLink from '@/components/RoleSwitchLink';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Suspense } from 'react';
 
@@ -15,6 +17,7 @@ type Mentor = {
 type SipRequest = {
   id: string; mentorId: string; seekerName: string; seekerEmail: string; message: string;
   status: 'pending' | 'accepted' | 'declined'; createdAt: string;
+  seekerConsentToShow: boolean; mentorConsentToShow: boolean;
   mentor?: { firstName: string; lastName: string; role: string; company: string; calendarLink: string; };
 };
 
@@ -49,13 +52,17 @@ function SeekersContent() {
   const [loadingLookup, setLoadingLookup] = useState(false);
   const [error, setError] = useState('');
   const [streak, setStreak] = useState<{ currentStreak: number; longestStreak: number } | null>(null);
-
+  const [seekerId, setSeekerId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [togglingConsent, setTogglingConsent] = useState<string | null>(null);
+  
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user?.firstName) setForm(f => ({ ...f, name: user.firstName! }));
     if (user?.emailAddresses?.[0]) {
       setForm(f => ({ ...f, email: user.emailAddresses[0].emailAddress }));
     }
+    if (user) localStorage.setItem('sip_last_role', 'seeker');
   }, [user]);
 
   const fetchMentors = useCallback(async () => {
@@ -96,7 +103,10 @@ function SeekersContent() {
       const seekerRes = await fetch('/api/seeker');
       if (seekerRes.ok) {
         const data = await seekerRes.json();
-        if (data) setStreak({ currentStreak: data.currentStreak || 0, longestStreak: data.longestStreak || 0 });
+        if (data) {
+          setStreak({ currentStreak: data.currentStreak || 0, longestStreak: data.longestStreak || 0 });
+          setSeekerId(data.id);
+        }
       }
     } else if (res.status === 401) {
       setError('Please sign in to view your sips.');
@@ -108,6 +118,20 @@ function SeekersContent() {
 
   const pending = requests.filter(r => r.status === 'pending');
   const accepted = requests.filter(r => r.status === 'accepted');
+
+  async function toggleConsent(requestId: string, current: boolean) {
+    setTogglingConsent(requestId);
+    const res = await fetch(`/api/requests/${requestId}/consent`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ consent: !current }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setRequests(prev => prev.map(r => r.id === requestId ? { ...r, seekerConsentToShow: updated.seekerConsentToShow } : r));
+    }
+    setTogglingConsent(null);
+  }
 
   const tabBtn = (id: 'browse' | 'mine', label: string) => (
     <button onClick={() => setTab(id)} style={{
@@ -123,11 +147,11 @@ function SeekersContent() {
 
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+        <Logo />
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>🏆 leaderboard</Link>
           {rolesLoaded && isMentor
-            ? <Link href="/dashboard" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 14px', borderRadius: 20 }}>switch to mentor</Link>
+            ? <RoleSwitchLink to="/dashboard" role="mentor" label="switch to mentor" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 14px', borderRadius: 20 }} />
             : <Link href="/mentors/signup" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>become a mentor</Link>}
           {rolesLoaded && isSeeker && <Link href="/seekers/onboarding" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>edit profile</Link>}
         </div>
@@ -228,6 +252,19 @@ function SeekersContent() {
                   </div>
                 </div>
               )}
+
+              {seekerId && (
+                <div style={{ background: 'rgba(112,181,249,0.06)', border: '1px solid rgba(112,181,249,0.2)', borderRadius: 16, padding: '20px 28px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, marginBottom: 4 }}>Your public profile</div>
+                    <div style={{ color: '#8B949E', fontSize: 13 }}>Share this so people can see who you are, sips you've had shared publicly appear here too.</div>
+                  </div>
+                  <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/seekers/${seekerId}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                    style={{ background: copied ? 'rgba(91,219,138,0.15)' : '#0A66C2', color: copied ? '#5BDB8A' : 'white', border: copied ? '1px solid rgba(91,219,138,0.3)' : 'none', padding: '10px 22px', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                    {copied ? 'copied ✓' : 'copy link'}
+                  </button>
+                </div>
+              )}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
                 {[
                   { label: 'Total Sent', value: requests.length, color: '#70B5F9' },
@@ -262,12 +299,20 @@ function SeekersContent() {
                         <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 16 }}>&quot;{r.message}&quot;</p>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span style={{ color: '#8B949E', fontSize: 12 }}>{new Date(r.createdAt).toLocaleDateString()}</span>
-                          {r.status === 'accepted' && r.mentor?.calendarLink && (
-                            <a href={r.mentor.calendarLink} target="_blank" rel="noopener noreferrer"
-                              style={{ background: '#0A66C2', color: 'white', padding: '8px 18px', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
-                              book your sip →
-                            </a>
-                          )}
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            {r.status === 'accepted' && (
+                              <button onClick={() => toggleConsent(r.id, r.seekerConsentToShow)} disabled={togglingConsent === r.id}
+                                style={{ background: r.seekerConsentToShow ? 'rgba(91,219,138,0.1)' : 'transparent', border: `1px solid ${r.seekerConsentToShow ? 'rgba(91,219,138,0.3)' : 'rgba(255,255,255,0.1)'}`, color: r.seekerConsentToShow ? '#5BDB8A' : '#8B949E', padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                                {r.seekerConsentToShow ? 'showing on profile ✓' : 'show on profile'}
+                              </button>
+                            )}
+                            {r.status === 'accepted' && r.mentor?.calendarLink && (
+                              <a href={r.mentor.calendarLink} target="_blank" rel="noopener noreferrer"
+                                style={{ background: '#0A66C2', color: 'white', padding: '8px 18px', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                                book your sip →
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );

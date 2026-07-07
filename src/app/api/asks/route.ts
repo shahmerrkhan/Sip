@@ -5,6 +5,8 @@ import { eq, and, gte } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { transporter } from '@/lib/mailer';
 import { mutationLimiter } from '@/lib/ratelimit';
+import { moderateQuestion } from '@/lib/groq';
+import { escapeHtml } from '@/lib/utils';
 
 const WEEKLY_CAP = 2;
 
@@ -22,6 +24,9 @@ export async function POST(req: Request) {
   const mentorResult = await db.select().from(mentors).where(eq(mentors.id, mentorId));
   const mentor = mentorResult[0];
   if (!mentor) return NextResponse.json({ error: 'Mentor not found' }, { status: 404 });
+  if (mentor.clerkId === userId) {
+    return NextResponse.json({ error: "You can't ask yourself a question." }, { status: 403 });
+  }
 
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
@@ -36,19 +41,26 @@ export async function POST(req: Request) {
 
   const created = await db.insert(asks).values({ mentorId, seekerClerkId: userId, seekerName, seekerEmail, question }).returning();
 
-  await transporter.sendMail({
-    from: `Sip <${process.env.GMAIL_USER}>`,
-    to: mentor.email,
-    subject: `${seekerName} asked you a quick question on Sip`,
-    html: `
-      <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0D1117;color:#E6EDF3;padding:40px;border-radius:16px;">
-        <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip</div>
-        <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">Quick question from ${seekerName}</h2>
-        <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">"${question}"</p>
-        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">Answer in Dashboard →</a>
-      </div>
-    `,
-  });
+  (async () => {
+    const moderation = await moderateQuestion(question);
+    if (moderation.flagged) {
+      await db.delete(asks).where(eq(asks.id, created[0].id));
+      return;
+    }
+    await transporter.sendMail({
+      from: `Sip <${process.env.GMAIL_USER}>`,
+      to: mentor.email,
+      subject: `${seekerName} asked you a quick question on Sip`,
+      html: `
+        <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0D1117;color:#E6EDF3;padding:40px;border-radius:16px;">
+          <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip</div>
+          <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">Quick question from ${escapeHtml(seekerName)}</h2>
+          <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">"${escapeHtml(question)}"</p>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">Answer in Dashboard →</a>
+        </div>
+      `,
+    });
+  })().catch(err => console.error('moderation/email failed:', err));
 
   return NextResponse.json(created[0]);
 }

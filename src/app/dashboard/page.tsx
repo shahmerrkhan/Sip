@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRoles } from '@/hooks/useRoles';
+import Logo from '@/components/Logo';
+import RoleSwitchLink from '@/components/RoleSwitchLink';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
@@ -13,10 +16,13 @@ type Mentor = {
 };
 type Request = {
   id: string; seekerName: string; seekerEmail: string; message: string; status: string; createdAt: string;
-  seekerLinkedin?: string;
+  seekerLinkedin?: string; seekerConsentToShow: boolean; mentorConsentToShow: boolean;
 };
 type Ask = {
   id: string; seekerName: string; question: string; answer: string | null; status: string; createdAt: string;
+};
+type SipNote = {
+  id: string; seekerName: string; note: string; status: string; createdAt: string;
 };
 
 const BADGE_META: Record<string, { label: string; emoji: string; color: string }> = {
@@ -34,11 +40,31 @@ export default function Dashboard() {
   const [mentor, setMentor] = useState<Mentor | null>(null);
   const [requests, setRequests] = useState<Request[]>([]);
   const [asks, setAsks] = useState<Ask[]>([]);
+  const [pendingNotes, setPendingNotes] = useState<SipNote[]>([]);
+  const [liveNotes, setLiveNotes] = useState<SipNote[]>([]);
+  const [reviewingNote, setReviewingNote] = useState<string | null>(null);
+  const [deletingNote, setDeletingNote] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [answerDrafts, setAnswerDrafts] = useState<Record<string, string>>({});
   const [submittingAnswer, setSubmittingAnswer] = useState<string | null>(null);
   const [loadingMentor, setLoadingMentor] = useState(true);
   const [togglingOpen, setTogglingOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [togglingConsent, setTogglingConsent] = useState<string | null>(null);
+
+  async function toggleConsent(requestId: string, current: boolean) {
+    setTogglingConsent(requestId);
+    const res = await fetch(`/api/requests/${requestId}/consent`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ consent: !current }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setRequests(prev => prev.map(r => r.id === requestId ? { ...r, mentorConsentToShow: updated.mentorConsentToShow } : r));
+    }
+    setTogglingConsent(null);
+  }
   const [isLive, setIsLive] = useState(false);
   
   const fetchData = useCallback(async () => {
@@ -50,6 +76,10 @@ export default function Dashboard() {
       const liveRooms = await liveRes.json();
       setIsLive(liveRooms.some((r: { mentorId: string }) => r.mentorId === m.id));
     }
+    const notesRes = await fetch(`/api/sip-notes?mentorId=${m.id}&mine=true`);
+    if (notesRes.ok) setPendingNotes(await notesRes.json());
+    const liveNotesRes = await fetch(`/api/sip-notes?mentorId=${m.id}`);
+    if (liveNotesRes.ok) setLiveNotes(await liveNotesRes.json());
   }
   if (rRes.ok) setRequests(await rRes.json());
   if (aRes.ok) setAsks(await aRes.json());
@@ -59,7 +89,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (isLoaded && !user) router.push('/');
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (isLoaded && user) fetchData();
+    if (isLoaded && user) { fetchData(); localStorage.setItem('sip_last_role', 'mentor'); }
   }, [isLoaded, user, fetchData, router]);
 
   async function submitAnswer(askId: string) {
@@ -76,6 +106,34 @@ export default function Dashboard() {
       setAsks(prev => prev.map(a => a.id === askId ? updated : a));
     }
     setSubmittingAnswer(null);
+  }
+
+  async function reviewNote(noteId: string, status: 'approved' | 'rejected') {
+    setReviewingNote(noteId);
+    const res = await fetch(`/api/sip-notes/${noteId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) {
+      setPendingNotes(prev => prev.filter(n => n.id !== noteId));
+      if (status === 'approved') fetchData();
+    }
+    setReviewingNote(null);
+  }
+
+  function deleteNote(noteId: string) {
+    setConfirmDeleteId(noteId);
+  }
+
+  async function confirmDeleteNote() {
+    const noteId = confirmDeleteId;
+    if (!noteId) return;
+    setConfirmDeleteId(null);
+    setDeletingNote(noteId);
+    const res = await fetch(`/api/sip-notes/${noteId}`, { method: 'DELETE' });
+    if (res.ok) setLiveNotes(prev => prev.filter(n => n.id !== noteId));
+    setDeletingNote(null);
   }
 
   async function toggleOpen() {
@@ -99,14 +157,23 @@ export default function Dashboard() {
   return (
     <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
 
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        title="Remove note?"
+        message="Remove this note from your profile? This can't be undone."
+        confirmLabel="Remove"
+        onConfirm={confirmDeleteNote}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
+
       {/* NAV */}
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+        <Logo />
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>🏆 leaderboard</Link>
           {rolesLoaded && (isSeeker
-            ? <Link href="/seekers" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 14px', borderRadius: 20 }}>switch to seeker</Link>
+            ? <RoleSwitchLink to="/seekers" role="seeker" label="switch to seeker" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 14px', borderRadius: 20 }} />
             : <Link href="/seekers/onboarding" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>become a seeker too</Link>)}
           <span style={{ color: '#8B949E', fontSize: 14 }}>hey, {user?.firstName} 👋</span>
           <SignOutButton>
@@ -223,6 +290,53 @@ export default function Dashboard() {
                 </motion.button>
               </motion.div>
 
+              {/* PENDING NOTES */}
+              {pendingNotes.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.37 }} style={{ marginBottom: 32 }}>
+                  <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>Notes Waiting for Your Approval</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {pendingNotes.map(n => (
+                      <div key={n.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '20px 24px' }}>
+                        <div style={{ fontWeight: 600, marginBottom: 4 }}>{n.seekerName}</div>
+                        <p style={{ color: '#C9D1D9', fontSize: 14, lineHeight: 1.6, marginBottom: 14 }}>&quot;{n.note}&quot;</p>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                            onClick={() => reviewNote(n.id, 'approved')} disabled={reviewingNote === n.id}
+                            style={{ background: 'rgba(91,219,138,0.15)', border: '1px solid rgba(91,219,138,0.3)', color: '#5BDB8A', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                            approve ✓
+                          </motion.button>
+                          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                            onClick={() => reviewNote(n.id, 'rejected')} disabled={reviewingNote === n.id}
+                            style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                            reject
+                          </motion.button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* LIVE NOTES */}
+              {liveNotes.length > 0 && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.375 }} style={{ marginBottom: 32 }}>
+                  <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>Live on Your Profile</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {liveNotes.map(n => (
+                      <div key={n.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '20px 24px' }}>
+                        <div style={{ fontWeight: 600, marginBottom: 4 }}>{n.seekerName}</div>
+                        <p style={{ color: '#C9D1D9', fontSize: 14, lineHeight: 1.6, marginBottom: 14 }}>&quot;{n.note}&quot;</p>
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                          onClick={() => deleteNote(n.id)} disabled={deletingNote === n.id}
+                          style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: deletingNote === n.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                          {deletingNote === n.id ? 'removing...' : 'remove from profile'}
+                        </motion.button>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
               {/* PENDING ASKS */}
               {asks.filter(a => a.status === 'pending').length > 0 && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} style={{ marginBottom: 32 }}>
@@ -291,6 +405,13 @@ export default function Dashboard() {
                                 decline
                               </motion.button>
                             </div>
+                          )}
+                          {r.status === 'accepted' && (
+                            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                              onClick={() => toggleConsent(r.id, r.mentorConsentToShow)} disabled={togglingConsent === r.id}
+                              style={{ background: r.mentorConsentToShow ? 'rgba(91,219,138,0.1)' : 'transparent', border: `1px solid ${r.mentorConsentToShow ? 'rgba(91,219,138,0.3)' : 'rgba(255,255,255,0.1)'}`, color: r.mentorConsentToShow ? '#5BDB8A' : '#8B949E', padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                              {r.mentorConsentToShow ? 'showing on profiles ✓' : 'show on profiles'}
+                            </motion.button>
                           )}
                         </div>
                       </motion.div>

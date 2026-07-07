@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '@clerk/nextjs';
+import Logo from '@/components/Logo';
 
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
@@ -26,6 +27,8 @@ const BADGE_META: Record<string, { label: string; emoji: string }> = {
   'goat':      { label: 'GOAT',      emoji: '🐐' },
 };
 
+const NOTES_PER_PAGE = 3;
+
 export default function MentorProfile() {
   const { id } = useParams();
   const { user } = useUser();
@@ -35,6 +38,7 @@ export default function MentorProfile() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [notes, setNotes] = useState<SipNote[]>([]);
+  const [notesPage, setNotesPage] = useState(0);
   const [noteForm, setNoteForm] = useState({ name: '' });
   const [noteText, setNoteText] = useState('');
   const [noteSent, setNoteSent] = useState(false);
@@ -44,6 +48,7 @@ export default function MentorProfile() {
   const [askSent, setAskSent] = useState(false);
   const [askError, setAskError] = useState('');
   const [submittingAsk, setSubmittingAsk] = useState(false);
+  const [activeTab, setActiveTab] = useState<'request' | 'note' | 'ask'>('request');
 
   useEffect(() => {
     fetch(`/api/mentor/${id}`)
@@ -110,7 +115,7 @@ export default function MentorProfile() {
     setSubmitting(false);
   }
 
-  const inputStyle: React.CSSProperties = { width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#E6EDF3', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
+  const inputStyle: React.CSSProperties = { width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#E6EDF3', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
 
   if (loading) return (
     <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -126,202 +131,240 @@ export default function MentorProfile() {
     </div>
   );
 
+  const totalNotePages = Math.max(1, Math.ceil(notes.length / NOTES_PER_PAGE));
+  const pagedNotes = notes.slice(notesPage * NOTES_PER_PAGE, notesPage * NOTES_PER_PAGE + NOTES_PER_PAGE);
+  const boxStyle: React.CSSProperties = { background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', minHeight: 0 };
+
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
+    <div style={{ background: '#0D1117', height: '100vh', color: '#E6EDF3', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+        style={{ flex: '0 0 auto', padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <Logo />
         <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'} style={{ background: 'none', border: 'none', color: '#8B949E', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← back</button>
       </motion.nav>
 
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '100px 40px 80px' }}>
+      <div style={{ flex: 1, minHeight: 0, maxWidth: 1200, width: '100%', margin: '0 auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16, boxSizing: 'border-box' }}>
 
-        {/* PROFILE CARD */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-          style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, marginBottom: 24 }}>
+        {/* TOP ROW */}
+        <div style={{ display: 'flex', gap: 16, flex: '1 1 45%', minHeight: 0 }}>
 
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 28 }}>
-            <motion.div whileHover={{ scale: 1.06 }} style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 24, flexShrink: 0 }}>
-              {mentor.firstName[0]}{mentor.lastName[0]}
-            </motion.div>
-            <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -1, margin: 0 }}>{mentor.firstName} {mentor.lastName}</h1>
-                <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 10, background: 'rgba(112,181,249,0.1)', border: '1px solid rgba(112,181,249,0.2)', color: '#70B5F9', fontWeight: 600 }}>{mentor.xp} XP</span>
-              </div>
-              <div style={{ color: '#8B949E', fontSize: 15, marginBottom: 12 }}>
-                {mentor.role} @ {mentor.company}
-                {mentor.showLinkedin && mentor.linkedin && (
-                  <> · <a href={mentor.linkedin.startsWith('http') ? mentor.linkedin : `https://${mentor.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', textDecoration: 'none' }}>LinkedIn ↗</a></>
-                )}
-              </div>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <motion.span animate={{ opacity: mentor.isOpen ? [1, 0.4, 1] : 1 }} transition={{ duration: 2, repeat: Infinity }}
-                  style={{ fontSize: 12, padding: '4px 12px', borderRadius: 12, background: mentor.isOpen ? 'rgba(91,219,138,0.1)' : 'rgba(139,148,158,0.1)', color: mentor.isOpen ? '#5BDB8A' : '#8B949E', border: `1px solid ${mentor.isOpen ? 'rgba(91,219,138,0.3)' : 'rgba(139,148,158,0.2)'}`, fontWeight: 600 }}>
-                  {mentor.isOpen ? '● open' : '○ closed'}
-                </motion.span>
-                <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 12, background: 'rgba(112,181,249,0.08)', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.15)' }}>
-                  {mentor.availability}
-                </span>
-                {mentor.avgResponseMinutes != null && (
-                  <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 12, background: 'rgba(91,219,138,0.08)', color: '#5BDB8A', border: '1px solid rgba(91,219,138,0.15)' }}>
-                    ⚡ responds in {formatResponseTime(mentor.avgResponseMinutes)}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <p style={{ color: '#C9D1D9', fontSize: 15, lineHeight: 1.75, marginBottom: 24 }}>"{mentor.bio}"</p>
-
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 28 }}>
-            {mentor.topics.split(',').map(t => (
-              <span key={t} style={{ background: 'rgba(112,181,249,0.07)', border: '1px solid rgba(112,181,249,0.15)', color: '#70B5F9', padding: '5px 14px', borderRadius: 14, fontSize: 13 }}>{t.trim()}</span>
-            ))}
-          </div>
-
-          {/* STATS */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
-            {[
-              { label: 'XP Earned', value: mentor.xp.toLocaleString(), color: '#70B5F9' },
-              { label: 'Sips Given', value: mentor.sipCount, color: '#5BDB8A' },
-              { label: 'Badges', value: mentor.badges.split(',').filter(Boolean).length, color: '#F59E0B' },
-            ].map(s => (
-              <div key={s.label} style={{ background: '#0D1117', borderRadius: 12, padding: '16px', textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 700, color: s.color, fontFamily: 'Space Mono' }}>{s.value}</div>
-                <div style={{ color: '#8B949E', fontSize: 12, marginTop: 4 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* BADGES */}
-          {mentor.badges && (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 20 }}>
-              {mentor.badges.split(',').filter(Boolean).map(b => (
-                <span key={b} style={{ fontSize: 12, padding: '5px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#C9D1D9' }}>
-                  {BADGE_META[b]?.emoji} {BADGE_META[b]?.label}
-                </span>
-              ))}
-            </div>
-          )}
-        </motion.div>
-
-        {/* SIP NOTES */}
-        {notes.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5 }}
-            style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, marginBottom: 24 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>What people took away</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {notes.map(n => (
-                <div key={n.id} style={{ background: '#0D1117', borderRadius: 14, padding: '16px 20px' }}>
-                  <p style={{ color: '#C9D1D9', fontSize: 14, lineHeight: 1.6, marginBottom: 8 }}>"{n.note}"</p>
-                  <div style={{ color: '#8B949E', fontSize: 12 }}>{n.seekerName}</div>
+          {/* TOP LEFT: PROFILE CARD */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+            style={{ ...boxStyle, flex: '1.4', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 20 }}>
+              <motion.div whileHover={{ scale: 1.06 }} style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, flexShrink: 0 }}>
+                {mentor.firstName[0]}{mentor.lastName[0]}
+              </motion.div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
+                  <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -1, margin: 0 }}>{mentor.firstName} {mentor.lastName}</h1>
+                  <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 10, background: 'rgba(112,181,249,0.1)', border: '1px solid rgba(112,181,249,0.2)', color: '#70B5F9', fontWeight: 600 }}>{mentor.xp} XP</span>
                 </div>
+                <div style={{ color: '#8B949E', fontSize: 14, marginBottom: 10 }}>
+                  {mentor.role} @ {mentor.company}
+                  {mentor.showLinkedin && mentor.linkedin && (
+                    <> · <a href={mentor.linkedin.startsWith('http') ? mentor.linkedin : `https://${mentor.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', textDecoration: 'none' }}>LinkedIn ↗</a></>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <motion.span animate={{ opacity: mentor.isOpen ? [1, 0.4, 1] : 1 }} transition={{ duration: 2, repeat: Infinity }}
+                    style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: mentor.isOpen ? 'rgba(91,219,138,0.1)' : 'rgba(139,148,158,0.1)', color: mentor.isOpen ? '#5BDB8A' : '#8B949E', border: `1px solid ${mentor.isOpen ? 'rgba(91,219,138,0.3)' : 'rgba(139,148,158,0.2)'}`, fontWeight: 600 }}>
+                    {mentor.isOpen ? '● open' : '○ closed'}
+                  </motion.span>
+                  <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: 'rgba(112,181,249,0.08)', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.15)' }}>
+                    {mentor.availability}
+                  </span>
+                  {mentor.avgResponseMinutes != null && (
+                    <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: 'rgba(91,219,138,0.08)', color: '#5BDB8A', border: '1px solid rgba(91,219,138,0.15)' }}>
+                      ⚡ responds in {formatResponseTime(mentor.avgResponseMinutes)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <p style={{ color: '#C9D1D9', fontSize: 14, lineHeight: 1.65, marginBottom: 18 }}>"{mentor.bio}"</p>
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {mentor.topics.split(',').map(t => (
+                <span key={t} style={{ background: 'rgba(112,181,249,0.07)', border: '1px solid rgba(112,181,249,0.15)', color: '#70B5F9', padding: '5px 14px', borderRadius: 14, fontSize: 13 }}>{t.trim()}</span>
               ))}
             </div>
           </motion.div>
-        )}
 
-        {/* LEAVE A NOTE */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }}
-          style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, marginBottom: 24 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Had a sip with {mentor.firstName}?</h2>
-          <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 28 }}>Leave a quick note on what you took away.</p>
-          <AnimatePresence mode="wait">
-            {noteSent ? (
-              <motion.div key="noteSent" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', padding: '20px 0' }}>
-                <div style={{ color: '#5BDB8A', fontSize: 16, fontWeight: 600 }}>Thanks, that's now on their profile.</div>
-              </motion.div>
+          {/* TOP RIGHT: STATS + BADGES */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
+            style={{ ...boxStyle, flex: '1', overflowY: 'auto' }}>
+            <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, color: '#8B949E', textTransform: 'uppercase', letterSpacing: 0.5 }}>Stats</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>
+              {[
+                { label: 'XP', value: mentor.xp.toLocaleString(), color: '#70B5F9' },
+                { label: 'Sips', value: mentor.sipCount, color: '#5BDB8A' },
+                { label: 'Badges', value: mentor.badges.split(',').filter(Boolean).length, color: '#F59E0B' },
+              ].map(s => (
+                <div key={s.label} style={{ background: '#0D1117', borderRadius: 12, padding: '12px 8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: s.color, fontFamily: 'Space Mono' }}>{s.value}</div>
+                  <div style={{ color: '#8B949E', fontSize: 11, marginTop: 4 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+            {mentor.badges && (
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {mentor.badges.split(',').filter(Boolean).map(b => (
+                  <span key={b} style={{ fontSize: 12, padding: '5px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#C9D1D9' }}>
+                    {BADGE_META[b]?.emoji} {BADGE_META[b]?.label}
+                  </span>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </div>
+
+        {/* BOTTOM ROW */}
+        <div style={{ display: 'flex', gap: 16, flex: '1 1 55%', minHeight: 0 }}>
+
+          {/* BOTTOM LEFT: NOTES, PAGINATED */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+            style={{ ...boxStyle, flex: '1' }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>What people took away</h2>
+            {notes.length === 0 ? (
+              <div style={{ color: '#8B949E', fontSize: 13, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                No notes yet. Be the first to leave one.
+              </div>
             ) : (
-              <motion.div key="noteForm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>Your name</label>
-                  <input value={noteForm.name} onChange={e => setNoteForm(f => ({ ...f, name: e.target.value }))} placeholder="What do people call you?" style={inputStyle} />
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', flex: 1, marginBottom: 12 }}>
+                  {pagedNotes.map(n => (
+                    <div key={n.id} style={{ background: '#0D1117', borderRadius: 12, padding: '14px 16px' }}>
+                      <p style={{ color: '#C9D1D9', fontSize: 13, lineHeight: 1.55, marginBottom: 6 }}>"{n.note}"</p>
+                      <div style={{ color: '#8B949E', fontSize: 11 }}>{n.seekerName}</div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ marginBottom: 28 }}>
-                  <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>What'd you take away?</label>
-                  <textarea value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="One or two sentences on what stuck with you" rows={3} maxLength={1000} style={{ ...inputStyle, resize: 'none' }} />
-                </div>
-                {noteError && (
-                  <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 10, padding: '12px 16px', color: '#F87171', fontSize: 14, marginBottom: 20 }}>
-                    {noteError}
+                {totalNotePages > 1 && (
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {Array.from({ length: totalNotePages }).map((_, i) => (
+                      <button key={i} onClick={() => setNotesPage(i)}
+                        style={{ width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: i === notesPage ? '#0A66C2' : 'transparent', color: i === notesPage ? 'white' : '#8B949E', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {i + 1}
+                      </button>
+                    ))}
                   </div>
                 )}
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleNoteSubmit} disabled={submittingNote}
-                  style={{ width: '100%', background: 'rgba(91,219,138,0.12)', border: '1px solid rgba(91,219,138,0.3)', color: '#5BDB8A', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: submittingNote ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                  {submittingNote ? 'Posting...' : 'Post it'}
-                </motion.button>
-              </motion.div>
+              </>
             )}
-          </AnimatePresence>
-        </motion.div>
+          </motion.div>
 
-        {/* ASK A QUICK QUESTION */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.5 }}
-          style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, marginBottom: 24 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Ask {mentor.firstName} something quick</h2>
-          <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 28 }}>Not ready for a full sip? Ask a quick question instead. Limited to 2 per mentor per week.</p>
-          {askSent ? (
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <div style={{ color: '#5BDB8A', fontSize: 16, fontWeight: 600 }}>Sent. They&apos;ll get back to you soon.</div>
+          {/* BOTTOM RIGHT: TABBED ACTIONS */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}
+            style={{ ...boxStyle, flex: '1.4' }}>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 18, flexShrink: 0 }}>
+              {([
+                { key: 'request', label: 'Request a sip' },
+                { key: 'note', label: 'Leave a note' },
+                { key: 'ask', label: 'Ask something' },
+              ] as const).map(t => (
+                <button key={t.key} onClick={() => setActiveTab(t.key)}
+                  style={{ flex: 1, padding: '10px 8px', borderRadius: 10, border: `1px solid ${activeTab === t.key ? 'rgba(112,181,249,0.3)' : 'rgba(255,255,255,0.08)'}`, background: activeTab === t.key ? 'rgba(112,181,249,0.1)' : 'transparent', color: activeTab === t.key ? '#70B5F9' : '#8B949E', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  {t.label}
+                </button>
+              ))}
             </div>
-          ) : (
-            <div>
-              <textarea value={askText} onChange={e => setAskText(e.target.value)} placeholder="What do you want to know?" rows={3} maxLength={500}
-                style={{ ...inputStyle, resize: 'none', marginBottom: 20 }} />
-              {askError && (
-                <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 10, padding: '12px 16px', color: '#F87171', fontSize: 14, marginBottom: 20 }}>
-                  {askError}
-                </div>
-              )}
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleAskSubmit} disabled={submittingAsk}
-                style={{ width: '100%', background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: submittingAsk ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                {submittingAsk ? 'Sending...' : 'Ask'}
-              </motion.button>
-            </div>
-          )}
-        </motion.div>
 
-        {/* REQUEST FORM */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}
-          style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Request a Sip</h2>
-          <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 28 }}>No cold messages. Just show up.</p>
-
-          <AnimatePresence mode="wait">
-            {sent ? (
-              <motion.div key="sent" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', padding: '40px 0' }}>
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} style={{ fontSize: 48, marginBottom: 16 }}>✓</motion.div>
-                <div style={{ color: '#5BDB8A', fontSize: 18, fontWeight: 600 }}>Sent. They'll reach out soon.</div>
-              </motion.div>
-            ) : (
-              <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                {!mentor.isOpen && (
-                  <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 10, padding: '12px 16px', color: '#F59E0B', fontSize: 14, marginBottom: 20 }}>
-                    This mentor is currently closed to requests, but you can still send one — they'll see it when they reopen.
-                  </div>
+            <div style={{ flex: 1, overflowY: 'auto' }}>
+              <AnimatePresence mode="wait">
+                {activeTab === 'request' && (
+                  <motion.div key="request" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    {sent ? (
+                      <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} style={{ fontSize: 40, marginBottom: 12 }}>✓</motion.div>
+                        <div style={{ color: '#5BDB8A', fontSize: 16, fontWeight: 600 }}>Sent. They'll reach out soon.</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p style={{ color: '#8B949E', fontSize: 13, marginBottom: 16 }}>No cold messages. Just show up.</p>
+                        {!mentor.isOpen && (
+                          <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 10, padding: '10px 14px', color: '#F59E0B', fontSize: 13, marginBottom: 16 }}>
+                            Closed to requests right now, but you can still send one.
+                          </div>
+                        )}
+                        <div style={{ marginBottom: 12 }}>
+                          <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" style={inputStyle} />
+                        </div>
+                        <div style={{ marginBottom: 12 }}>
+                          <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} type="email" placeholder="Your email" style={inputStyle} />
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                          <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="What are you trying to figure out?" rows={3} style={{ ...inputStyle, resize: 'none' }} />
+                        </div>
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleSubmit} disabled={submitting}
+                          style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                          {submitting ? 'Sending...' : 'Send it ✦'}
+                        </motion.button>
+                      </div>
+                    )}
+                  </motion.div>
                 )}
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>Your name</label>
-                  <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="What do people call you?" style={inputStyle} />
-                </div>
-                <div style={{ marginBottom: 16 }}>
-                  <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>Your email</label>
-                  <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} type="email" placeholder="So they can reach back" style={inputStyle} />
-                </div>
-                <div style={{ marginBottom: 28 }}>
-                  <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>What's on your mind?</label>
-                  <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="One or two sentences — what are you trying to figure out?" rows={3} style={{ ...inputStyle, resize: 'none' }} />
-                </div>
-                <motion.button whileHover={{ scale: 1.02, background: '#0856A8' }} whileTap={{ scale: 0.97 }} onClick={handleSubmit} disabled={submitting}
-                  style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
-                  {submitting ? 'Sending...' : 'Send it ✦'}
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+
+                {activeTab === 'note' && (
+                  <motion.div key="note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    {noteSent ? (
+                      <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                        <div style={{ color: '#5BDB8A', fontSize: 15, fontWeight: 600 }}>Thanks, that's now waiting on their approval.</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p style={{ color: '#8B949E', fontSize: 13, marginBottom: 16 }}>Had a sip with {mentor.firstName}? Leave a quick note.</p>
+                        <div style={{ marginBottom: 12 }}>
+                          <input value={noteForm.name} onChange={e => setNoteForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" style={inputStyle} />
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                          <textarea value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="What'd you take away?" rows={3} maxLength={1000} style={{ ...inputStyle, resize: 'none' }} />
+                        </div>
+                        {noteError && (
+                          <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 10, padding: '10px 14px', color: '#F87171', fontSize: 13, marginBottom: 16 }}>
+                            {noteError}
+                          </div>
+                        )}
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleNoteSubmit} disabled={submittingNote}
+                          style={{ width: '100%', background: 'rgba(91,219,138,0.12)', border: '1px solid rgba(91,219,138,0.3)', color: '#5BDB8A', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submittingNote ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                          {submittingNote ? 'Posting...' : 'Post it'}
+                        </motion.button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {activeTab === 'ask' && (
+                  <motion.div key="ask" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    {askSent ? (
+                      <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                        <div style={{ color: '#5BDB8A', fontSize: 15, fontWeight: 600 }}>Sent. They'll get back to you soon.</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p style={{ color: '#8B949E', fontSize: 13, marginBottom: 16 }}>Not ready for a full sip? Ask something quick. Limited to 2 per mentor per week.</p>
+                        <div style={{ marginBottom: 16 }}>
+                          <textarea value={askText} onChange={e => setAskText(e.target.value)} placeholder="What do you want to know?" rows={3} maxLength={500} style={{ ...inputStyle, resize: 'none' }} />
+                        </div>
+                        {askError && (
+                          <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 10, padding: '10px 14px', color: '#F87171', fontSize: 13, marginBottom: 16 }}>
+                            {askError}
+                          </div>
+                        )}
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleAskSubmit} disabled={submittingAsk}
+                          style={{ width: '100%', background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submittingAsk ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                          {submittingAsk ? 'Sending...' : 'Ask'}
+                        </motion.button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

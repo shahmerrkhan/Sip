@@ -22,6 +22,7 @@ const AVATARS = ['#0A66C2', '#7C3AED', '#059669', '#DC2626', '#D97706', '#0891B2
 const INITIALS = (m: Mentor) => `${m.firstName[0]}${m.lastName[0]}`;
 
 const WORDS = ['Real Convos.', 'No Cold DMs.', 'Actual Answers.', 'Zero Gatekeeping.'];
+type AIMatch = { id: string; firstName: string; lastName: string; role: string; company: string; reason: string };
 
 export default function Home() {
   const { user } = useUser();
@@ -38,6 +39,9 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [search, setSearch] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiMatches, setAiMatches] = useState<AIMatch[] | null>(null);
+  const [matching, setMatching] = useState(false);
   
   useEffect(() => {
     if (user?.firstName) setForm(f => ({ ...f, name: user.firstName! }));
@@ -95,6 +99,17 @@ export default function Home() {
     return matchFilter && matchSearch;
   });
   
+  async function handleAIMatch() {
+    if (!aiQuery.trim()) return;
+    setMatching(true);
+    setAiMatches(null);
+    const res = await fetch('/api/match', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: aiQuery }),
+    });
+    if (res.ok) { const data = await res.json(); setAiMatches(data.matches); }
+    setMatching(false);
+  }
+
   async function handleInstantSip() {
     if (!user) { router.push('/sign-in'); return; }
     if (rolesLoaded && !isSeeker) { router.push('/seekers/onboarding'); return; }
@@ -333,7 +348,37 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             placeholder="search by name, role, company, topic..."
             style={{ width: '100%', background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '13px 20px 13px 44px', color: '#E6EDF3', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
           />
-          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#8B949E' }}>🔍</span>
+          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#8B949E' }}>ðŸ”</span>
+        </div>
+
+        {/* AI MATCH */}
+        <div style={{ marginBottom: 24, maxWidth: 480 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              value={aiQuery}
+              onChange={e => setAiQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAIMatch()}
+              placeholder="or describe what you need, e.g. 'advice switching into product'"
+              style={{ flex: 1, background: '#161B22', border: '1px solid rgba(112,181,249,0.2)', borderRadius: 14, padding: '13px 18px', color: '#E6EDF3', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+            />
+            <button onClick={handleAIMatch} disabled={matching} style={{ background: '#0A66C2', color: 'white', border: 'none', borderRadius: 14, padding: '0 22px', fontSize: 14, fontWeight: 600, cursor: matching ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              {matching ? '...' : 'match me'}
+            </button>
+          </div>
+          {aiMatches && (
+            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {aiMatches.length === 0 ? (
+                <p style={{ color: '#8B949E', fontSize: 14 }}>no strong matches right now â€” try the directory below.</p>
+              ) : (
+                aiMatches.map(m => (
+                  <div key={m.id} onClick={() => window.location.href = `/mentors/${m.id}`} style={{ background: '#161B22', border: '1px solid rgba(112,181,249,0.2)', borderRadius: 14, padding: '16px 20px', cursor: 'pointer' }}>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{m.firstName} {m.lastName} Â· {m.role} @ {m.company}</div>
+                    <div style={{ color: '#70B5F9', fontSize: 13, marginTop: 4 }}>{m.reason}</div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* FILTERS */}

@@ -1,5 +1,14 @@
 import { pgTable, text, timestamp, boolean, uuid, integer } from 'drizzle-orm/pg-core';
 
+export const referralEvents = pgTable('referral_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  referrerClerkId: text('referrer_clerk_id').notNull(),
+  referredClerkId: text('referred_clerk_id').notNull(),
+  referredRole: text('referred_role').notNull(),
+  milestone: text('milestone').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 export const mentors = pgTable('mentors', {
   id: uuid('id').defaultRandom().primaryKey(),
   clerkId: text('clerk_id').notNull().unique(),
@@ -19,6 +28,9 @@ export const mentors = pgTable('mentors', {
   sipCount: integer('sip_count').default(0).notNull(),
   badges: text('badges').default('').notNull(),
   avgResponseMinutes: integer('avg_response_minutes'),
+  lastOpenNotifiedAt: timestamp('last_open_notified_at'),
+  referralCode: text('referral_code').unique(),
+  invitedByClerkId: text('invited_by_clerk_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
@@ -36,12 +48,14 @@ export const seekers = pgTable('seekers', {
   lastNoteAt: timestamp('last_note_at'),
   lastMatchEmailAt: timestamp('last_match_email_at'),
   lastCheckinAt: timestamp('last_checkin_at'),
+  referralCode: text('referral_code').unique(),
+  invitedByClerkId: text('invited_by_clerk_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
 export const rooms = pgTable('rooms', {
   id: uuid('id').defaultRandom().primaryKey(),
-  mentorId: uuid('mentor_id').references(() => mentors.id).notNull(),
+  mentorId: uuid('mentor_id').references(() => mentors.id, { onDelete: 'cascade' }).notNull(),
   title: text('title').notNull(),
   roomName: text('room_name').notNull().unique(),
   roomUrl: text('room_url').notNull(),
@@ -52,28 +66,43 @@ export const rooms = pgTable('rooms', {
 
 export const requests = pgTable('requests', {
   id: uuid('id').defaultRandom().primaryKey(),
-  mentorId: uuid('mentor_id').references(() => mentors.id).notNull(),
+  mentorId: uuid('mentor_id').references(() => mentors.id, { onDelete: 'cascade' }).notNull(),
+  seekerClerkId: text('seeker_clerk_id'),
   seekerName: text('seeker_name').notNull(),
   seekerEmail: text('seeker_email').notNull(),
   seekerLinkedin: text('seeker_linkedin'),
   message: text('message').notNull(),
   status: text('status').default('pending').notNull(),
+  seekerConsentToShow: boolean('seeker_consent_to_show').default(false).notNull(),
+  mentorConsentToShow: boolean('mentor_consent_to_show').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   respondedAt: timestamp('responded_at'),
 });
 
 export const sipNotes = pgTable('sip_notes', {
   id: uuid('id').defaultRandom().primaryKey(),
-  mentorId: uuid('mentor_id').references(() => mentors.id).notNull(),
+  mentorId: uuid('mentor_id').references(() => mentors.id, { onDelete: 'cascade' }).notNull(),
   seekerName: text('seeker_name').notNull(),
   seekerEmail: text('seeker_email'),
   note: text('note').notNull(),
+  status: text('status').default('pending').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const queueEntries = pgTable('queue_entries', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  roomId: uuid('room_id').references(() => rooms.id, { onDelete: 'cascade' }).notNull(),
+  seekerClerkId: text('seeker_clerk_id').notNull(),
+  seekerName: text('seeker_name').notNull(),
+  status: text('status').default('waiting').notNull(), // waiting | active | done | left
+  joinedAt: timestamp('joined_at').defaultNow().notNull(),
+  calledAt: timestamp('called_at'),
+  doneAt: timestamp('done_at'),
 });
 
 export const asks = pgTable('asks', {
   id: uuid('id').defaultRandom().primaryKey(),
-  mentorId: uuid('mentor_id').references(() => mentors.id).notNull(),
+  mentorId: uuid('mentor_id').references(() => mentors.id, { onDelete: 'cascade' }).notNull(),
   seekerClerkId: text('seeker_clerk_id').notNull(),
   seekerName: text('seeker_name').notNull(),
   seekerEmail: text('seeker_email').notNull(),

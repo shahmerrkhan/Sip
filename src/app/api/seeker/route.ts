@@ -1,23 +1,34 @@
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { db } from '@/db';
-import { seekers } from '@/db/schema';
+import { seekers, mentors, referralEvents } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { generateReferralCode } from '@/lib/referral';
+import { mutationLimiter } from '@/lib/ratelimit';
+import { handleApiError } from '@/lib/api-handler';
 
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const result = await db.select().from(seekers).where(eq(seekers.clerkId, userId));
-  if (result.length === 0) return NextResponse.json(null, { status: 404 });
-  return NextResponse.json(result[0]);
+    const result = await db.select().from(seekers).where(eq(seekers.clerkId, userId));
+    if (result.length === 0) return NextResponse.json(null, { status: 404 });
+    return NextResponse.json(result[0]);
+  } catch (err) {
+    return handleApiError(err, 'GET /api/seeker');
+  }
 }
 
 export async function POST(req: Request) {
+  try {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { age, linkedin, interests } = await req.json();
+  const { success } = await mutationLimiter.limit(userId);
+  if (!success) return NextResponse.json({ error: 'Too many requests. Slow down a bit.' }, { status: 429 });
+
+  const { age, linkedin, interests, ref } = await req.json();
   if (age !== undefined && age !== null && (age < 13 || age > 100)) {
     return NextResponse.json({ error: 'Please enter a real age between 13 and 100.' }, { status: 400 });
   }
@@ -37,6 +48,13 @@ export async function POST(req: Request) {
     return NextResponse.json(updated[0]);
   }
 
+  let invitedByClerkId: string | null = null;
+  if (ref) {
+    const referrerSeeker = await db.select().from(seekers).where(eq(seekers.referralCode, ref));
+    const referrerMentor = referrerSeeker.length === 0 ? await db.select().from(mentors).where(eq(mentors.referralCode, ref)) : [];
+    invitedByClerkId = referrerSeeker[0]?.clerkId || referrerMentor[0]?.clerkId || null;
+  }
+
   const created = await db.insert(seekers).values({
     clerkId: userId,
     firstName: user.firstName || '',
@@ -45,7 +63,21 @@ export async function POST(req: Request) {
     age,
     linkedin,
     interests,
+    referralCode: generateReferralCode(),
+    invitedByClerkId,
   }).returning();
 
+  if (invitedByClerkId) {
+    await db.insert(referralEvents).values({
+      referrerClerkId: invitedByClerkId,
+      referredClerkId: userId,
+      referredRole: 'seeker',
+      milestone: 'signed_up',
+    });
+  }
+
   return NextResponse.json(created[0]);
+  } catch (err) {
+    return handleApiError(err, 'POST /api/seeker');
+  }
 }

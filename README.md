@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sip ☕
 
-## Getting Started
+A mentor-discovery platform that connects people directly with mentors for quick, no-pressure conversations — no cold DMs, no scheduling back-and-forth. Built as a full-stack solo project.
 
-First, run the development server:
+## Live Demo
+https://sip-lyart.vercel.app
 
+## Tech Stack
+- **Framework:** Next.js 16 (App Router), React 19, TypeScript
+- **Auth:** Clerk (session management, webhooks for user lifecycle sync)
+- **Database:** Neon (serverless Postgres) + Drizzle ORM
+- **Rate limiting:** Upstash Redis + `@upstash/ratelimit`
+- **Email:** Nodemailer (transactional notifications — sip requests, accept/decline, Q&A answers, check-ins)
+- **AI moderation:** Groq API (flags inappropriate questions before they reach a mentor's inbox)
+- **Monitoring:** Sentry (error tracking across client, server, and edge)
+- **Animation:** Framer Motion
+- **Video:** Jitsi Meet (mentor-hosted live rooms)
+
+## Core Features
+- **Dual-role system** — a single account can be a mentor, a seeker, or both, with role-aware navigation and a "last active role" memory so switching feels instant.
+- **Sip requests** — seekers send a short message to an open mentor; mentors accept/decline from a dashboard, triggering emailed responses either way.
+- **Quick Asks** — a lightweight alternative to a full request, capped at 2 questions per mentor per week to prevent spam, with AI-moderated content before delivery.
+- **Sip Notes** — seekers can leave a note on a mentor's public profile after a completed sip, but only if a prior accepted request between that email and mentor exists (prevents fake testimonials).
+- **XP / badges / leaderboard** — mentors earn XP and unlock badges (first-sip, regular, veteran, legend, GOAT) based on sip count.
+- **Referral chain tracking** — tracks who invited whom and whether the invite converted into an actual booked sip.
+- **Live rooms** — mentors can spin up an instant video room; stale rooms auto-expire server-side.
+- **Automated re-engagement** — a cron job emails seekers who've gone quiet for two weeks.
+
+## Engineering Decisions Worth Noting
+
+**Ownership checks on every mutation.** Every PATCH/DELETE route verifies the authenticated user actually owns the resource being modified (e.g. a mentor can only answer/delete their own asks and notes — not just any ID passed in the URL). Public read routes (mentor/seeker profiles, live rooms) are explicitly sanitized to strip `clerkId`, private emails, and unshared LinkedIn URLs before returning data.
+
+**Rate limiting tiered by risk.** IP-based limiting on the unauthenticated public request form (most exposed surface), user-based limiting on authenticated mutations, plus a domain-specific cap (2 questions/mentor/week) layered on top of the general rate limit.
+
+**Consistent error handling.** Every API route is wrapped in try/catch through a shared `handleApiError` helper that logs to Sentry with route context and returns a safe generic message — no stack traces or raw DB errors ever reach the client.
+
+**Race condition guards.** Accepting a sip request uses an atomic SQL increment for XP/sip count (not a read-then-write), and the request status update itself is conditioned on the row still being `pending` — closing a double-accept race where a double-click or concurrent request could award XP twice.
+
+**XSS-safe email templates.** All user-submitted text (names, messages, questions) is HTML-escaped before being interpolated into email templates, since these are rendered as raw HTML and sent on the app's behalf.
+
+**Cascading deletes.** Foreign keys use `onDelete: 'cascade'`, so removing a mentor (e.g. via Clerk's `user.deleted` webhook) cleanly removes their rooms, requests, notes, and asks instead of leaving orphaned rows.
+
+**Fire-and-forget vs. blocking.** Email sends are deliberately non-blocking (`.catch()` instead of `await`) on writes where the database operation is the source of truth — a flaky email provider shouldn't turn a successful save into a user-facing error.
+
+## What I'd Add With More Time
+- Zod schema validation across all routes (currently manual validation, which works but is more verbose and less type-safe)
+- Batched/joined queries for a couple of remaining N+1 patterns in low-traffic admin views
+- A proper transactional email provider (Resend/Postmark) in place of Gmail SMTP for deliverability at scale
+- E2E test coverage for the request → accept → note flow
+
+## Running Locally
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires a `.env.local` with Clerk, Neon, Upstash, Groq, and Gmail credentials (see `.env.example` if provided, or reach out).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feel free to clone, poke around, or open a PR if you want to extend it.

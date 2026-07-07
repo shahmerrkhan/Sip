@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useRoles } from '@/hooks/useRoles';
+import Logo from '@/components/Logo';
 
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
@@ -38,9 +39,8 @@ export default function Leaderboard() {
       {/* NAV */}
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+        <Logo />
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-          <Link href="/" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>directory</Link>
           {rolesLoaded && isMentor && <Link href="/dashboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>mentor dashboard</Link>}
           {rolesLoaded && isSeeker && <Link href="/seekers" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>seeker dashboard</Link>}
         </div>

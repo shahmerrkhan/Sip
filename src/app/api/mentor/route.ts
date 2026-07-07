@@ -1,9 +1,13 @@
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/db';
-import { mentors, seekers } from '@/db/schema';
+import { mentors, seekers, referralEvents } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { transporter } from '@/lib/mailer';
+import { generateReferralCode } from '@/lib/referral';
+import { escapeHtml } from '@/lib/utils';
+import { mutationLimiter } from '@/lib/ratelimit';
+import { handleApiError } from '@/lib/api-handler';
 
 async function notifyMatchingSeekers(mentor: typeof mentors.$inferSelect) {
   const mentorTopics = mentor.topics.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
@@ -30,8 +34,8 @@ async function notifyMatchingSeekers(mentor: typeof mentors.$inferSelect) {
         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0D1117;color:#E6EDF3;padding:40px;border-radius:16px;">
           <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip ☕</div>
           <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">New mentor for you</h2>
-          <p style="color:#C9D1D9;font-size:15px;line-height:1.7;margin-bottom:8px;"><strong>${mentor.firstName} ${mentor.lastName}</strong>, ${mentor.role} @ ${mentor.company}, just opened up on Sip.</p>
-          <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">Topics: ${mentor.topics}</p>
+          <p style="color:#C9D1D9;font-size:15px;line-height:1.7;margin-bottom:8px;"><strong>${escapeHtml(mentor.firstName)} ${escapeHtml(mentor.lastName)}</strong>, ${escapeHtml(mentor.role)} @ ${escapeHtml(mentor.company)}, just opened up on Sip.</p>
+          <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">Topics: ${escapeHtml(mentor.topics)}</p>
           <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/seekers" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">View Mentor →</a>
         </div>
       `,
@@ -40,12 +44,16 @@ async function notifyMatchingSeekers(mentor: typeof mentors.$inferSelect) {
 }
 
 export async function POST(req: Request) {
+  try {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json();
-  const { firstName, lastName, email, role, company, bio, topics, calendarLink, availability, linkedin, showLinkedin } = body;
+  const { success } = await mutationLimiter.limit(userId);
+  if (!success) return NextResponse.json({ error: 'Too many requests. Slow down a bit.' }, { status: 429 });
 
+  const body = await req.json();
+  const { firstName, lastName, email, role, company, bio, topics, calendarLink, availability, linkedin, showLinkedin, ref } = body;
+  
   if (!firstName || !lastName || !email || !role || !company || !bio || !topics || !calendarLink) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
@@ -65,14 +73,35 @@ export async function POST(req: Request) {
     return NextResponse.json(updated[0]);
   }
 
+  let invitedByClerkId: string | null = null;
+  if (ref) {
+    const referrerMentor = await db.select().from(mentors).where(eq(mentors.referralCode, ref));
+    const referrerSeeker = referrerMentor.length === 0 ? await db.select().from(seekers).where(eq(seekers.referralCode, ref)) : [];
+    invitedByClerkId = referrerMentor[0]?.clerkId || referrerSeeker[0]?.clerkId || null;
+  }
+
   const mentor = await db.insert(mentors).values({
     clerkId: userId, firstName, lastName, email, role, company, bio, topics,
     calendarLink, availability: availability || 'flexible', linkedin, showLinkedin: !!showLinkedin,
+    referralCode: generateReferralCode(),
+    invitedByClerkId,
   }).returning();
+
+  if (invitedByClerkId) {
+    await db.insert(referralEvents).values({
+      referrerClerkId: invitedByClerkId,
+      referredClerkId: userId,
+      referredRole: 'mentor',
+      milestone: 'signed_up',
+    });
+  }
 
   notifyMatchingSeekers(mentor[0]).catch(err => console.error('notifyMatchingSeekers failed:', err));
 
   return NextResponse.json(mentor[0]);
+  } catch (err) {
+    return handleApiError(err, 'POST /api/mentor');
+  }
 }
 
 function sanitizeMentor(m: typeof mentors.$inferSelect) {
@@ -104,6 +133,7 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
+  try {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -115,9 +145,17 @@ export async function PATCH(req: Request) {
 
   const updated = await db.update(mentors).set({ isOpen }).where(eq(mentors.clerkId, userId)).returning();
 
-  if (isOpen && !wasOpen) {
+  const COOLDOWN_MS = 60 * 60 * 1000;
+  const lastNotified = updated[0].lastOpenNotifiedAt ? new Date(updated[0].lastOpenNotifiedAt).getTime() : 0;
+  const canNotify = Date.now() - lastNotified > COOLDOWN_MS;
+
+  if (isOpen && !wasOpen && canNotify) {
+    await db.update(mentors).set({ lastOpenNotifiedAt: new Date() }).where(eq(mentors.id, updated[0].id));
     notifyMatchingSeekers(updated[0]).catch(err => console.error('notifyMatchingSeekers failed:', err));
   }
 
   return NextResponse.json(updated[0]);
+  } catch (err) {
+    return handleApiError(err, 'PATCH /api/mentor');
+  }
 }

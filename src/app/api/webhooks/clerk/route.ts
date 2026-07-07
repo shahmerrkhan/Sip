@@ -42,5 +42,14 @@ export async function POST(req: Request) {
     }
   }
 
+  if (evt.type === 'user.updated') {
+    const { id, email_addresses } = evt.data;
+    const email = email_addresses?.[0]?.email_address;
+    if (id && email) {
+      await db.update(mentors).set({ email }).where(eq(mentors.clerkId, id));
+      await db.update(seekers).set({ email }).where(eq(seekers.clerkId, id));
+    }
+  }
+
   return new Response('OK', { status: 200 });
 }
