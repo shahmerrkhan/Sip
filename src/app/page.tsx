@@ -348,7 +348,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             placeholder="search by name, role, company, topic..."
             style={{ width: '100%', background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '13px 20px 13px 44px', color: '#E6EDF3', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
           />
-          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#8B949E' }}>ðŸ”</span>
+          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#8B949E' }}>🔍</span>
         </div>
 
         {/* AI MATCH */}
@@ -368,11 +368,11 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
           {aiMatches && (
             <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {aiMatches.length === 0 ? (
-                <p style={{ color: '#8B949E', fontSize: 14 }}>no strong matches right now â€” try the directory below.</p>
-              ) : (
+                <p style={{ color: '#8B949E', fontSize: 14 }}>no strong matches right now — try the directory below.</p>
+            ) : (
                 aiMatches.map(m => (
                   <div key={m.id} onClick={() => window.location.href = `/mentors/${m.id}`} style={{ background: '#161B22', border: '1px solid rgba(112,181,249,0.2)', borderRadius: 14, padding: '16px 20px', cursor: 'pointer' }}>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{m.firstName} {m.lastName} Â· {m.role} @ {m.company}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{m.firstName} {m.lastName} · {m.role} @ {m.company}</div>
                     <div style={{ color: '#70B5F9', fontSize: 13, marginTop: 4 }}>{m.reason}</div>
                   </div>
                 ))

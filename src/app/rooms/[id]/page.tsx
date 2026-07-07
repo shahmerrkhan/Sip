@@ -89,11 +89,11 @@ export default function RoomPage() {
     <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '80px 20px' }}>
       <div style={{ maxWidth: 560, margin: '0 auto' }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>{room.title}</h1>
-        <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 32 }}>{room.firstName} {room.lastName} Â· {room.role} @ {room.company}</p>
+        <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 32 }}>{room.firstName} {room.lastName} · {room.role} @ {room.company}</p>
 
         {isMentor ? (
           <>
-            <a href={room.roomUrl} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 28 }}>join room â†’</a>
+          <a href={room.roomUrl} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 28 }}>join room →</a>
 
             {active && (
               <div style={{ background: 'rgba(91,219,138,0.08)', border: '1px solid rgba(91,219,138,0.25)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
@@ -116,7 +116,7 @@ export default function RoomPage() {
                     </div>
                     {i === 0 && !active && (
                       <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                        {calling === w.id ? 'calling...' : 'call next â†’'}
+                        {calling === w.id ? 'calling...' : 'call next →'}
                       </button>
                     )}
                   </div>
@@ -131,7 +131,7 @@ export default function RoomPage() {
                 {joining ? 'joining...' : 'join queue'}
               </button>
             ) : myEntry.status === 'active' ? (
-              <p style={{ color: '#5BDB8A', fontWeight: 600 }}>you&apos;re up â€” redirecting to the room...</p>
+              <p style={{ color: '#5BDB8A', fontWeight: 600 }}>you&apos;re up — redirecting to the room...</p>
             ) : (
               <div style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '24px 28px' }}>
                 <div style={{ fontSize: 13, color: '#8B949E', marginBottom: 6 }}>your position</div>
