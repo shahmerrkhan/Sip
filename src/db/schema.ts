@@ -112,3 +112,18 @@ export const asks = pgTable('asks', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   answeredAt: timestamp('answered_at'),
 });
+
+
+export const flags = pgTable('flags', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  roomId: uuid('room_id').references(() => rooms.id, { onDelete: 'cascade' }).notNull(),
+  reporterClerkId: text('reporter_clerk_id').notNull(),
+  reporterRole: text('reporter_role').notNull(), // mentor | seeker
+  reportedClerkId: text('reported_clerk_id').notNull(),
+  reportedName: text('reported_name').notNull(),
+  reason: text('reason').notNull(),
+  details: text('details').notNull(),
+  status: text('status').default('open').notNull(), // open | dismissed | actioned
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  resolvedAt: timestamp('resolved_at'),
+});

@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+﻿import { auth } from '@clerk/nextjs/server';
 import { db } from '@/db';
 import { rooms, mentors } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -12,7 +12,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       .select({
         id: rooms.id, title: rooms.title, roomUrl: rooms.roomUrl, status: rooms.status,
         firstName: mentors.firstName, lastName: mentors.lastName, role: mentors.role, company: mentors.company,
-        mentorClerkId: mentors.clerkId,
       })
       .from(rooms)
       .innerJoin(mentors, eq(rooms.mentorId, mentors.id))

@@ -36,6 +36,13 @@
       "when": 1783315354537,
       "tag": "0004_clean_shinko_yamashiro",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783640486202,
+      "tag": "0005_stale_senator_kelly",
+      "breakpoints": true
     }
   ]
 }

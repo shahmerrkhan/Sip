@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
@@ -108,16 +108,17 @@ export default function RoomPage() {
     <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '80px 20px' }}>
       <div style={{ maxWidth: 560, margin: '0 auto' }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>{room.title}</h1>
-        <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 32 }}>{room.firstName} {room.lastName} · {room.role} @ {room.company}</p>
+        <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 32 }}>{room.firstName} {room.lastName} Â· {room.role} @ {room.company}</p>
 
         {isMentor ? (
           <>
-          <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 28 }}>start call →</a>
+          <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 28 }}>start call â†’</a>
 
             {active && (
               <div style={{ background: 'rgba(91,219,138,0.08)', border: '1px solid rgba(91,219,138,0.25)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
                 <div style={{ fontSize: 12, color: '#5BDB8A', fontWeight: 600, marginBottom: 4 }}>currently active</div>
                 <div style={{ fontWeight: 600 }}>{active.seekerName}</div>
+                <button onClick={() => markDone(active.id)} style={{ marginTop: 10, background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>mark done</button>
                 <button onClick={() => markDone(active.id)} style={{ marginTop: 10, marginRight: 8, background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>mark done</button>
                 <button onClick={() => { setFlagTarget({ id: active.seekerClerkId, name: active.seekerName }); setFlagOpen(true); }} style={{ marginTop: 10, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#FBBF24', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>flag & remove</button>
               </div>
@@ -136,7 +137,7 @@ export default function RoomPage() {
                     </div>
                     {i === 0 && !active && (
                       <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                        {calling === w.id ? 'calling...' : 'call next →'}
+                        {calling === w.id ? 'calling...' : 'call next â†’'}
                       </button>
                     )}
                   </div>
@@ -151,7 +152,7 @@ export default function RoomPage() {
                 {joining ? 'joining...' : 'join queue'}
               </button>
             ) : myEntry.status === 'active' ? (
-              <p style={{ color: '#5BDB8A', fontWeight: 600 }}>you&apos;re up — check the new tab that opened.</p>
+              <p style={{ color: '#5BDB8A', fontWeight: 600 }}>you&apos;re up â€” check the new tab that opened.</p>
             ) : myEntry.status === 'done' ? (
               <p style={{ color: '#8B949E', fontWeight: 600 }}>session ended. thanks for joining.</p>
             ) : (
