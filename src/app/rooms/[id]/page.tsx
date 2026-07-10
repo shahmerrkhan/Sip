@@ -52,9 +52,13 @@ export default function RoomPage() {
     }
   }, [id, user]);
 
-  useEffect(() => { fetchRoom(); }, [fetchRoom]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchRoom();
+  }, [fetchRoom]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchQueue();
     const t = setInterval(fetchQueue, 4000);
     return () => clearInterval(t);

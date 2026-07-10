@@ -83,6 +83,7 @@ function SeekersContent() {
     if (res.ok) setLiveRooms(await res.json());
   }, []);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLiveRooms();
     const t = setInterval(fetchLiveRooms, 15000);
     return () => clearInterval(t);
@@ -97,7 +98,10 @@ function SeekersContent() {
   const PAGE_SIZE = 12;
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  useEffect(() => { setPage(1); }, [filter, search]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPage(1);
+  }, [filter, search]);
 
   async function handleSubmit() {
     if (!form.name || !form.email || !form.message || !modal) return;
@@ -168,12 +172,12 @@ function SeekersContent() {
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>🏆 leaderboard</Link>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', overflowX: 'auto', flexWrap: 'nowrap', maxWidth: '65vw', scrollbarWidth: 'none' }}>
+          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 leaderboard</Link>
           {rolesLoaded && isMentor
-            ? <RoleSwitchLink to="/dashboard" role="mentor" label="switch to mentor" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 14px', borderRadius: 20 }} />
-            : <Link href="/mentors/signup" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>become a mentor</Link>}
-          {rolesLoaded && isSeeker && <Link href="/seekers/onboarding" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>edit profile</Link>}
+            ? <RoleSwitchLink to="/dashboard" role="mentor" label="switch to mentor" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 13, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 12px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }} />
+            : <Link href="/mentors/signup" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>become a mentor</Link>}
+          {rolesLoaded && isSeeker && <Link href="/seekers/onboarding" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>edit profile</Link>}
         </div>
       </motion.nav>
 
@@ -296,7 +300,7 @@ function SeekersContent() {
             <div>
               {myFlags.length > 0 && (
                 <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: 16, padding: '18px 24px', marginBottom: 20 }}>
-                  <div style={{ fontWeight: 700, color: '#FBBF24', marginBottom: 4 }}>You've been flagged {myFlags.length > 1 ? `${myFlags.length} times` : 'once'}</div>
+                  <div style={{ fontWeight: 700, color: '#FBBF24', marginBottom: 4 }}>You&apos;ve been flagged {myFlags.length > 1 ? `${myFlags.length} times` : 'once'}</div>
                   <div style={{ color: '#8B949E', fontSize: 13 }}>Repeated flags can lead to a permanent ban. If you think this was a mistake, reach out to support.</div>
                 </div>
               )}
@@ -314,7 +318,7 @@ function SeekersContent() {
                 <div style={{ background: 'rgba(112,181,249,0.06)', border: '1px solid rgba(112,181,249,0.2)', borderRadius: 16, padding: '20px 28px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>Your public profile</div>
-                    <div style={{ color: '#8B949E', fontSize: 13 }}>Share this so people can see who you are, sips you've had shared publicly appear here too.</div>
+                    <div style={{ color: '#8B949E', fontSize: 13 }}>Share this so people can see who you are, sips you&apos;ve had shared publicly appear here too.</div>
                   </div>
                   <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/seekers/${seekerId}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
                     style={{ background: copied ? 'rgba(91,219,138,0.15)' : '#0A66C2', color: copied ? '#5BDB8A' : 'white', border: copied ? '1px solid rgba(91,219,138,0.3)' : 'none', padding: '10px 22px', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>

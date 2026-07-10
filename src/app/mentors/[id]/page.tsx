@@ -59,6 +59,7 @@ export default function MentorProfile() {
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 768px)');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMobile(mq.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', handler);
@@ -219,7 +220,7 @@ export default function MentorProfile() {
               </div>
             </div>
 
-            <p style={{ color: '#C9D1D9', fontSize: 14, lineHeight: 1.65, marginBottom: 18 }}>"{mentor.bio}"</p>
+            <p style={{ color: '#C9D1D9', fontSize: 14, lineHeight: 1.65, marginBottom: 18 }}>&quot;{mentor.bio}&quot;</p>
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {mentor.topics.split(',').map(t => (
@@ -272,7 +273,7 @@ export default function MentorProfile() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', flex: 1, marginBottom: 12 }}>
                   {pagedNotes.map(n => (
                     <div key={n.id} style={{ background: '#0D1117', borderRadius: 12, padding: '14px 16px' }}>
-                      <p style={{ color: '#C9D1D9', fontSize: 13, lineHeight: 1.55, marginBottom: 6 }}>"{n.note}"</p>
+                      <p style={{ color: '#C9D1D9', fontSize: 13, lineHeight: 1.55, marginBottom: 6 }}>&quot;{n.note}&quot;</p>
                       <div style={{ color: '#8B949E', fontSize: 11 }}>{n.seekerName}</div>
                     </div>
                   ))}
@@ -314,7 +315,7 @@ export default function MentorProfile() {
                     {sent ? (
                       <div style={{ textAlign: 'center', padding: '30px 0' }}>
                         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} style={{ fontSize: 40, marginBottom: 12 }}>✓</motion.div>
-                        <div style={{ color: '#5BDB8A', fontSize: 16, fontWeight: 600 }}>Sent. They'll reach out soon.</div>
+                        <div style={{ color: '#5BDB8A', fontSize: 16, fontWeight: 600 }}>Sent. They&apos;ll reach out soon.</div>
                       </div>
                     ) : (
                       <div>
@@ -346,7 +347,7 @@ export default function MentorProfile() {
                   <motion.div key="note" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     {noteSent ? (
                       <div style={{ textAlign: 'center', padding: '30px 0' }}>
-                        <div style={{ color: '#5BDB8A', fontSize: 15, fontWeight: 600 }}>Thanks, that's now waiting on their approval.</div>
+                        <div style={{ color: '#5BDB8A', fontSize: 15, fontWeight: 600 }}>Thanks, that&apos;s now waiting on their approval.</div>
                       </div>
                     ) : (
                       <div>
@@ -375,7 +376,7 @@ export default function MentorProfile() {
                   <motion.div key="ask" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     {askSent ? (
                       <div style={{ textAlign: 'center', padding: '30px 0' }}>
-                        <div style={{ color: '#5BDB8A', fontSize: 15, fontWeight: 600 }}>Sent. They'll get back to you soon.</div>
+                        <div style={{ color: '#5BDB8A', fontSize: 15, fontWeight: 600 }}>Sent. They&apos;ll get back to you soon.</div>
                       </div>
                     ) : (
                       <div>

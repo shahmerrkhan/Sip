@@ -65,7 +65,7 @@ export default function Onboarding() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ textAlign: 'center', maxWidth: 480, width: '100%' }}>
           <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 32 }}>sip ☕</div>
           <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1.5, marginBottom: 12 }}>Quick intro</h1>
-          <p style={{ color: '#8B949E', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>Helps mentors know who they're talking to. Optional but recommended.</p>
+          <p style={{ color: '#8B949E', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>Helps mentors know who they&apos;re talking to. Optional but recommended.</p>
 
           <div style={{ textAlign: 'left', marginBottom: 20 }}>
             <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>Age</label>
@@ -119,7 +119,7 @@ export default function Onboarding() {
             onClick={() => router.push('/mentors/signup')}
             style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '36px 24px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
             <div style={{ fontSize: 36, marginBottom: 16 }}>🎓</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#E6EDF3', marginBottom: 8 }}>I'm a Mentor</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#E6EDF3', marginBottom: 8 }}>I&apos;m a Mentor</div>
             <div style={{ fontSize: 14, color: '#8B949E', lineHeight: 1.6 }}>I want to open my door and help people by sharing what I know.</div>
           </motion.button>
 

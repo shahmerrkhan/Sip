@@ -46,6 +46,7 @@ export default function Home() {
   const TEASER_LIMIT = 6;
   
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user?.firstName) setForm(f => ({ ...f, name: user.firstName! }));
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user?.emailAddresses?.[0]) setForm(f => ({ ...f, email: user.emailAddresses[0].emailAddress }));
@@ -88,6 +89,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchLiveRooms();
     const t = setInterval(fetchLiveRooms, 15000);
     return () => clearInterval(t);

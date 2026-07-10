@@ -50,6 +50,7 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAll();
     const t = setInterval(fetchAll, 10000);
     return () => clearInterval(t);
