@@ -174,7 +174,7 @@ function SeekersContent() {
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', overflowX: 'auto', flexWrap: 'nowrap', maxWidth: '65vw', scrollbarWidth: 'none' }}>
-          <Link href="/leaderboard" style={{ color: MUTED, textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 leaderboard</Link>
+          <Link href="/leaderboard" style={{ color: MUTED, textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>leaderboard</Link>
           {rolesLoaded && isMentor
             ? <RoleSwitchLink to="/dashboard" role="mentor" label="switch to mentor" style={{ color: LINK, textDecoration: 'none', fontSize: 13, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 12px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }} />
             : <Link href="/mentors/signup" style={{ color: MUTED, textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>become a mentor</Link>}
@@ -185,8 +185,8 @@ function SeekersContent() {
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '90px 16px 20px' }}>
         <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1.5, marginBottom: 20 }}>Find Your Sip</h1>
         <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
-          {tabBtn('browse', '☕ browse mentors')}
-          {tabBtn('mine', '📋 my sips')}
+          {tabBtn('browse', 'browse mentors')}
+          {tabBtn('mine', 'my sips')}
         </div>
       </div>
 

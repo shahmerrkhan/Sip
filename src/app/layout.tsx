@@ -1,7 +1,8 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
 import type { Metadata } from 'next';
-import './globals.css';
+import { ACCENT, BG } from '@/lib/theme';
+import './globals.css';;
 
 export const metadata: Metadata = {
   title: 'Sip — find your people',
@@ -23,7 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider appearance={{
       theme: dark,
-      variables: { colorPrimary: '#0A66C2', colorBackground: '#161B22' },
+      variables: {
+        colorPrimary: ACCENT,
+        colorBackground: BG,
+        borderRadius: '10px',
+      },
     }}>
     <html lang="en">
         <head>
