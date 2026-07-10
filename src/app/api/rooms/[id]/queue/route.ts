@@ -25,7 +25,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const active = await db.select().from(queueEntries)
       .where(and(eq(queueEntries.roomId, id), eq(queueEntries.status, 'active')));
 
-    const allEntries = [...result, ...(active[0] ? [active[0]] : [])];
+    const allEntries = [...result, ...active];
     const clerkIds = [...new Set(allEntries.map(e => e.seekerClerkId).filter(Boolean))] as string[];
 
     let visitCounts: Record<string, number> = {};
@@ -60,7 +60,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     return NextResponse.json({
       waiting: result.map(attach),
-      active: active[0] ? attach(active[0]) : null,
+      active: active.map(attach),
     });
   } catch (err) {
     return handleApiError(err, 'GET /api/rooms/[id]/queue');

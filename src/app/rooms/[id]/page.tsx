@@ -1,20 +1,26 @@
-'use client';
+﻿'use client';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import { useRoles } from '@/hooks/useRoles';
 import { ConsentGate } from '@/components/ConsentGate';
 
-type Room = { id: string; title: string; roomUrl: string; status: string; firstName: string; lastName: string; role: string; company: string; mentorClerkId: string };
+type Room = { id: string; title: string; roomUrl: string; status: string; mode: string; firstName: string; lastName: string; role: string; company: string; mentorClerkId: string };
 type QueueEntry = { id: string; seekerClerkId: string; seekerName: string; status: string; visitCount?: number; flagCount?: number };
 
 export default function RoomPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useUser();
+  const { user, isLoaded: userLoaded } = useUser();
+  const router = useRouter();
   const { isMentor, loaded: rolesLoaded } = useRoles();
+
+  useEffect(() => {
+    if (userLoaded && !user) router.replace('/sign-in');
+  }, [userLoaded, user, router]);
   const [room, setRoom] = useState<Room | null>(null);
   const [waiting, setWaiting] = useState<QueueEntry[]>([]);
-  const [active, setActive] = useState<QueueEntry | null>(null);
+  const [actives, setActives] = useState<QueueEntry[]>([]);
   const [myEntry, setMyEntry] = useState<QueueEntry | null>(null);
   const [joining, setJoining] = useState(false);
   const [calling, setCalling] = useState<string | null>(null);
@@ -24,6 +30,9 @@ export default function RoomPage() {
   const [flagDetails, setFlagDetails] = useState('');
   const [flagSubmitting, setFlagSubmitting] = useState(false);
   const [consented, setConsented] = useState(false);
+  const [modeUpdating, setModeUpdating] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [batchBusy, setBatchBusy] = useState(false);
   const popupRef = useRef<Window | null>(null);
 
   const fetchRoom = useCallback(async () => {
@@ -36,9 +45,9 @@ export default function RoomPage() {
     if (!r.ok) return;
     const data = await r.json();
     setWaiting(data.waiting);
-    setActive(data.active);
+    setActives(data.active);
     if (user) {
-      const mine = [...data.waiting, ...(data.active ? [data.active] : [])].find((e: QueueEntry) => e.seekerClerkId === user.id);
+      const mine = [...data.waiting, ...data.active].find((e: QueueEntry) => e.seekerClerkId === user.id);
       setMyEntry(mine || null);
     }
   }, [id, user]);
@@ -52,14 +61,14 @@ export default function RoomPage() {
   }, [fetchQueue]);
 
   useEffect(() => {
-  if (myEntry?.status === 'active' && room?.roomUrl && !popupRef.current) {
-    popupRef.current = window.open(room.roomUrl, '_blank', 'noopener,noreferrer');
-  }
-  if (myEntry?.status === 'done' && popupRef.current) {
-    popupRef.current.close();
-    popupRef.current = null;
-  }
-}, [myEntry, room]);
+    if (myEntry?.status === 'active' && room?.roomUrl && !popupRef.current) {
+      popupRef.current = window.open(room.roomUrl, '_blank', 'noopener,noreferrer');
+    }
+    if (myEntry?.status === 'done' && popupRef.current) {
+      popupRef.current.close();
+      popupRef.current = null;
+    }
+  }, [myEntry, room]);
 
   async function joinQueue() {
     if (!user) return;
@@ -93,23 +102,61 @@ export default function RoomPage() {
     fetchQueue();
   }
 
+  async function setMode(mode: 'individual' | 'batch') {
+    if (actives.length > 0) return;
+    setModeUpdating(true);
+    const res = await fetch(`/api/rooms/${id}/mode`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }),
+    });
+    if (res.ok) setRoom(await res.json());
+    setModeUpdating(false);
+  }
+
+  function toggleSelect(entryId: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(entryId)) next.delete(entryId); else next.add(entryId);
+      return next;
+    });
+  }
+
+  async function startBatch() {
+    if (selected.size === 0) return;
+    setBatchBusy(true);
+    const res = await fetch(`/api/rooms/${id}/queue/batch`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ entryIds: [...selected] }),
+    });
+    if (res.ok) { setSelected(new Set()); fetchQueue(); }
+    setBatchBusy(false);
+  }
+
+  async function endBatch() {
+    setBatchBusy(true);
+    const res = await fetch(`/api/rooms/${id}/queue/batch`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'end' }),
+    });
+    if (res.ok) fetchQueue();
+    setBatchBusy(false);
+  }
+
   async function submitFlag() {
-  if (!flagTarget || !flagReason || !flagDetails) return;
-  setFlagSubmitting(true);
-  await fetch(`/api/rooms/${id}/flag`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reportedClerkId: flagTarget.id, reportedName: flagTarget.name, reason: flagReason, details: flagDetails }),
-  });
-  setFlagSubmitting(false);
-  setFlagOpen(false);
-  setFlagReason('');
-  setFlagDetails('');
-  fetchQueue();
-}
+    if (!flagTarget || !flagReason || !flagDetails) return;
+    setFlagSubmitting(true);
+    await fetch(`/api/rooms/${id}/flag`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportedClerkId: flagTarget.id, reportedName: flagTarget.name, reason: flagReason, details: flagDetails }),
+    });
+    setFlagSubmitting(false);
+    setFlagOpen(false);
+    setFlagReason('');
+    setFlagDetails('');
+    fetchQueue();
+  }
 
   const myPosition = myEntry?.status === 'waiting' ? waiting.findIndex(w => w.id === myEntry.id) + 1 : 0;
+  const modeBtn = (active: boolean): React.CSSProperties => ({ background: active ? 'rgba(112,181,249,0.15)' : 'transparent', border: `1px solid ${active ? 'rgba(112,181,249,0.4)' : 'rgba(255,255,255,0.1)'}`, color: active ? '#70B5F9' : '#8B949E', padding: '7px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: modeUpdating || actives.length > 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' });
 
-  if (!room || !rolesLoaded) return (
+  if (!userLoaded || !user || !room || !rolesLoaded) return (
     <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B949E' }}>loading room...</div>
   );
 
@@ -130,50 +177,103 @@ export default function RoomPage() {
 
         {isMentor ? (
           <>
-          <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 28 }}>start call →</a>
+            <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 20 }}>start call →</a>
 
-            {active && (
-              <div style={{ background: 'rgba(91,219,138,0.08)', border: '1px solid rgba(91,219,138,0.25)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
-                <div style={{ fontSize: 12, color: '#5BDB8A', fontWeight: 600, marginBottom: 4 }}>currently active</div>
-                <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {active.seekerName}
-                  {!!active.visitCount && active.visitCount > 1 && (
-                    <span style={{ fontSize: 11, color: '#70B5F9', background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{active.visitCount}</span>
-                  )}
-                  {!!active.flagCount && (
-                    <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged before - {active.flagCount}</span>
-                  )}
-                </div>
-                <button onClick={() => markDone(active.id)} style={{ marginTop: 10, marginRight: 8, background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>mark done</button>
-                <button onClick={() => { setFlagTarget({ id: active.seekerClerkId, name: active.seekerName }); setFlagOpen(true); }} style={{ marginTop: 10, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#FBBF24', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>flag & remove</button>
-              </div>
-            )}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+              <button onClick={() => setMode('individual')} disabled={modeUpdating || actives.length > 0} style={modeBtn(room.mode === 'individual')}>individuals</button>
+              <button onClick={() => setMode('batch')} disabled={modeUpdating || actives.length > 0} style={modeBtn(room.mode === 'batch')}>batches</button>
+            </div>
 
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Queue ({waiting.length})</h2>
-            {waiting.length === 0 ? (
-              <p style={{ color: '#8B949E', fontSize: 14 }}>no one waiting yet</p>
+            {room.mode === 'batch' ? (
+              <>
+                {actives.length > 0 ? (
+                  <div style={{ background: 'rgba(91,219,138,0.08)', border: '1px solid rgba(91,219,138,0.25)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
+                    <div style={{ fontSize: 12, color: '#5BDB8A', fontWeight: 600, marginBottom: 10 }}>batch in progress ({actives.length})</div>
+                    {actives.map(a => (
+                      <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontWeight: 600 }}>
+                        {a.seekerName}
+                        <button onClick={() => { setFlagTarget({ id: a.seekerClerkId, name: a.seekerName }); setFlagOpen(true); }} style={{ marginLeft: 4, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#FBBF24', padding: '3px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>flag</button>
+                      </div>
+                    ))}
+                    <button onClick={endBatch} disabled={batchBusy} style={{ marginTop: 10, background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: batchBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>end batch</button>
+                  </div>
+                ) : (
+                  <div style={{ marginBottom: 20 }}>
+                    <button onClick={startBatch} disabled={batchBusy || selected.size === 0} style={{ background: selected.size === 0 ? 'rgba(112,181,249,0.08)' : 'rgba(112,181,249,0.15)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: batchBusy || selected.size === 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>start batch ({selected.size})</button>
+                  </div>
+                )}
+
+                <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Queue ({waiting.length})</h2>
+                {waiting.length === 0 ? (
+                  <p style={{ color: '#8B949E', fontSize: 14 }}>no one waiting yet</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {waiting.map((w, i) => (
+                      <label key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: actives.length > 0 ? 'default' : 'pointer' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          {actives.length === 0 && (
+                            <input type="checkbox" checked={selected.has(w.id)} onChange={() => toggleSelect(w.id)} style={{ marginRight: 4 }} />
+                          )}
+                          <span style={{ color: '#8B949E', fontSize: 12, marginRight: 4 }}>#{i + 1}</span>
+                          <span style={{ fontWeight: 600 }}>{w.seekerName}</span>
+                          {!!w.visitCount && w.visitCount > 1 && (
+                            <span style={{ fontSize: 11, color: '#70B5F9', background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{w.visitCount}</span>
+                          )}
+                          {!!w.flagCount && (
+                            <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged - {w.flagCount}</span>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {waiting.map((w, i) => (
-                  <div key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#8B949E', fontSize: 12, marginRight: 4 }}>#{i + 1}</span>
-                      <span style={{ fontWeight: 600 }}>{w.seekerName}</span>
-                      {!!w.visitCount && w.visitCount > 1 && (
-                        <span style={{ fontSize: 11, color: '#70B5F9', background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{w.visitCount}</span>
+              <>
+                {actives[0] && (
+                  <div style={{ background: 'rgba(91,219,138,0.08)', border: '1px solid rgba(91,219,138,0.25)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
+                    <div style={{ fontSize: 12, color: '#5BDB8A', fontWeight: 600, marginBottom: 4 }}>currently active</div>
+                    <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {actives[0].seekerName}
+                      {!!actives[0].visitCount && actives[0].visitCount > 1 && (
+                        <span style={{ fontSize: 11, color: '#70B5F9', background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{actives[0].visitCount}</span>
                       )}
-                      {!!w.flagCount && (
-                        <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged - {w.flagCount}</span>
+                      {!!actives[0].flagCount && (
+                        <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged before - {actives[0].flagCount}</span>
                       )}
                     </div>
-                    {i === 0 && !active && (
-                      <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                        {calling === w.id ? 'calling...' : 'call next →'}
-                      </button>
-                    )}
+                    <button onClick={() => markDone(actives[0].id)} style={{ marginTop: 10, marginRight: 8, background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>mark done</button>
+                    <button onClick={() => { setFlagTarget({ id: actives[0].seekerClerkId, name: actives[0].seekerName }); setFlagOpen(true); }} style={{ marginTop: 10, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#FBBF24', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>flag & remove</button>
                   </div>
-                ))}
-              </div>
+                )}
+
+                <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Queue ({waiting.length})</h2>
+                {waiting.length === 0 ? (
+                  <p style={{ color: '#8B949E', fontSize: 14 }}>no one waiting yet</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {waiting.map((w, i) => (
+                      <div key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <span style={{ color: '#8B949E', fontSize: 12, marginRight: 4 }}>#{i + 1}</span>
+                          <span style={{ fontWeight: 600 }}>{w.seekerName}</span>
+                          {!!w.visitCount && w.visitCount > 1 && (
+                            <span style={{ fontSize: 11, color: '#70B5F9', background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{w.visitCount}</span>
+                          )}
+                          {!!w.flagCount && (
+                            <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged - {w.flagCount}</span>
+                          )}
+                        </div>
+                        {i === 0 && !actives[0] && (
+                          <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                            {calling === w.id ? 'calling...' : 'call next →'}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         ) : (

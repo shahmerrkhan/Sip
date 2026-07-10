@@ -46,6 +46,7 @@ export default function MentorProfile() {
   const [noteError, setNoteError] = useState('');
   const [submittingNote, setSubmittingNote] = useState(false);
   const [askText, setAskText] = useState('');
+  const [askConsent, setAskConsent] = useState(false);
   const [askSent, setAskSent] = useState(false);
   const [askError, setAskError] = useState('');
   const [submittingAsk, setSubmittingAsk] = useState(false);
@@ -69,7 +70,7 @@ export default function MentorProfile() {
     const res = await fetch('/api/asks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mentorId: mentor.id, question: askText }),
+      body: JSON.stringify({ mentorId: mentor.id, question: askText, consentToShow: askConsent }),
     });
     if (res.ok) {
       setAskSent(true);
@@ -347,8 +348,12 @@ export default function MentorProfile() {
                     ) : (
                       <div>
                         <p style={{ color: '#8B949E', fontSize: 13, marginBottom: 16 }}>Not ready for a full sip? Ask something quick. Limited to 2 per mentor per week.</p>
-                        <div style={{ marginBottom: 16 }}>
+                        <div style={{ marginBottom: 12 }}>
                           <textarea value={askText} onChange={e => setAskText(e.target.value)} placeholder="What do you want to know?" rows={3} maxLength={500} style={{ ...inputStyle, resize: 'none' }} />
+                        </div>
+                        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                          <input type="checkbox" id="askConsent" checked={askConsent} onChange={e => setAskConsent(e.target.checked)} style={{ marginTop: 3, accentColor: '#0A66C2', cursor: 'pointer' }} />
+                          <label htmlFor="askConsent" style={{ fontSize: 12, color: '#8B949E', cursor: 'pointer', lineHeight: 1.5 }}>Ok to feature this publicly on Sip if answered (only your first name shown, never your email)</label>
                         </div>
                         {askError && (
                           <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 10, padding: '10px 14px', color: '#F87171', fontSize: 13, marginBottom: 16 }}>

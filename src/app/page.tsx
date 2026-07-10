@@ -327,7 +327,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             </h2>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
               {liveRooms.map(r => (
-                <Link key={r.id} href={`/rooms/${r.id}`} style={{ textDecoration: 'none', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 14, padding: '14px 20px', color: '#E6EDF3', minWidth: 220 }}>
+                <Link key={r.id} href={user ? `/rooms/${r.id}` : '/sign-in'} onClick={e => { if (!user) { e.preventDefault(); router.push('/sign-in'); } }} style={{ textDecoration: 'none', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 14, padding: '14px 20px', color: '#E6EDF3', minWidth: 220 }}>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{r.title}</div>
                   <div style={{ color: '#8B949E', fontSize: 12, marginTop: 4 }}>{r.firstName} {r.lastName} · {r.role} @ {r.company}</div>
                   <div style={{ color: '#F87171', fontSize: 12, marginTop: 6, fontWeight: 600 }}>join now →</div>

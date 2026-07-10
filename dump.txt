@@ -1,3 +1,4 @@
+﻿--- D:\Sip\src\app\dashboard\page.tsx ---
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { useUser, SignOutButton } from '@clerk/nextjs';
@@ -26,11 +27,11 @@ type SipNote = {
 };
 
 const BADGE_META: Record<string, { label: string; emoji: string; color: string }> = {
-  'first-sip': { label: 'First Sip', emoji: '☕', color: '#D97706' },
-  'regular':   { label: 'Regular',   emoji: '🔥', color: '#DC2626' },
-  'veteran':   { label: 'Veteran',   emoji: '⚡', color: '#7C3AED' },
-  'legend':    { label: 'Legend',    emoji: '💎', color: '#0891B2' },
-  'goat':      { label: 'GOAT',      emoji: '🐐', color: '#059669' },
+  'first-sip': { label: 'First Sip', emoji: 'â˜•', color: '#D97706' },
+  'regular':   { label: 'Regular',   emoji: 'ðŸ”¥', color: '#DC2626' },
+  'veteran':   { label: 'Veteran',   emoji: 'âš¡', color: '#7C3AED' },
+  'legend':    { label: 'Legend',    emoji: 'ðŸ’Ž', color: '#0891B2' },
+  'goat':      { label: 'GOAT',      emoji: 'ðŸ', color: '#059669' },
 };
 
 export default function Dashboard() {
@@ -46,7 +47,6 @@ export default function Dashboard() {
   const [deletingNote, setDeletingNote] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [answerDrafts, setAnswerDrafts] = useState<Record<string, string>>({});
-  const [shareDrafts, setShareDrafts] = useState<Record<string, boolean>>({});
   const [submittingAnswer, setSubmittingAnswer] = useState<string | null>(null);
   const [loadingMentor, setLoadingMentor] = useState(true);
   const [togglingOpen, setTogglingOpen] = useState(false);
@@ -100,7 +100,7 @@ export default function Dashboard() {
     const res = await fetch(`/api/asks/${askId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answer, showPublicly: !!shareDrafts[askId] }),
+      body: JSON.stringify({ answer }),
     });
     if (res.ok) {
       const updated = await res.json();
@@ -172,11 +172,11 @@ export default function Dashboard() {
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>🏆 leaderboard</Link>
+          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>ðŸ† leaderboard</Link>
           {rolesLoaded && (isSeeker
             ? <RoleSwitchLink to="/seekers" role="seeker" label="switch to seeker" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 14px', borderRadius: 20 }} />
             : <Link href="/seekers/onboarding" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>become a seeker too</Link>)}
-          <span style={{ color: '#8B949E', fontSize: 14 }}>hey, {user?.firstName} 👋</span>
+          <span style={{ color: '#8B949E', fontSize: 14 }}>hey, {user?.firstName} ðŸ‘‹</span>
           <SignOutButton>
             <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} style={{ background: 'transparent', color: '#8B949E', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 20px', borderRadius: 20, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>sign out</motion.button>
           </SignOutButton>
@@ -187,11 +187,11 @@ export default function Dashboard() {
         <AnimatePresence mode="wait">
           {!mentor ? (
             <motion.div key="no-profile" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', padding: '80px 0' }}>
-              <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }} style={{ fontSize: 56, marginBottom: 20 }}>☕</motion.div>
+              <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }} style={{ fontSize: 56, marginBottom: 20 }}>â˜•</motion.div>
               <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 12 }}>You&apos;re Not Listed Yet</h2>
               <p style={{ color: '#8B949E', marginBottom: 32, fontSize: 16 }}>Create your mentor profile and start showing up for people.</p>
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Link href="/mentors/signup" style={{ background: '#0A66C2', color: 'white', padding: '14px 32px', borderRadius: 24, fontSize: 15, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>create profile →</Link>
+                <Link href="/mentors/signup" style={{ background: '#0A66C2', color: 'white', padding: '14px 32px', borderRadius: 24, fontSize: 15, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>create profile â†’</Link>
               </motion.div>
             </motion.div>
           ) : (
@@ -218,7 +218,7 @@ export default function Dashboard() {
                         if (res.ok) { setIsLive(true); const room = await res.json(); router.push(`/rooms/${room.id}`); }
                       }}
                       style={{ background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.3)', color: '#F87171', padding: '10px 20px', borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                      🔴 go live
+                      ðŸ”´ go live
                     </motion.button>
                   )}
                   {isLive && (
@@ -273,7 +273,7 @@ export default function Dashboard() {
                     ))}
                   </div>
                 ) : (
-                  <p style={{ color: '#8B949E', fontSize: 13 }}>No badges yet — your first sip request earns you the ☕ First Sip badge.</p>
+                  <p style={{ color: '#8B949E', fontSize: 13 }}>No badges yet â€” your first sip request earns you the â˜• First Sip badge.</p>
                 )}
               </motion.div>
 
@@ -287,7 +287,7 @@ export default function Dashboard() {
                 <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
                   onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/mentors/${mentor.id}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
                   style={{ background: copied ? 'rgba(91,219,138,0.15)' : '#0A66C2', color: copied ? '#5BDB8A' : 'white', border: copied ? '1px solid rgba(91,219,138,0.3)' : 'none', padding: '10px 22px', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
-                  {copied ? 'copied ✓' : 'copy link'}
+                  {copied ? 'copied âœ“' : 'copy link'}
                 </motion.button>
               </motion.div>
 
@@ -304,7 +304,7 @@ export default function Dashboard() {
                           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
                             onClick={() => reviewNote(n.id, 'approved')} disabled={reviewingNote === n.id}
                             style={{ background: 'rgba(91,219,138,0.15)', border: '1px solid rgba(91,219,138,0.3)', color: '#5BDB8A', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                            approve ✓
+                            approve âœ“
                           </motion.button>
                           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
                             onClick={() => reviewNote(n.id, 'rejected')} disabled={reviewingNote === n.id}
@@ -350,10 +350,6 @@ export default function Dashboard() {
                         <textarea value={answerDrafts[a.id] || ''} onChange={e => setAnswerDrafts(d => ({ ...d, [a.id]: e.target.value }))}
                           placeholder="Type your answer..." rows={2} maxLength={1000}
                           style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#E6EDF3', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit', marginBottom: 10 }} />
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
-                          <input type="checkbox" id={`share-${a.id}`} checked={!!shareDrafts[a.id]} onChange={e => setShareDrafts(d => ({ ...d, [a.id]: e.target.checked }))} style={{ marginTop: 3, accentColor: '#0A66C2', cursor: 'pointer' }} />
-                          <label htmlFor={`share-${a.id}`} style={{ fontSize: 12, color: '#8B949E', cursor: 'pointer', lineHeight: 1.5 }}>Ok to feature on the public answers page (only shows if they also opted in — only their first name is shown)</label>
-                        </div>
                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => submitAnswer(a.id)} disabled={submittingAnswer === a.id}
                           style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '8px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: submittingAnswer === a.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                           {submittingAnswer === a.id ? 'Sending...' : 'Answer'}
@@ -369,7 +365,7 @@ export default function Dashboard() {
                 <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>Incoming Sips</h2>
                 {requests.length === 0 ? (
                   <div style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '60px 40px', textAlign: 'center', color: '#8B949E' }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>📭</div>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>ðŸ“­</div>
                     <p>No requests yet &mdash; share your profile link to get started</p>
                   </div>
                 ) : (
@@ -383,7 +379,7 @@ export default function Dashboard() {
                           <div style={{ color: '#8B949E', fontSize: 13, marginBottom: 10 }}>
                             {r.seekerEmail}
                             {r.seekerLinkedin && (
-                              <> · <a href={r.seekerLinkedin.startsWith('http') ? r.seekerLinkedin : `https://${r.seekerLinkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', textDecoration: 'none' }}>LinkedIn ↗</a></>
+                              <> Â· <a href={r.seekerLinkedin.startsWith('http') ? r.seekerLinkedin : `https://${r.seekerLinkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', textDecoration: 'none' }}>LinkedIn â†—</a></>
                             )}
                           </div>
                             <p style={{ color: '#C9D1D9', fontSize: 14, lineHeight: 1.6, margin: 0 }}>&quot;{r.message}&quot;</p>
@@ -399,7 +395,7 @@ export default function Dashboard() {
                                   if (res.ok) setRequests(prev => prev.map(x => x.id === r.id ? { ...x, status: 'accepted' } : x));
                                 }}
                                 style={{ background: 'rgba(91,219,138,0.15)', border: '1px solid rgba(91,219,138,0.3)', color: '#5BDB8A', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                                accept ✓
+                                accept âœ“
                               </motion.button>
                               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
                                 onClick={async () => {
@@ -415,7 +411,7 @@ export default function Dashboard() {
                             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
                               onClick={() => toggleConsent(r.id, r.mentorConsentToShow)} disabled={togglingConsent === r.id}
                               style={{ background: r.mentorConsentToShow ? 'rgba(91,219,138,0.1)' : 'transparent', border: `1px solid ${r.mentorConsentToShow ? 'rgba(91,219,138,0.3)' : 'rgba(255,255,255,0.1)'}`, color: r.mentorConsentToShow ? '#5BDB8A' : '#8B949E', padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                              {r.mentorConsentToShow ? 'showing on profiles ✓' : 'show on profiles'}
+                              {r.mentorConsentToShow ? 'showing on profiles âœ“' : 'show on profiles'}
                             </motion.button>
                           )}
                         </div>

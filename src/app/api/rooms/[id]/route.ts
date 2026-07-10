@@ -10,7 +10,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const { id } = await params;
     const result = await db
       .select({
-        id: rooms.id, title: rooms.title, roomUrl: rooms.roomUrl, status: rooms.status,
+        id: rooms.id, title: rooms.title, roomUrl: rooms.roomUrl, status: rooms.status, mode: rooms.mode,
         firstName: mentors.firstName, lastName: mentors.lastName, role: mentors.role, company: mentors.company,
         mentorClerkId: mentors.clerkId,
       })

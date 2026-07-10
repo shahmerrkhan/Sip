@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const { success } = await mutationLimiter.limit(userId);
   if (!success) return NextResponse.json({ error: 'Too many requests. Slow down a bit.' }, { status: 429 });
 
-  const { mentorId, question } = await req.json();
+  const { mentorId, question, consentToShow } = await req.json();
   if (!mentorId || !question) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   if (question.length > 500) return NextResponse.json({ error: 'Question is too long' }, { status: 400 });
 
@@ -44,8 +44,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `You can only ask ${WEEKLY_CAP} questions per mentor per week.` }, { status: 429 });
   }
 
-  const created = await db.insert(asks).values({ mentorId, seekerClerkId: userId, seekerName, seekerEmail, question }).returning();
-
+  const created = await db.insert(asks).values({ mentorId, seekerClerkId: userId, seekerName, seekerEmail, question, seekerConsentToShow: !!consentToShow }).returning();
+  
   (async () => {
     const moderation = await moderateQuestion(question);
     if (moderation.flagged) {

@@ -63,6 +63,7 @@ export const rooms = pgTable('rooms', {
   roomName: text('room_name').notNull().unique(),
   roomUrl: text('room_url').notNull(),
   status: text('status').default('live').notNull(),
+  mode: text('mode').default('individual').notNull(), // individual | batch
   startedAt: timestamp('started_at').defaultNow().notNull(),
   endedAt: timestamp('ended_at'),
 }, (t) => [
@@ -125,6 +126,8 @@ export const asks = pgTable('asks', {
   question: text('question').notNull(),
   answer: text('answer'),
   status: text('status').default('pending').notNull(),
+  seekerConsentToShow: boolean('seeker_consent_to_show').default(false).notNull(),
+  mentorConsentToShow: boolean('mentor_consent_to_show').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   answeredAt: timestamp('answered_at'),
 }, (t) => [

@@ -17,7 +17,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const mentor = mentorResult[0];
     if (!mentor) return NextResponse.json({ error: 'No mentor profile' }, { status: 403 });
 
-    const { answer } = await req.json();
+    const { answer, showPublicly } = await req.json();
     if (!answer) return NextResponse.json({ error: 'Answer is required' }, { status: 400 });
     if (answer.length > 1000) return NextResponse.json({ error: 'Answer is too long' }, { status: 400 });
 
@@ -26,7 +26,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (existing[0].mentorId !== mentor.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     const updated = await db.update(asks)
-      .set({ answer, status: 'answered', answeredAt: new Date() })
+      .set({ answer, status: 'answered', answeredAt: new Date(), mentorConsentToShow: !!showPublicly })
       .where(eq(asks.id, id))
       .returning();
 
