@@ -191,7 +191,7 @@ function SeekersContent() {
       </div>
 
       {tab === 'browse' && liveRooms.length > 0 && (
-        <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 16px' }}>
+        <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 8px' }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} style={{ width: 10, height: 10, borderRadius: '50%', background: '#DC2626', display: 'inline-block' }} />
             Live Now

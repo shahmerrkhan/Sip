@@ -2,11 +2,11 @@ import { SignIn } from '@clerk/nextjs';
 
 export default function SignInPage() {
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', flexDirection: 'column', color: '#E6EDF3', fontFamily: 'Space Grotesk, sans-serif' }}>
+    <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', color: '#E6EDF3', fontFamily: 'Space Grotesk, sans-serif' }}>
 
       {/* LEFT PANEL */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 24px', borderRight: 'none' }}>
-        <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 48 }}>sip ☕</div>
+      <div style={{ flex: 1, minWidth: 340, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 24px', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 48 }}>sip</div>
         <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -2, lineHeight: 1.1, marginBottom: 16 }}>
           Welcome back.<br />
           <span style={{ background: 'linear-gradient(135deg, #70B5F9, #0A66C2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>People are waiting.</span>
@@ -16,20 +16,20 @@ export default function SignInPage() {
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {[
-            { emoji: '☕', text: 'See who requested a sip with you' },
-            { emoji: '⚡', text: 'Accept or decline in one click' },
-            { emoji: '🏆', text: 'Earn XP and climb the leaderboard' },
-          ].map(item => (
-            <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span style={{ fontSize: 20 }}>{item.emoji}</span>
-              <span style={{ color: '#C9D1D9', fontSize: 15 }}>{item.text}</span>
+            'See who requested a sip with you',
+            'Accept or decline in one click',
+            'Earn XP and climb the leaderboard',
+          ].map(text => (
+            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#70B5F9', display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ color: '#C9D1D9', fontSize: 15 }}>{text}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* RIGHT PANEL */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <div style={{ flex: 1, minWidth: 340, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
           <SignIn forceRedirectUrl="/" appearance={{
           variables: {
             colorBackground: '#161B22',

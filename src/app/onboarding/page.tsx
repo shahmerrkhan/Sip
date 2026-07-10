@@ -63,7 +63,7 @@ export default function Onboarding() {
     return (
       <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#E6EDF3', fontFamily: 'Space Grotesk, sans-serif', padding: 24 }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ textAlign: 'center', maxWidth: 480, width: '100%' }}>
-          <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 32 }}>sip ☕</div>
+          <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 32 }}>sip</div>
           <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1.5, marginBottom: 12 }}>Quick intro</h1>
           <p style={{ color: '#8B949E', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>Helps mentors know who they&apos;re talking to. Optional but recommended.</p>
 
@@ -104,9 +104,9 @@ export default function Onboarding() {
     <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#E6EDF3', fontFamily: 'Space Grotesk, sans-serif', padding: 24 }}>
 
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ textAlign: 'center', maxWidth: 560 }}>
-        <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 32 }}>sip ☕</div>
+        <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 32 }}>sip</div>
         <h1 style={{ fontSize: 36, fontWeight: 700, letterSpacing: -1.5, marginBottom: 12 }}>
-          Hey {user?.firstName || 'there'} 👋
+          Hey {user?.firstName || 'there'}
         </h1>
         <p style={{ color: '#8B949E', fontSize: 16, lineHeight: 1.7, marginBottom: 48 }}>
           What brings you to Sip?
@@ -118,7 +118,6 @@ export default function Onboarding() {
             whileTap={{ scale: 0.97 }}
             onClick={() => router.push('/mentors/signup')}
             style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '36px 24px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
-            <div style={{ fontSize: 36, marginBottom: 16 }}>🎓</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: '#E6EDF3', marginBottom: 8 }}>I&apos;m a Mentor</div>
             <div style={{ fontSize: 14, color: '#8B949E', lineHeight: 1.6 }}>I want to open my door and help people by sharing what I know.</div>
           </motion.button>
@@ -128,7 +127,6 @@ export default function Onboarding() {
             whileTap={{ scale: 0.97 }}
             onClick={() => setStep('topics')}
             style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '36px 24px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.2s' }}>
-            <div style={{ fontSize: 36, marginBottom: 16 }}>☕</div>
             <div style={{ fontSize: 18, fontWeight: 700, color: '#E6EDF3', marginBottom: 8 }}>I&apos;m Looking for a Sip</div>
             <div style={{ fontSize: 14, color: '#8B949E', lineHeight: 1.6 }}>I want to find someone to talk to and learn from their experience.</div>
           </motion.button>
