@@ -33,7 +33,9 @@ export async function matchMentors(
     const cleaned = reply.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(cleaned);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((p: { id?: string; reason?: string }) => p.id && p.reason);
+    return parsed
+      .filter((p: { id?: string; reason?: string }) => p.id && p.reason)
+      .map((p: { id: string; reason: string }) => ({ id: p.id, reason: String(p.reason).slice(0, 200) }));
   } catch {
     return [];
   }

@@ -4,12 +4,16 @@ import { requests, mentors } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { handleApiError } from "@/lib/api-handler";
+import { mutationLimiter } from "@/lib/ratelimit";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { success } = await mutationLimiter.limit(userId);
+    if (!success) return NextResponse.json({ error: "Too many requests. Slow down a bit." }, { status: 429 });
 
     const existing = await db.select().from(requests).where(eq(requests.id, id));
     const r = existing[0];

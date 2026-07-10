@@ -43,6 +43,8 @@ export default function Home() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiMatches, setAiMatches] = useState<AIMatch[] | null>(null);
   const [matching, setMatching] = useState(false);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 12;
   
   useEffect(() => {
     if (user?.firstName) setForm(f => ({ ...f, name: user.firstName! }));
@@ -99,6 +101,9 @@ export default function Home() {
     const matchSearch = !q || m.firstName.toLowerCase().includes(q) || m.lastName.toLowerCase().includes(q) || m.role.toLowerCase().includes(q) || m.company.toLowerCase().includes(q) || m.topics.toLowerCase().includes(q);
     return matchFilter && matchSearch;
   });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  useEffect(() => { setPage(1); }, [filter, search]);
   
   async function handleAIMatch() {
     if (!aiQuery.trim()) return;
@@ -236,15 +241,15 @@ export default function Home() {
           style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           {user ? (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} style={{ display: 'flex', gap: 12 }}>
-              {rolesLoaded && isMentor && isSeeker && <Link href="/choose-role" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>go to my dashboard â†’</Link>}
-              {rolesLoaded && isMentor && !isSeeker && <Link href="/dashboard" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>go to my dashboard â†’</Link>}
+              {rolesLoaded && isMentor && isSeeker && <Link href="/choose-role" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>go to my dashboard -></Link>}
+              {rolesLoaded && isMentor && !isSeeker && <Link href="/dashboard" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>go to my dashboard -></Link>}
               {rolesLoaded && isSeeker && !isMentor && (
                 <>
-                  <Link href="/seekers" style={{ display: 'block', background: 'transparent', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 500, textDecoration: 'none' }}>find your sip â†’</Link>
+                  <Link href="/seekers" style={{ display: 'block', background: 'transparent', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 500, textDecoration: 'none' }}>find your sip -></Link>
                   <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} onClick={handleInstantSip} style={{ background: 'transparent', color: '#5BDB8A', border: '1px solid rgba(91,219,138,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>âš¡ instant sip</motion.button>
                 </>
               )}
-              {rolesLoaded && !isMentor && !isSeeker && <Link href="/seekers" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>find your sip â†’</Link>}
+              {rolesLoaded && !isMentor && !isSeeker && <Link href="/seekers" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>find your sip -></Link>}
             </motion.div>
           ) : (
             <>
@@ -419,9 +424,9 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             <p>no mentors in this category yet. check back soon.</p>
           </motion.div>
         ) : (
-          <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20, marginBottom: 80 }}>
+          <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 24 }}>
           <AnimatePresence mode="popLayout">
-            {filtered.map((mentor, i) => (
+            {paged.map((mentor, i) => (
               <motion.div
                 key={mentor.id}
                 layout
@@ -465,6 +470,19 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             ))}
           </AnimatePresence>
         </motion.div>
+        )}
+
+        {!loading && filtered.length > PAGE_SIZE && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 80, flexWrap: 'wrap' }}>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === 1 ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === 1 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}><- prev</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button key={n} onClick={() => setPage(n)}
+                style={{ background: page === n ? 'rgba(112,181,249,0.15)' : 'transparent', border: `1px solid ${page === n ? 'rgba(112,181,249,0.4)' : 'rgba(255,255,255,0.1)'}`, color: page === n ? '#70B5F9' : '#8B949E', width: 36, height: 36, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{n}</button>
+            ))}
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === totalPages ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === totalPages ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>next -></button>
+          </div>
         )}
           </section>
 

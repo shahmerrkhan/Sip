@@ -7,6 +7,8 @@ import { transporter } from '@/lib/mailer';
 import { mutationLimiter } from '@/lib/ratelimit';
 import { moderateQuestion } from '@/lib/groq';
 import { escapeHtml } from '@/lib/utils';
+import { seekers, flags } from '@/db/schema';
+import { ne } from 'drizzle-orm';
 
 const WEEKLY_CAP = 2;
 
@@ -28,6 +30,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "You can't ask yourself a question." }, { status: 403 });
   }
 
+  const seekerCheck = await db.select().from(seekers).where(eq(seekers.clerkId, userId));
+  if (seekerCheck[0]?.banned) return NextResponse.json({ error: 'Your account has been suspended.' }, { status: 403 });
+
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
   const seekerEmail = user.emailAddresses[0]?.emailAddress || '';
@@ -47,6 +52,10 @@ export async function POST(req: Request) {
       await db.delete(asks).where(eq(asks.id, created[0].id));
       return;
     }
+    const priorFlags = await db.select().from(flags).where(and(eq(flags.reportedClerkId, userId), ne(flags.status, 'dismissed')));
+    const flagWarning = priorFlags.length > 0
+      ? `<p style="color:#F59E0B;font-size:13px;margin-bottom:16px;">Heads up: this person has been flagged ${priorFlags.length} time${priorFlags.length > 1 ? 's' : ''} before.</p>`
+      : '';
     await transporter.sendMail({
       from: `Sip <${process.env.GMAIL_USER}>`,
       to: mentor.email,
@@ -56,12 +65,13 @@ export async function POST(req: Request) {
           <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip</div>
           <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">Quick question from ${escapeHtml(seekerName)}</h2>
           <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">"${escapeHtml(question)}"</p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">Answer in Dashboard →</a>
+          ${flagWarning}
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">Answer in Dashboard -></a>
         </div>
       `,
     });
   })().catch(err => console.error('moderation/email failed:', err));
-
+  
   return NextResponse.json(created[0]);
 }
 

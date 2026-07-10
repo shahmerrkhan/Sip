@@ -1,9 +1,10 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Logo from '@/components/Logo';
 
 export default function SeekerOnboarding() {
   const { user, isLoaded } = useUser();
@@ -51,7 +52,7 @@ export default function SeekerOnboarding() {
   return (
     <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+        <Logo />
         <Link href="/seekers" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>skip for now →</Link>
       </nav>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '120px 40px 80px' }}>

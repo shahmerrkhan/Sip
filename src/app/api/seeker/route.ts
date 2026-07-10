@@ -1,7 +1,7 @@
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { db } from '@/db';
-import { seekers, mentors, referralEvents } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { seekers, mentors, referralEvents, flags } from '@/db/schema';
+import { eq, ne, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { generateReferralCode } from '@/lib/referral';
 import { mutationLimiter } from '@/lib/ratelimit';
@@ -14,7 +14,8 @@ export async function GET() {
 
     const result = await db.select().from(seekers).where(eq(seekers.clerkId, userId));
     if (result.length === 0) return NextResponse.json(null, { status: 404 });
-    return NextResponse.json(result[0]);
+    const myFlags = await db.select().from(flags).where(and(eq(flags.reportedClerkId, userId), ne(flags.status, 'dismissed')));
+    return NextResponse.json({ ...result[0], flags: myFlags });
   } catch (err) {
     return handleApiError(err, 'GET /api/seeker');
   }

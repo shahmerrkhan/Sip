@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 import { transporter } from '@/lib/mailer';
 import { handleApiError } from '@/lib/api-handler';
 import { escapeHtml } from '@/lib/utils';
+import { mutationLimiter } from '@/lib/ratelimit';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,9 +14,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
+    const { success } = await mutationLimiter.limit(userId);
+    if (!success) return NextResponse.json({ error: 'Too many requests. Slow down a bit.' }, { status: 429 });
+
     const mentorResult = await db.select().from(mentors).where(eq(mentors.clerkId, userId));
     if (!mentorResult[0]) return NextResponse.json({ error: 'No mentor profile' }, { status: 403 });
     const mentor = mentorResult[0];
+    if (mentor.banned) return NextResponse.json({ error: 'Your account has been suspended.' }, { status: 403 });
 
     const { status } = await req.json();
     if (!['accepted', 'declined'].includes(status)) {

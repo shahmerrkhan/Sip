@@ -44,6 +44,7 @@ export async function POST(req: Request) {
     const mentorResult = await db.select().from(mentors).where(eq(mentors.clerkId, userId));
     const mentor = mentorResult[0];
     if (!mentor) return NextResponse.json({ error: 'No mentor profile' }, { status: 403 });
+    if (mentor.banned) return NextResponse.json({ error: 'Your account has been suspended.' }, { status: 403 });
 
     const existing = await db.select().from(rooms).where(and(eq(rooms.mentorId, mentor.id), eq(rooms.status, 'live')));
     if (existing.length > 0) return NextResponse.json(existing[0]);

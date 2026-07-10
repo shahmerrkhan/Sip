@@ -10,6 +10,8 @@ import RoleSwitchLink from '@/components/RoleSwitchLink';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Suspense } from 'react';
 
+type LiveRoom = { id: string; title: string; firstName: string; lastName: string; role: string; company: string };
+
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
   topics: string; bio: string; isOpen: boolean; availability: string;
@@ -52,6 +54,7 @@ function SeekersContent() {
   const [loadingLookup, setLoadingLookup] = useState(false);
   const [error, setError] = useState('');
   const [streak, setStreak] = useState<{ currentStreak: number; longestStreak: number } | null>(null);
+  const [myFlags, setMyFlags] = useState<{ id: string; reason: string; createdAt: string }[]>([]);
   const [seekerId, setSeekerId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [togglingConsent, setTogglingConsent] = useState<string | null>(null);
@@ -72,6 +75,17 @@ function SeekersContent() {
   }, []);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchMentors(); }, [fetchMentors]);
+
+  const [liveRooms, setLiveRooms] = useState<LiveRoom[]>([]);
+  const fetchLiveRooms = useCallback(async () => {
+    const res = await fetch('/api/rooms');
+    if (res.ok) setLiveRooms(await res.json());
+  }, []);
+  useEffect(() => {
+    fetchLiveRooms();
+    const t = setInterval(fetchLiveRooms, 15000);
+    return () => clearInterval(t);
+  }, [fetchLiveRooms]);
   
   const filtered = mentors.filter(m => {
     const matchFilter = filter === 'all' || m.topics.toLowerCase().includes(filter.toLowerCase());
@@ -106,6 +120,7 @@ function SeekersContent() {
         if (data) {
           setStreak({ currentStreak: data.currentStreak || 0, longestStreak: data.longestStreak || 0 });
           setSeekerId(data.id);
+          setMyFlags(data.flags || []);
         }
       }
     } else if (res.status === 401) {
@@ -164,6 +179,24 @@ function SeekersContent() {
           {tabBtn('mine', '📋 my sips')}
         </div>
       </div>
+
+      {tab === 'browse' && liveRooms.length > 0 && (
+        <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 40px' }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} style={{ width: 10, height: 10, borderRadius: '50%', background: '#DC2626', display: 'inline-block' }} />
+            Live Now
+          </h2>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+            {liveRooms.map(r => (
+              <Link key={r.id} href={`/rooms/${r.id}`} style={{ textDecoration: 'none', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 14, padding: '14px 20px', color: '#E6EDF3', minWidth: 220 }}>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{r.title}</div>
+                <div style={{ color: '#8B949E', fontSize: 12, marginTop: 4 }}>{r.firstName} {r.lastName} · {r.role} @ {r.company}</div>
+                <div style={{ color: '#F87171', fontSize: 12, marginTop: 6, fontWeight: 600 }}>join now →</div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {tab === 'browse' ? (
         <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 40px 80px' }}>
@@ -243,6 +276,12 @@ function SeekersContent() {
             </div>
           ) : (
             <div>
+              {myFlags.length > 0 && (
+                <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: 16, padding: '18px 24px', marginBottom: 20 }}>
+                  <div style={{ fontWeight: 700, color: '#FBBF24', marginBottom: 4 }}>You've been flagged {myFlags.length > 1 ? `${myFlags.length} times` : 'once'}</div>
+                  <div style={{ color: '#8B949E', fontSize: 13 }}>Repeated flags can lead to a permanent ban. If you think this was a mistake, reach out to support.</div>
+                </div>
+              )}
               {streak && streak.currentStreak > 0 && (
                 <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.03))', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 16, padding: '18px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ fontSize: 32 }}>🔥</div>

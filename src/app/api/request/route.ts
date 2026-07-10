@@ -7,6 +7,8 @@ import { auth } from '@clerk/nextjs/server';
 import { emailLimiter, getIp } from '@/lib/ratelimit';
 import { handleApiError } from '@/lib/api-handler';
 import { escapeHtml } from '@/lib/utils';
+import { flags } from '@/db/schema';
+import { ne, and } from 'drizzle-orm';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NAME_REGEX = /^[^\d]+$/;
@@ -34,6 +36,10 @@ export async function POST(req: Request) {
     if (!mentor) return NextResponse.json({ error: 'Mentor not found' }, { status: 404 });
 
     const { userId } = await auth();
+    if (userId) {
+      const seekerCheck = await db.select().from(seekers).where(eq(seekers.clerkId, userId));
+      if (seekerCheck[0]?.banned) return NextResponse.json({ error: 'Your account has been suspended.' }, { status: 403 });
+    }
     if (userId && mentor.clerkId === userId) {
       return NextResponse.json({ error: "You can't send a sip request to your own mentor profile." }, { status: 403 });
     }
@@ -51,6 +57,14 @@ export async function POST(req: Request) {
       mentorId, seekerClerkId: userId || null, seekerName, seekerEmail, seekerLinkedin, message, status: 'pending',
     }).returning();
 
+    let flagWarning = '';
+    if (userId) {
+      const priorFlags = await db.select().from(flags).where(and(eq(flags.reportedClerkId, userId), ne(flags.status, 'dismissed')));
+      if (priorFlags.length > 0) {
+        flagWarning = `<p style="color:#F59E0B;font-size:13px;margin-bottom:16px;">Heads up: this person has been flagged ${priorFlags.length} time${priorFlags.length > 1 ? 's' : ''} before.</p>`;
+      }
+    }
+
     transporter.sendMail({
       from: `Sip <${process.env.GMAIL_USER}>`,
       to: mentor.email,
@@ -61,7 +75,8 @@ export async function POST(req: Request) {
           <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">New sip request</h2>
           <p style="color:#C9D1D9;font-size:15px;line-height:1.7;margin-bottom:8px;"><strong>${escapeHtml(seekerName)}</strong> (${escapeHtml(seekerEmail)}) wants to connect:</p>
           <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">"${escapeHtml(message)}"</p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">View in Dashboard →</a>
+          ${flagWarning}
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">View in Dashboard -></a>
         </div>
       `,
     }).catch(err => console.error('request email failed:', err));

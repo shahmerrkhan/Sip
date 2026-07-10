@@ -302,7 +302,7 @@ export default function MentorProfile() {
                         </div>
                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setPendingSubmit('request')} disabled={submitting}
                           style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                          {submitting ? 'Sending...' : 'Send it âœ¦'}
+                          {submitting ? 'Sending...' : 'Send it *'}
                         </motion.button>
                       </div>
                     )}

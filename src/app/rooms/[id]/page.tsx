@@ -1,12 +1,12 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { useRoles } from '@/hooks/useRoles';
 import { ConsentGate } from '@/components/ConsentGate';
 
 type Room = { id: string; title: string; roomUrl: string; status: string; firstName: string; lastName: string; role: string; company: string; mentorClerkId: string };
-type QueueEntry = { id: string; seekerClerkId: string; seekerName: string; status: string };
+type QueueEntry = { id: string; seekerClerkId: string; seekerName: string; status: string; visitCount?: number; flagCount?: number };
 
 export default function RoomPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +24,7 @@ export default function RoomPage() {
   const [flagDetails, setFlagDetails] = useState('');
   const [flagSubmitting, setFlagSubmitting] = useState(false);
   const [consented, setConsented] = useState(false);
+  const popupRef = useRef<Window | null>(null);lse);
 
   const fetchRoom = useCallback(async () => {
     const r = await fetch(`/api/rooms/${id}`);
@@ -51,7 +52,13 @@ export default function RoomPage() {
   }, [fetchQueue]);
 
   useEffect(() => {
-  if (myEntry?.status === 'active' && room?.roomUrl) window.open(room.roomUrl, '_blank', 'noopener,noreferrer');
+  if (myEntry?.status === 'active' && room?.roomUrl && !popupRef.current) {
+    popupRef.current = window.open(room.roomUrl, '_blank', 'noopener,noreferrer');
+  }
+  if (myEntry?.status === 'done' && popupRef.current) {
+    popupRef.current.close();
+    popupRef.current = null;
+  }
 }, [myEntry, room]);
 
   async function joinQueue() {
@@ -109,7 +116,7 @@ export default function RoomPage() {
   if (!consented) {
     return (
       <ConsentGate
-        onAccept={() => setConsented(true)}
+        onAccept={() => { setConsented(true); fetch('/api/consent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ roomId: id, context: 'call' }) }); }}
         onDecline={() => { if (myEntry) leaveQueue(); window.location.href = isMentor ? '/dashboard' : '/seekers'; }}
       />
     );
@@ -128,7 +135,15 @@ export default function RoomPage() {
             {active && (
               <div style={{ background: 'rgba(91,219,138,0.08)', border: '1px solid rgba(91,219,138,0.25)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
                 <div style={{ fontSize: 12, color: '#5BDB8A', fontWeight: 600, marginBottom: 4 }}>currently active</div>
-                <div style={{ fontWeight: 600 }}>{active.seekerName}</div>
+                <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {active.seekerName}
+                  {!!active.visitCount && active.visitCount > 1 && (
+                    <span style={{ fontSize: 11, color: '#70B5F9', background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{active.visitCount}</span>
+                  )}
+                  {!!active.flagCount && (
+                    <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged before - {active.flagCount}</span>
+                  )}
+                </div>
                 <button onClick={() => markDone(active.id)} style={{ marginTop: 10, marginRight: 8, background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>mark done</button>
                 <button onClick={() => { setFlagTarget({ id: active.seekerClerkId, name: active.seekerName }); setFlagOpen(true); }} style={{ marginTop: 10, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#FBBF24', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>flag & remove</button>
               </div>
@@ -141,9 +156,15 @@ export default function RoomPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {waiting.map((w, i) => (
                   <div key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <span style={{ color: '#8B949E', fontSize: 12, marginRight: 8 }}>#{i + 1}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#8B949E', fontSize: 12, marginRight: 4 }}>#{i + 1}</span>
                       <span style={{ fontWeight: 600 }}>{w.seekerName}</span>
+                      {!!w.visitCount && w.visitCount > 1 && (
+                        <span style={{ fontSize: 11, color: '#70B5F9', background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{w.visitCount}</span>
+                      )}
+                      {!!w.flagCount && (
+                        <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged - {w.flagCount}</span>
+                      )}
                     </div>
                     {i === 0 && !active && (
                       <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
@@ -162,7 +183,12 @@ export default function RoomPage() {
                 {joining ? 'joining...' : 'join queue'}
               </button>
             ) : myEntry.status === 'active' ? (
-              <p style={{ color: '#5BDB8A', fontWeight: 600 }}>you&apos;re up — check the new tab that opened.</p>
+              <div>
+                <p style={{ color: '#5BDB8A', fontWeight: 600, marginBottom: 10 }}>you&apos;re up -- check the new tab that opened.</p>
+                {room.roomUrl && (
+                  <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', fontSize: 13, textDecoration: 'underline' }}>tab didn&apos;t open? click here to join</a>
+                )}
+              </div>
             ) : myEntry.status === 'done' ? (
               <p style={{ color: '#8B949E', fontWeight: 600 }}>session ended. thanks for joining.</p>
             ) : (

@@ -1,4 +1,5 @@
-import { pgTable, text, timestamp, boolean, uuid, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, uuid, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 export const referralEvents = pgTable('referral_events', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -32,6 +33,7 @@ export const mentors = pgTable('mentors', {
   referralCode: text('referral_code').unique(),
   invitedByClerkId: text('invited_by_clerk_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  banned: boolean('banned').default(false).notNull(),
 });
 
 export const seekers = pgTable('seekers', {
@@ -51,6 +53,7 @@ export const seekers = pgTable('seekers', {
   referralCode: text('referral_code').unique(),
   invitedByClerkId: text('invited_by_clerk_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  banned: boolean('banned').default(false).notNull(),
 });
 
 export const rooms = pgTable('rooms', {
@@ -62,7 +65,10 @@ export const rooms = pgTable('rooms', {
   status: text('status').default('live').notNull(),
   startedAt: timestamp('started_at').defaultNow().notNull(),
   endedAt: timestamp('ended_at'),
-});
+}, (t) => [
+  index('rooms_mentor_id_idx').on(t.mentorId),
+  index('rooms_status_idx').on(t.status),
+]);
 
 export const requests = pgTable('requests', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -77,7 +83,10 @@ export const requests = pgTable('requests', {
   mentorConsentToShow: boolean('mentor_consent_to_show').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   respondedAt: timestamp('responded_at'),
-});
+}, (t) => [
+  index('requests_mentor_id_idx').on(t.mentorId),
+  index('requests_seeker_clerk_id_idx').on(t.seekerClerkId),
+]);
 
 export const sipNotes = pgTable('sip_notes', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -87,7 +96,9 @@ export const sipNotes = pgTable('sip_notes', {
   note: text('note').notNull(),
   status: text('status').default('pending').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (t) => [
+  index('sip_notes_mentor_id_idx').on(t.mentorId),
+]);
 
 export const queueEntries = pgTable('queue_entries', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -98,7 +109,12 @@ export const queueEntries = pgTable('queue_entries', {
   joinedAt: timestamp('joined_at').defaultNow().notNull(),
   calledAt: timestamp('called_at'),
   doneAt: timestamp('done_at'),
-});
+}, (t) => [
+  index('queue_entries_room_id_idx').on(t.roomId),
+  index('queue_entries_seeker_clerk_id_idx').on(t.seekerClerkId),
+  index('queue_entries_room_status_idx').on(t.roomId, t.status),
+  uniqueIndex('queue_entries_active_unique_idx').on(t.roomId, t.seekerClerkId).where(sql`status in ('waiting', 'active')`),
+]);
 
 export const asks = pgTable('asks', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -111,8 +127,19 @@ export const asks = pgTable('asks', {
   status: text('status').default('pending').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   answeredAt: timestamp('answered_at'),
-});
+}, (t) => [
+  index('asks_mentor_id_idx').on(t.mentorId),
+  index('asks_seeker_clerk_id_idx').on(t.seekerClerkId),
+]);
 
+
+export const consents = pgTable('consents', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  clerkId: text('clerk_id').notNull(),
+  roomId: uuid('room_id'),
+  context: text('context').notNull(), // 'call' | 'message'
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
 
 export const flags = pgTable('flags', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -126,4 +153,7 @@ export const flags = pgTable('flags', {
   status: text('status').default('open').notNull(), // open | dismissed | actioned
   createdAt: timestamp('created_at').defaultNow().notNull(),
   resolvedAt: timestamp('resolved_at'),
-});
+}, (t) => [
+  index('flags_reported_clerk_id_idx').on(t.reportedClerkId),
+  index('flags_room_id_idx').on(t.roomId),
+]);

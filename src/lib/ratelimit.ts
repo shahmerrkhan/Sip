@@ -18,6 +18,12 @@ export const mutationLimiter = new Ratelimit({
   prefix: 'sip-mutation',
 });
 
+export const readLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(60, '1 m'),
+  prefix: 'sip-read',
+});
+
 export function getIp(req: Request): string {
   const forwarded = req.headers.get('x-forwarded-for');
   return forwarded ? forwarded.split(',')[0].trim() : 'unknown';

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Logo from '@/components/Logo';
 
 type Sip = { mentorId: string; firstName: string; lastName: string; role: string; company: string };
 type Seeker = {
@@ -42,7 +43,7 @@ export default function SeekerProfile() {
     <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <Link href="/" style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none' }}>sip ☕</Link>
+          <Logo />
         <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'} style={{ background: 'none', border: 'none', color: '#8B949E', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← back</button>
       </motion.nav>
 
