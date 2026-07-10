@@ -38,6 +38,7 @@ function SeekersContent() {
   const searchParams = useSearchParams();
   const { isMentor, isSeeker, loaded: rolesLoaded } = useRoles();
   const [tab, setTab] = useState<'browse' | 'mine'>('browse');
+  const [page, setPage] = useState(1);
 
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +94,10 @@ function SeekersContent() {
     const matchSearch = !q || m.firstName.toLowerCase().includes(q) || m.lastName.toLowerCase().includes(q) || m.role.toLowerCase().includes(q) || m.company.toLowerCase().includes(q) || m.topics.toLowerCase().includes(q);
     return matchFilter && matchSearch;
   });
+  const PAGE_SIZE = 12;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  useEffect(() => { setPage(1); }, [filter, search]);
 
   async function handleSubmit() {
     if (!form.name || !form.email || !form.message || !modal) return;
@@ -199,7 +204,7 @@ function SeekersContent() {
       )}
 
       {tab === 'browse' ? (
-        <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 40px 80px' }}>
+        <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px 80px' }}>
           <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search by name, role, company, topic..."
               style={{ flex: 1, minWidth: 240, background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '12px 16px', color: '#E6EDF3', fontSize: 14, outline: 'none', fontFamily: 'inherit' }} />
@@ -223,9 +228,9 @@ function SeekersContent() {
               <p>no mentors in this category yet. check back soon.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
               <AnimatePresence mode="popLayout">
-                {filtered.map((mentor, i) => (
+                {paged.map((mentor, i) => (
                   <motion.div key={mentor.id} layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                     transition={{ duration: 0.35, delay: i * 0.05 }} whileHover={{ y: -6 }}
                     onClick={() => window.location.href = `/mentors/${mentor.id}`}
@@ -251,6 +256,19 @@ function SeekersContent() {
                   </motion.div>
                 ))}
               </AnimatePresence>
+            </div>
+          )}
+
+          {!loading && filtered.length > PAGE_SIZE && (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 32, flexWrap: 'wrap' }}>
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === 1 ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === 1 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>{String.fromCharCode(0x2190)} prev</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                <button key={n} onClick={() => setPage(n)}
+                  style={{ background: page === n ? 'rgba(112,181,249,0.15)' : 'transparent', border: `1px solid ${page === n ? 'rgba(112,181,249,0.4)' : 'rgba(255,255,255,0.1)'}`, color: page === n ? '#70B5F9' : '#8B949E', width: 36, height: 36, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{n}</button>
+              ))}
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === totalPages ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === totalPages ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>next {String.fromCharCode(0x2192)}</button>
             </div>
           )}
         </section>

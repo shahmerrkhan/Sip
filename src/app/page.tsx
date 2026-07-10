@@ -43,8 +43,7 @@ export default function Home() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiMatches, setAiMatches] = useState<AIMatch[] | null>(null);
   const [matching, setMatching] = useState(false);
-  const [page, setPage] = useState(1);
-  const PAGE_SIZE = 12;
+  const TEASER_LIMIT = 6;
   
   useEffect(() => {
     if (user?.firstName) setForm(f => ({ ...f, name: user.firstName! }));
@@ -75,8 +74,11 @@ export default function Home() {
   const [noMatchInterest, setNoMatchInterest] = useState<string | null>(null);
 
   const fetchMentors = useCallback(async () => {
-    const res = await fetch('/api/mentor?all=true');
-    if (res.ok) setMentors(await res.json());
+    const res = await fetch('/api/mentor?leaderboard=true');
+    if (res.ok) {
+      const data: Mentor[] = await res.json();
+      setMentors(data.filter(m => m.isOpen));
+    }
     setLoading(false);
   }, []);
 
@@ -101,9 +103,7 @@ export default function Home() {
     const matchSearch = !q || m.firstName.toLowerCase().includes(q) || m.lastName.toLowerCase().includes(q) || m.role.toLowerCase().includes(q) || m.company.toLowerCase().includes(q) || m.topics.toLowerCase().includes(q);
     return matchFilter && matchSearch;
   });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  useEffect(() => { setPage(1); }, [filter, search]);
+  const teaserMentors = filtered.slice(0, TEASER_LIMIT);
   
   async function handleAIMatch() {
     if (!aiQuery.trim()) return;
@@ -426,7 +426,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
         ) : (
           <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 24 }}>
           <AnimatePresence mode="popLayout">
-            {paged.map((mentor, i) => (
+            {teaserMentors.map((mentor, i) => (
               <motion.div
                 key={mentor.id}
                 layout
@@ -472,17 +472,20 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
         </motion.div>
         )}
 
-        {!loading && filtered.length > PAGE_SIZE && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 80, flexWrap: 'wrap' }}>
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === 1 ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === 1 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>← prev</button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-              <button key={n} onClick={() => setPage(n)}
-                style={{ background: page === n ? 'rgba(112,181,249,0.15)' : 'transparent', border: `1px solid ${page === n ? 'rgba(112,181,249,0.4)' : 'rgba(255,255,255,0.1)'}`, color: page === n ? '#70B5F9' : '#8B949E', width: 36, height: 36, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{n}</button>
-            ))}
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === totalPages ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === totalPages ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>next →</button>
-          </div>
+        {!loading && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            style={{ background: 'linear-gradient(135deg, rgba(10,102,194,0.12), rgba(112,181,249,0.04))', border: '1px solid rgba(112,181,249,0.25)', borderRadius: 20, padding: '32px 36px', marginBottom: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>These are just the top mentors right now</div>
+              <div style={{ color: '#8B949E', fontSize: 14 }}>Sign up free to see everyone open, filter by topic, and request a sip.</div>
+            </div>
+            <Link href="/sign-up" style={{ background: '#0A66C2', color: 'white', padding: '13px 28px', borderRadius: 12, fontWeight: 600, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              see all mentors {String.fromCharCode(0x2192)}
+            </Link>
+          </motion.div>
         )}
           </section>
 
@@ -593,7 +596,6 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#E6EDF3', marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' }}>Company</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13 }}>
                 <Link href="/about" style={{ color: '#8B949E', textDecoration: 'none' }}>About</Link>
-                <a href="mailto:hello@sip.com" style={{ color: '#8B949E', textDecoration: 'none' }}>Contact</a>
               </div>
             </div>
             <div>

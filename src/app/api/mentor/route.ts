@@ -115,7 +115,7 @@ export async function GET(req: Request) {
   const leaderboard = url.searchParams.get('leaderboard');
 
   if (leaderboard === 'true') {
-    const result = await db.select().from(mentors).orderBy(desc(mentors.xp)).limit(20);
+    const result = await db.select().from(mentors).orderBy(desc(mentors.xp)).limit(10);
     return NextResponse.json(result.map(sanitizeMentor));
   }
 

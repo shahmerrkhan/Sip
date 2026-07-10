@@ -13,7 +13,7 @@ export default function Privacy() {
           <p><strong style={{ color: '#E6EDF3' }}>How we use it:</strong> to match you with mentors or seekers, run the queue system, send you notifications, and investigate reports if something goes wrong during a session.</p>
           <p><strong style={{ color: '#E6EDF3' }}>Video calls:</strong> calls run through a third-party video service. We do not record calls by default. Screen recording or capturing by other participants cannot be technically prevented and is prohibited under our Code of Conduct.</p>
           <p><strong style={{ color: '#E6EDF3' }}>Data sharing:</strong> we don&apos;t sell your data. Information is only shared between matched mentors and seekers as needed to facilitate a session.</p>
-          <p><strong style={{ color: '#E6EDF3' }}>Contact:</strong> questions about your data, email hello@sip.com.</p>
+          <p><strong style={{ color: '#E6EDF3' }}>Contact:</strong> questions about your data, email m.shahmeer.khan8@gmail.com.</p>
         </div>
         <Link href="/" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, display: 'block', marginTop: 32 }}>← back home</Link>
       </div>
