@@ -18,7 +18,7 @@ export default function AnswersPage() {
 
   return (
     <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif" }}>
-      <nav style={{ padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <nav style={{ padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
         <Link href="/sign-up" style={{ background: '#0A66C2', color: 'white', padding: '8px 20px', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>sign up</Link>
       </nav>
@@ -48,7 +48,7 @@ export default function AnswersPage() {
           </div>
         )}
 
-        <div style={{ marginTop: 48, background: 'linear-gradient(135deg, rgba(10,102,194,0.12), rgba(112,181,249,0.04))', border: '1px solid rgba(112,181,249,0.25)', borderRadius: 20, padding: '28px 32px', textAlign: 'center' }}>
+        <div style={{ marginTop: 48, background: 'linear-gradient(135deg, rgba(10,102,194,0.12), rgba(112,181,249,0.04))', border: '1px solid rgba(112,181,249,0.25)', borderRadius: 20, padding: '28px 20px', textAlign: 'center' }}>
           <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Got your own question?</div>
           <Link href="/sign-up" style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '13px 28px', borderRadius: 12, fontWeight: 600, fontSize: 14, textDecoration: 'none', marginTop: 8 }}>sign up free →</Link>
         </div>

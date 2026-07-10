@@ -170,16 +170,16 @@ export default function RoomPage() {
   }
 
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '80px 20px' }}>
+    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: 'clamp(32px,8vw,80px) 16px' }}>
       <div style={{ maxWidth: 560, margin: '0 auto' }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>{room.title}</h1>
-        <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 32 }}>{room.firstName} {room.lastName} · {room.role} @ {room.company}</p>
+          <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 32, wordBreak: 'break-word' }}>{room.firstName} {room.lastName} · {room.role} @ {room.company}</p>
 
         {isMentor ? (
           <>
             <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 20 }}>start call →</a>
 
-            <div style={{ display: 'flex', gap: 8, marginBottom: 24 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
               <button onClick={() => setMode('individual')} disabled={modeUpdating || actives.length > 0} style={modeBtn(room.mode === 'individual')}>individuals</button>
               <button onClick={() => setMode('batch')} disabled={modeUpdating || actives.length > 0} style={modeBtn(room.mode === 'batch')}>batches</button>
             </div>
@@ -209,7 +209,7 @@ export default function RoomPage() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {waiting.map((w, i) => (
-                      <label key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: actives.length > 0 ? 'default' : 'pointer' }}>
+                      <label key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: actives.length > 0 ? 'default' : 'pointer', flexWrap: 'wrap', gap: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                           {actives.length === 0 && (
                             <input type="checkbox" checked={selected.has(w.id)} onChange={() => toggleSelect(w.id)} style={{ marginRight: 4 }} />
@@ -253,7 +253,7 @@ export default function RoomPage() {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {waiting.map((w, i) => (
-                      <div key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div key={w.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                           <span style={{ color: '#8B949E', fontSize: 12, marginRight: 4 }}>#{i + 1}</span>
                           <span style={{ fontWeight: 600 }}>{w.seekerName}</span>
@@ -265,7 +265,7 @@ export default function RoomPage() {
                           )}
                         </div>
                         {i === 0 && !actives[0] && (
-                          <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                          <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '9px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', minHeight: 40 }}>
                             {calling === w.id ? 'calling...' : 'call next →'}
                           </button>
                         )}
@@ -279,7 +279,7 @@ export default function RoomPage() {
         ) : (
           <>
             {!myEntry ? (
-              <button onClick={joinQueue} disabled={joining} style={{ background: '#0A66C2', color: 'white', border: 'none', padding: '13px 28px', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: joining ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={joinQueue} disabled={joining} style={{ background: '#0A66C2', color: 'white', border: 'none', padding: '13px 28px', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: joining ? 'not-allowed' : 'pointer', fontFamily: 'inherit', width: '100%', maxWidth: 320, minHeight: 48 }}>
                 {joining ? 'joining...' : 'join queue'}
               </button>
             ) : myEntry.status === 'active' ? (

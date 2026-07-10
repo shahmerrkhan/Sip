@@ -55,6 +55,15 @@ export default function MentorProfile() {
   const [submittingAsk, setSubmittingAsk] = useState(false);
   const [activeTab, setActiveTab] = useState<'request' | 'note' | 'ask'>('request');
   const [pendingSubmit, setPendingSubmit] = useState<null | 'request' | 'note' | 'ask'>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     fetch(`/api/mentor/${id}`)
@@ -153,22 +162,22 @@ export default function MentorProfile() {
   const boxStyle: React.CSSProperties = { background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', minHeight: 0 };
 
   return (
-    <div style={{ background: '#0D1117', height: '100vh', color: '#E6EDF3', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#0D1117', height: isMobile ? 'auto' : '100vh', minHeight: '100vh', color: '#E6EDF3', overflow: isMobile ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
 
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        style={{ flex: '0 0 auto', padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        style={{ flex: '0 0 auto', padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
         <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'} style={{ background: 'none', border: 'none', color: '#8B949E', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← back</button>
       </motion.nav>
 
-      <div style={{ flex: 1, minHeight: 0, maxWidth: 1200, width: '100%', margin: '0 auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16, boxSizing: 'border-box' }}>
+      <div style={{ flex: 1, minHeight: 0, maxWidth: 1200, width: '100%', margin: '0 auto', padding: isMobile ? '16px' : '20px 24px', display: 'flex', flexDirection: 'column', gap: 16, boxSizing: 'border-box', overflowY: isMobile ? 'visible' : 'auto' }}>
 
         {/* TOP ROW */}
-        <div style={{ display: 'flex', gap: 16, flex: '1 1 45%', minHeight: 0 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 16, flex: isMobile ? '0 0 auto' : '1 1 45%', minHeight: 0 }}>
 
           {/* TOP LEFT: PROFILE CARD */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-            style={{ ...boxStyle, flex: '1.4', overflowY: 'auto' }}>
+            style={{ ...boxStyle, flex: isMobile ? 'none' : '1.4', overflowY: isMobile ? 'visible' : 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 20 }}>
               <motion.div whileHover={{ scale: 1.06 }} style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, flexShrink: 0 }}>
                 {mentor.firstName[0]}{mentor.lastName[0]}
@@ -221,7 +230,7 @@ export default function MentorProfile() {
 
           {/* TOP RIGHT: STATS + BADGES */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
-            style={{ ...boxStyle, flex: '1', overflowY: 'auto' }}>
+            style={{ ...boxStyle, flex: isMobile ? 'none' : '1', overflowY: isMobile ? 'visible' : 'auto' }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, color: '#8B949E', textTransform: 'uppercase', letterSpacing: 0.5 }}>Stats</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>
               {[
@@ -248,11 +257,11 @@ export default function MentorProfile() {
         </div>
 
         {/* BOTTOM ROW */}
-        <div style={{ display: 'flex', gap: 16, flex: '1 1 55%', minHeight: 0 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 16, flex: isMobile ? '0 0 auto' : '1 1 55%', minHeight: 0 }}>
 
           {/* BOTTOM LEFT: NOTES, PAGINATED */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-            style={{ ...boxStyle, flex: '1' }}>
+            style={{ ...boxStyle, flex: isMobile ? 'none' : '1', maxHeight: isMobile ? 320 : 'none' }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>What people took away</h2>
             {notes.length === 0 ? (
               <div style={{ color: '#8B949E', fontSize: 13, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
@@ -284,8 +293,8 @@ export default function MentorProfile() {
 
           {/* BOTTOM RIGHT: TABBED ACTIONS */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}
-            style={{ ...boxStyle, flex: '1.4' }}>
-            <div style={{ display: 'flex', gap: 6, marginBottom: 18, flexShrink: 0 }}>
+            style={{ ...boxStyle, flex: isMobile ? 'none' : '1.4' }}>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 18, flexShrink: 0, flexWrap: 'wrap' }}>
               {([
                 { key: 'request', label: 'Request a sip' },
                 { key: 'note', label: 'Leave a note' },

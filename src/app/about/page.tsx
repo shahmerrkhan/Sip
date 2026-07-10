@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function About() {
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '80px 40px' }}>
+    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '60px 20px' }}>
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
         <div style={{ marginBottom: 32 }}><Logo /></div>
         <h1 style={{ fontSize: 32, fontWeight: 700, marginBottom: 20 }}>About Sip</h1>

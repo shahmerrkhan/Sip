@@ -190,7 +190,7 @@ export default function Home() {
       </motion.nav>
 
       {/* HERO */}
-      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 40px 60px', textAlign: 'center' }}>
+      <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px 60px', textAlign: 'center' }}>
 
         {/* live badge */}
         <motion.div
@@ -297,7 +297,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             <h2 style={{ fontSize: 36, fontWeight: 700, letterSpacing: -1.5, marginBottom: 12 }}>How It Works</h2>
           <p style={{ color: '#8B949E', marginBottom: 60, fontSize: 16 }}>Three steps. Zero cringe.</p>
         </motion.div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
           {[
             { n: '01', title: 'Pick Someone Real', body: 'Browse people who actually said yes to being here. Every card is a green light.' },
             { n: '02', title: 'Send Your Ask', body: 'One short form. Your name, your email, what\'s on your mind. That\'s it.' },
@@ -424,7 +424,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             <p>no mentors in this category yet. check back soon.</p>
           </motion.div>
         ) : (
-          <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 24 }}>
+          <motion.div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20, marginBottom: 24 }}>
           <AnimatePresence mode="popLayout">
             {teaserMentors.map((mentor, i) => (
               <motion.div
@@ -577,7 +577,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
       </AnimatePresence>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '56px 40px 40px', color: '#8B949E' }}>
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '56px 20px 40px', color: '#8B949E' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 40, marginBottom: 40 }}>
           <div style={{ maxWidth: 280 }}>
             <div style={{ marginBottom: 12 }}><Logo /></div>

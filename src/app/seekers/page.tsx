@@ -177,7 +177,7 @@ function SeekersContent() {
         </div>
       </motion.nav>
 
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '100px 40px 20px' }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '90px 16px 20px' }}>
         <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1.5, marginBottom: 20 }}>Find Your Sip</h1>
         <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
           {tabBtn('browse', '☕ browse mentors')}
@@ -186,7 +186,7 @@ function SeekersContent() {
       </div>
 
       {tab === 'browse' && liveRooms.length > 0 && (
-        <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 40px' }}>
+        <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 16px' }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} style={{ width: 10, height: 10, borderRadius: '50%', background: '#DC2626', display: 'inline-block' }} />
             Live Now
@@ -204,7 +204,7 @@ function SeekersContent() {
       )}
 
       {tab === 'browse' ? (
-        <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px 80px' }}>
+        <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 60px' }}>
           <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search by name, role, company, topic..."
               style={{ flex: 1, minWidth: 240, background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '12px 16px', color: '#E6EDF3', fontSize: 14, outline: 'none', fontFamily: 'inherit' }} />
@@ -228,7 +228,7 @@ function SeekersContent() {
               <p>no mentors in this category yet. check back soon.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20 }}>
               <AnimatePresence mode="popLayout">
                 {paged.map((mentor, i) => (
                   <motion.div key={mentor.id} layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -273,7 +273,7 @@ function SeekersContent() {
           )}
         </section>
       ) : (
-        <section style={{ maxWidth: 680, margin: '0 auto', padding: '0 40px 80px' }}>
+        <section style={{ maxWidth: 680, margin: '0 auto', padding: '0 16px 60px' }}>
           {!lookupDone ? (
             <div style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, textAlign: 'center' }}>
               {!user ? (
@@ -346,7 +346,7 @@ function SeekersContent() {
                     const s = STATUS_STYLE[r.status];
                     return (
                       <div key={r.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24, opacity: r.status === 'declined' ? 0.5 : 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
                           <div>
                             <div style={{ fontWeight: 600, fontSize: 16 }}>{r.mentor ? `${r.mentor.firstName} ${r.mentor.lastName}` : 'Mentor'}</div>
                             <div style={{ color: '#8B949E', fontSize: 13 }}>{r.mentor ? `${r.mentor.role} @ ${r.mentor.company}` : ''}</div>

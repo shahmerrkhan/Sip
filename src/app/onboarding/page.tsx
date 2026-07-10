@@ -112,7 +112,7 @@ export default function Onboarding() {
           What brings you to Sip?
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
           <motion.button
             whileHover={{ scale: 1.03, borderColor: 'rgba(112,181,249,0.5)' }}
             whileTap={{ scale: 0.97 }}

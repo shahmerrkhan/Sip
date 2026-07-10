@@ -38,7 +38,7 @@ export default function Leaderboard() {
 
       {/* NAV */}
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
           {rolesLoaded && isMentor && <Link href="/dashboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>mentor dashboard</Link>}
@@ -46,7 +46,7 @@ export default function Leaderboard() {
         </div>
       </motion.nav>
 
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '100px 40px 80px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '90px 16px 60px' }}>
 
         {/* HEADER */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: 56, textAlign: 'center' }}>
@@ -86,7 +86,7 @@ export default function Leaderboard() {
               <motion.div key={m.id}
                 initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: i * 0.07 }}
                 whileHover={{ borderColor: 'rgba(112,181,249,0.3)', x: 4 }}
-                style={{ background: i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.06)` : '#161B22', border: `1px solid ${i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.25)` : 'rgba(255,255,255,0.07)'}`, borderRadius: 16, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s', cursor: 'default' }}>
+                style={{ background: i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.06)` : '#161B22', border: `1px solid ${i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.25)` : 'rgba(255,255,255,0.07)'}`, borderRadius: 16, padding: '16px', display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.2s', cursor: 'default' }}>
 
                 {/* rank */}
                 <div style={{ width: 36, textAlign: 'center', fontSize: i < 3 ? 22 : 14, color: i < 3 ? RANK_COLORS[i] : '#8B949E', fontWeight: 700, fontFamily: 'Space Mono', flexShrink: 0 }}>

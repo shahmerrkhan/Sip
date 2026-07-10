@@ -2,10 +2,10 @@ import { SignIn } from '@clerk/nextjs';
 
 export default function SignInPage() {
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', color: '#E6EDF3', fontFamily: 'Space Grotesk, sans-serif' }}>
+    <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', flexDirection: 'column', color: '#E6EDF3', fontFamily: 'Space Grotesk, sans-serif' }}>
 
       {/* LEFT PANEL */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px 80px', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 24px', borderRight: 'none' }}>
         <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 48 }}>sip ☕</div>
         <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -2, lineHeight: 1.1, marginBottom: 16 }}>
           Welcome back.<br />
@@ -29,7 +29,7 @@ export default function SignInPage() {
       </div>
 
       {/* RIGHT PANEL */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
           <SignIn forceRedirectUrl="/" appearance={{
           variables: {
             colorBackground: '#161B22',

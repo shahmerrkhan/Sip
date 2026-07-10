@@ -83,7 +83,7 @@ export default function AdminPage() {
   const resolvedFlags = flags.filter(f => f.status !== 'open');
 
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '60px 20px' }}>
+    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '40px 16px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 24 }}>Admin</h1>
 
@@ -115,7 +115,7 @@ export default function AdminPage() {
         {tab === 'Mentors' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {data.mentors.map(m => (
-              <div key={m.id} style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16 }}>
+              <div key={m.id} style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, flexWrap: 'wrap', gap: 10 }}>
                 <div>
                   <div style={{ fontWeight: 600 }}>{m.firstName} {m.lastName} <span style={{ color: '#8B949E', fontWeight: 400 }}>· {m.role} @ {m.company}</span></div>
                   <div style={{ fontSize: 12, color: '#8B949E' }}>{m.email} · xp {m.xp} · {m.sipCount} sips · {m.isOpen ? 'open' : 'closed'}{m.banned ? ' · BANNED' : ''}</div>
@@ -132,7 +132,7 @@ export default function AdminPage() {
         {tab === 'Seekers' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {data.seekers.map(sk => (
-              <div key={sk.id} style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16 }}>
+              <div key={sk.id} style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, flexWrap: 'wrap', gap: 10 }}>
                 <div>
                   <div style={{ fontWeight: 600 }}>{sk.firstName} {sk.lastName}</div>
                   <div style={{ fontSize: 12, color: '#8B949E' }}>{sk.email} · streak {sk.currentStreak}{sk.banned ? ' · BANNED' : ''}</div>
@@ -149,7 +149,7 @@ export default function AdminPage() {
         {tab === 'Rooms' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {data.rooms.length === 0 ? <p style={{ color: '#8B949E', fontSize: 14 }}>no live rooms</p> : data.rooms.map(r => (
-              <div key={r.id} style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16 }}>
+              <div key={r.id} style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, flexWrap: 'wrap', gap: 10 }}>
                 <div>
                   <div style={{ fontWeight: 600 }}>{r.title}</div>
                   <div style={{ fontSize: 12, color: '#8B949E' }}>{r.roomName} · started {new Date(r.startedAt).toLocaleString()}</div>
