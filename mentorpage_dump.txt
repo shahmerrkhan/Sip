@@ -1,11 +1,10 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '@clerk/nextjs';
 import Logo from '@/components/Logo';
-import { MessageConsentGate } from '@/components/MessageConsentGate';
 
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
@@ -21,11 +20,11 @@ function formatResponseTime(minutes: number): string {
 type SipNote = { id: string; seekerName: string; note: string; createdAt: string; };
 
 const BADGE_META: Record<string, { label: string; emoji: string }> = {
-  'first-sip': { label: 'First Sip', emoji: '☕' },
-  'regular':   { label: 'Regular',   emoji: '🔥' },
-  'veteran':   { label: 'Veteran',   emoji: '⚡' },
-  'legend':    { label: 'Legend',    emoji: '💎' },
-  'goat':      { label: 'GOAT',      emoji: '🐐' },
+  'first-sip': { label: 'First Sip', emoji: 'â˜•' },
+  'regular':   { label: 'Regular',   emoji: 'ðŸ”¥' },
+  'veteran':   { label: 'Veteran',   emoji: 'âš¡' },
+  'legend':    { label: 'Legend',    emoji: 'ðŸ’Ž' },
+  'goat':      { label: 'GOAT',      emoji: 'ðŸ' },
 };
 
 const NOTES_PER_PAGE = 3;
@@ -50,7 +49,6 @@ export default function MentorProfile() {
   const [askError, setAskError] = useState('');
   const [submittingAsk, setSubmittingAsk] = useState(false);
   const [activeTab, setActiveTab] = useState<'request' | 'note' | 'ask'>('request');
-  const [pendingSubmit, setPendingSubmit] = useState<null | 'request' | 'note' | 'ask'>(null);
 
   useEffect(() => {
     fetch(`/api/mentor/${id}`)
@@ -127,9 +125,9 @@ export default function MentorProfile() {
 
   if (!mentor) return (
     <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontSize: 48 }}>☕</div>
+      <div style={{ fontSize: 48 }}>â˜•</div>
       <p style={{ color: '#8B949E' }}>Mentor not found.</p>
-      <Link href="/" style={{ color: '#70B5F9', textDecoration: 'none' }}>← back to directory</Link>
+      <Link href="/" style={{ color: '#70B5F9', textDecoration: 'none' }}>â† back to directory</Link>
     </div>
   );
 
@@ -143,7 +141,7 @@ export default function MentorProfile() {
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         style={{ flex: '0 0 auto', padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
-        <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'} style={{ background: 'none', border: 'none', color: '#8B949E', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← back</button>
+        <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'} style={{ background: 'none', border: 'none', color: '#8B949E', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>â† back</button>
       </motion.nav>
 
       <div style={{ flex: 1, minHeight: 0, maxWidth: 1200, width: '100%', margin: '0 auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 16, boxSizing: 'border-box' }}>
@@ -166,20 +164,20 @@ export default function MentorProfile() {
                 <div style={{ color: '#8B949E', fontSize: 14, marginBottom: 10 }}>
                   {mentor.role} @ {mentor.company}
                   {mentor.showLinkedin && mentor.linkedin && (
-                    <> · <a href={mentor.linkedin.startsWith('http') ? mentor.linkedin : `https://${mentor.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', textDecoration: 'none' }}>LinkedIn ↗</a></>
+                    <> Â· <a href={mentor.linkedin.startsWith('http') ? mentor.linkedin : `https://${mentor.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', textDecoration: 'none' }}>LinkedIn â†—</a></>
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <motion.span animate={{ opacity: mentor.isOpen ? [1, 0.4, 1] : 1 }} transition={{ duration: 2, repeat: Infinity }}
                     style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: mentor.isOpen ? 'rgba(91,219,138,0.1)' : 'rgba(139,148,158,0.1)', color: mentor.isOpen ? '#5BDB8A' : '#8B949E', border: `1px solid ${mentor.isOpen ? 'rgba(91,219,138,0.3)' : 'rgba(139,148,158,0.2)'}`, fontWeight: 600 }}>
-                    {mentor.isOpen ? '● open' : '○ closed'}
+                    {mentor.isOpen ? 'â— open' : 'â—‹ closed'}
                   </motion.span>
                   <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: 'rgba(112,181,249,0.08)', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.15)' }}>
                     {mentor.availability}
                   </span>
                   {mentor.avgResponseMinutes != null && (
                     <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: 'rgba(91,219,138,0.08)', color: '#5BDB8A', border: '1px solid rgba(91,219,138,0.15)' }}>
-                      ⚡ responds in {formatResponseTime(mentor.avgResponseMinutes)}
+                      âš¡ responds in {formatResponseTime(mentor.avgResponseMinutes)}
                     </span>
                   )}
                 </div>
@@ -280,7 +278,7 @@ export default function MentorProfile() {
                   <motion.div key="request" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     {sent ? (
                       <div style={{ textAlign: 'center', padding: '30px 0' }}>
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} style={{ fontSize: 40, marginBottom: 12 }}>✓</motion.div>
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} style={{ fontSize: 40, marginBottom: 12 }}>âœ“</motion.div>
                         <div style={{ color: '#5BDB8A', fontSize: 16, fontWeight: 600 }}>Sent. They'll reach out soon.</div>
                       </div>
                     ) : (
@@ -300,7 +298,7 @@ export default function MentorProfile() {
                         <div style={{ marginBottom: 16 }}>
                           <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="What are you trying to figure out?" rows={3} style={{ ...inputStyle, resize: 'none' }} />
                         </div>
-                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setPendingSubmit('request')} disabled={submitting}
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleSubmit} disabled={submitting}
                           style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                           {submitting ? 'Sending...' : 'Send it âœ¦'}
                         </motion.button>
@@ -329,7 +327,7 @@ export default function MentorProfile() {
                             {noteError}
                           </div>
                         )}
-                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setPendingSubmit('note')} disabled={submittingNote}
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleNoteSubmit} disabled={submittingNote}
                           style={{ width: '100%', background: 'rgba(91,219,138,0.12)', border: '1px solid rgba(91,219,138,0.3)', color: '#5BDB8A', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submittingNote ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                           {submittingNote ? 'Posting...' : 'Post it'}
                         </motion.button>
@@ -355,7 +353,7 @@ export default function MentorProfile() {
                             {askError}
                           </div>
                         )}
-                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setPendingSubmit('ask')} disabled={submittingAsk}
+                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleAskSubmit} disabled={submittingAsk}
                           style={{ width: '100%', background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submittingAsk ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                           {submittingAsk ? 'Sending...' : 'Ask'}
                         </motion.button>
@@ -368,19 +366,6 @@ export default function MentorProfile() {
           </motion.div>
         </div>
       </div>
-
-      {pendingSubmit && (
-        <MessageConsentGate
-          onCancel={() => setPendingSubmit(null)}
-          onAccept={() => {
-            const action = pendingSubmit;
-            setPendingSubmit(null);
-            if (action === 'request') handleSubmit();
-            if (action === 'note') handleNoteSubmit();
-            if (action === 'ask') handleAskSubmit();
-          }}
-        />
-      )}
     </div>
   );
 }

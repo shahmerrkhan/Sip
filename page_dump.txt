@@ -1,11 +1,10 @@
-'use client';
+﻿'use client';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRoles } from '@/hooks/useRoles';
-import Logo from '@/components/Logo';
 
 type Mentor = {
   id: string;
@@ -171,10 +170,10 @@ export default function Home() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 20px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: scrolled ? 'rgba(13,17,23,0.95)' : 'rgba(13,17,23,0.6)', backdropFilter: 'blur(20px)', borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent', transition: 'background 0.3s, border-color 0.3s' }}>
-          <Logo />
+        <motion.span whileHover={{ scale: 1.05 }} style={{ fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, cursor: 'default' }}>sip â˜•</motion.span>
         {!user && (
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14, display: 'none' }} className="desktop-only">🏆 leaderboard</Link>
+          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14, display: 'none' }} className="desktop-only">ðŸ† leaderboard</Link>
           <Link href="/mentors/signup" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14, display: 'none' }} className="desktop-only">are you a mentor?</Link>
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
             <Link href="/sign-in" style={{ background: '#0A66C2', color: 'white', padding: '8px 20px', borderRadius: 20, fontSize: 14, fontWeight: 600, textDecoration: 
@@ -236,9 +235,8 @@ export default function Home() {
           style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           {user ? (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} style={{ display: 'flex', gap: 12 }}>
-              {rolesLoaded && isMentor && isSeeker && <Link href="/choose-role" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>go to my dashboard â†’</Link>}
-              {rolesLoaded && isMentor && !isSeeker && <Link href="/dashboard" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>go to my dashboard â†’</Link>}
-              {rolesLoaded && isSeeker && !isMentor && (
+              {rolesLoaded && isMentor && <Link href="/dashboard" style={{ display: 'block', background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, textDecoration: 'none', fontFamily: 'inherit' }}>go to my dashboard â†’</Link>}
+              {rolesLoaded && isSeeker && (
                 <>
                   <Link href="/seekers" style={{ display: 'block', background: 'transparent', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 500, textDecoration: 'none' }}>find your sip â†’</Link>
                   <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} onClick={handleInstantSip} style={{ background: 'transparent', color: '#5BDB8A', border: '1px solid rgba(91,219,138,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>âš¡ instant sip</motion.button>
@@ -254,17 +252,17 @@ export default function Home() {
             onClick={() => document.getElementById('mentors')?.scrollIntoView({ behavior: 'smooth' })}
             style={{ background: '#0A66C2', color: 'white', border: 'none', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, cursor: 'pointer', 
 fontFamily: 'inherit', transition: 'background 0.2s' }}>
-            find your sip ☕
+            find your sip â˜•
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
             onClick={handleInstantSip}
             style={{ background: 'transparent', color: '#5BDB8A', border: '1px solid rgba(91,219,138,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-            ⚡ instant sip
+            âš¡ instant sip
           </motion.button>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-            <Link href="/mentors/signup" style={{ display: 'block', background: 'transparent', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 500, textDecoration: 'none' }}>join as mentor →</Link>
+            <Link href="/mentors/signup" style={{ display: 'block', background: 'transparent', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.3)', padding: '14px 30px', borderRadius: 28, fontSize: 15, fontWeight: 500, textDecoration: 'none' }}>join as mentor â†’</Link>
           </motion.div>
             </>
           )}
@@ -324,8 +322,8 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
               {liveRooms.map(r => (
                 <Link key={r.id} href={`/rooms/${r.id}`} style={{ textDecoration: 'none', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 14, padding: '14px 20px', color: '#E6EDF3', minWidth: 220 }}>
                   <div style={{ fontWeight: 600, fontSize: 14 }}>{r.title}</div>
-                  <div style={{ color: '#8B949E', fontSize: 12, marginTop: 4 }}>{r.firstName} {r.lastName} · {r.role} @ {r.company}</div>
-                  <div style={{ color: '#F87171', fontSize: 12, marginTop: 6, fontWeight: 600 }}>join now →</div>
+                  <div style={{ color: '#8B949E', fontSize: 12, marginTop: 4 }}>{r.firstName} {r.lastName} Â· {r.role} @ {r.company}</div>
+                  <div style={{ color: '#F87171', fontSize: 12, marginTop: 6, fontWeight: 600 }}>join now â†’</div>
                 </Link>
               ))}
             </div>
@@ -350,7 +348,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
             placeholder="search by name, role, company, topic..."
             style={{ width: '100%', background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '13px 20px 13px 44px', color: '#E6EDF3', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
           />
-          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#8B949E' }}>🔍</span>
+          <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#8B949E' }}>ðŸ”</span>
         </div>
 
         {/* AI MATCH */}
@@ -370,11 +368,11 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
           {aiMatches && (
             <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {aiMatches.length === 0 ? (
-                <p style={{ color: '#8B949E', fontSize: 14 }}>no strong matches right now — try the directory below.</p>
+                <p style={{ color: '#8B949E', fontSize: 14 }}>no strong matches right now â€” try the directory below.</p>
             ) : (
                 aiMatches.map(m => (
                   <div key={m.id} onClick={() => window.location.href = `/mentors/${m.id}`} style={{ background: '#161B22', border: '1px solid rgba(112,181,249,0.2)', borderRadius: 14, padding: '16px 20px', cursor: 'pointer' }}>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{m.firstName} {m.lastName} · {m.role} @ {m.company}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{m.firstName} {m.lastName} Â· {m.role} @ {m.company}</div>
                     <div style={{ color: '#70B5F9', fontSize: 13, marginTop: 4 }}>{m.reason}</div>
                   </div>
                 ))
@@ -415,7 +413,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
           </motion.div>
         ) : filtered.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: 'center', padding: '80px 0', color: '#8B949E', marginBottom: 80 }}>
-            <div style={{ fontSize: 40, marginBottom: 16 }}>☕</div>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>â˜•</div>
             <p>no mentors in this category yet. check back soon.</p>
           </motion.div>
         ) : (
@@ -439,7 +437,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
                     <div style={{ color: '#8B949E', fontSize: 13 }}>{mentor.role} @ {mentor.company}</div>
                   </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-                    <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ fontSize: 11, color: '#5BDB8A', fontWeight: 600 }}>● open</motion.span>
+                    <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ fontSize: 11, color: '#5BDB8A', fontWeight: 600 }}>â— open</motion.span>
                     <span style={{ fontSize: 10, color: '#8B949E', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 8 }}>{mentor.availability}</span>
                   </div>
                 </div>
@@ -455,10 +453,10 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
                     whileTap={{ scale: 0.98 }}
                     onClick={e => { e.stopPropagation(); if (!user) { router.push('/sign-in'); } else if (rolesLoaded && !isSeeker) { router.push('/seekers/onboarding'); } else { setModal(mentor); } }}
                     style={{ flex: 1, background: 'rgba(10,102,194,0.12)', border: '1px solid rgba(10,102,194,0.3)', color: '#70B5F9', padding: '11px 0', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                    request a sip →
+                    request a sip â†’
                   </motion.button>
                   <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                    <Link href={`/mentors/${mentor.id}`} onClick={e => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#8B949E', textDecoration: 'none', fontSize: 16 }}>↗</Link>
+                    <Link href={`/mentors/${mentor.id}`} onClick={e => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#8B949E', textDecoration: 'none', fontSize: 16 }}>â†—</Link>
                   </motion.div>
                 </div>
               </motion.div>
@@ -483,7 +481,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
               exit={{ scale: 0.92, opacity: 0, y: 20 }}
               transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 22, padding: 36, width: '100%', maxWidth: 400, textAlign: 'center' }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>☕</div>
+              <div style={{ fontSize: 40, marginBottom: 16 }}>â˜•</div>
               <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>no one in {noMatchInterest} is open right now</div>
               <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 28 }}>want to talk to someone from a different area instead?</p>
               <div style={{ display: 'flex', gap: 10 }}>
@@ -510,8 +508,8 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
               exit={{ scale: 0.92, opacity: 0, y: 20 }}
               transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 22, padding: 36, width: '100%', maxWidth: 440 }}>
-              <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>request a sip ☕</div>
-              <div style={{ color: '#8B949E', fontSize: 14, marginBottom: 28 }}>sending to {modal.firstName} {modal.lastName} · {modal.role} @ {modal.company}</div>
+              <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>request a sip â˜•</div>
+              <div style={{ color: '#8B949E', fontSize: 14, marginBottom: 28 }}>sending to {modal.firstName} {modal.lastName} Â· {modal.role} @ {modal.company}</div>
               <AnimatePresence mode="wait">
                 {sent ? (
                   <motion.div
@@ -523,7 +521,7 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                      style={{ fontSize: 48, marginBottom: 16 }}>✓</motion.div>
+                      style={{ fontSize: 48, marginBottom: 16 }}>âœ“</motion.div>
                       <div style={{ color: '#5BDB8A', fontSize: 18, fontWeight: 600 }}>sent. they&apos;ll reach out soon.</div>
                   </motion.div>
                 ) : (
@@ -538,14 +536,14 @@ fontFamily: 'inherit', transition: 'background 0.2s' }}>
                     </div>
                     <div style={{ marginBottom: 28 }}>
                       <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>what&apos;s on your mind?</label>
-                      <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="one or two sentences — what are you trying to figure out?" rows={3} style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: '#E6EDF3', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                      <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="one or two sentences â€” what are you trying to figure out?" rows={3} style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: '#E6EDF3', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.02, background: '#0856A8' }}
                       whileTap={{ scale: 0.97 }}
                       onClick={handleSubmit}
                       style={{ width: '100%', background: submitting ? '#1E3A5F' : '#0A66C2', color: 'white', border: 'none', padding: '13px 0', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
-                      {submitting ? 'sending...' : 'send it ✦'}
+                      {submitting ? 'sending...' : 'send it âœ¦'}
                     </motion.button>
                   </motion.div>
                 )}

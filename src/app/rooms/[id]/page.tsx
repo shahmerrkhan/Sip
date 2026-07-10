@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { useRoles } from '@/hooks/useRoles';
+import { ConsentGate } from '@/components/ConsentGate';
 
 type Room = { id: string; title: string; roomUrl: string; status: string; firstName: string; lastName: string; role: string; company: string; mentorClerkId: string };
 type QueueEntry = { id: string; seekerClerkId: string; seekerName: string; status: string };
@@ -22,6 +23,7 @@ export default function RoomPage() {
   const [flagReason, setFlagReason] = useState('');
   const [flagDetails, setFlagDetails] = useState('');
   const [flagSubmitting, setFlagSubmitting] = useState(false);
+  const [consented, setConsented] = useState(false);
 
   const fetchRoom = useCallback(async () => {
     const r = await fetch(`/api/rooms/${id}`);
@@ -103,6 +105,15 @@ export default function RoomPage() {
   if (!room || !rolesLoaded) return (
     <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B949E' }}>loading room...</div>
   );
+
+  if (!consented) {
+    return (
+      <ConsentGate
+        onAccept={() => setConsented(true)}
+        onDecline={() => { if (myEntry) leaveQueue(); window.location.href = isMentor ? '/dashboard' : '/seekers'; }}
+      />
+    );
+  }
 
   return (
     <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3', fontFamily: "'Space Grotesk', sans-serif", padding: '80px 20px' }}>
