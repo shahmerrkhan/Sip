@@ -14,7 +14,7 @@ export default function RoomPage() {
   const { id } = useParams<{ id: string }>();
   const { user, isLoaded: userLoaded } = useUser();
   const router = useRouter();
-  const { isMentor, loaded: rolesLoaded } = useRoles();
+  const { loaded: rolesLoaded } = useRoles();
 
   useEffect(() => {
     if (userLoaded && !user) router.replace('/sign-in');
@@ -159,6 +159,7 @@ export default function RoomPage() {
   }
 
   const myPosition = myEntry?.status === 'waiting' ? waiting.findIndex(w => w.id === myEntry.id) + 1 : 0;
+  const isRoomMentor = !!user && !!room && user.id === room.mentorClerkId;
   const modeBtn = (active: boolean): React.CSSProperties => ({ background: active ? 'rgba(112,181,249,0.15)' : 'transparent', border: `1px solid ${active ? 'rgba(112,181,249,0.4)' : BORDER}`, color: active ? LINK : MUTED, padding: '7px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: modeUpdating || actives.length > 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' });
 
   if (!userLoaded || !user || !room || !rolesLoaded) return (
@@ -169,7 +170,7 @@ export default function RoomPage() {
     return (
       <ConsentGate
         onAccept={() => { setConsented(true); fetch('/api/consent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ roomId: id, context: 'call' }) }); }}
-        onDecline={() => { if (myEntry) leaveQueue(); window.location.href = isMentor ? '/dashboard' : '/seekers'; }}
+        onDecline={() => { if (myEntry) leaveQueue(); window.location.href = isRoomMentor ? '/dashboard' : '/seekers'; }}
       />
     );
   }
@@ -178,9 +179,12 @@ export default function RoomPage() {
     <div style={{ background: BG, minHeight: '100vh', color: TEXT, fontFamily: "'Space Grotesk', sans-serif", padding: 'clamp(32px,8vw,80px) 16px' }}>
       <div style={{ maxWidth: 560, margin: '0 auto' }}>
         <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 4 }}>{room.title}</h1>
-          <p style={{ color: MUTED, fontSize: 14, marginBottom: 32, wordBreak: 'break-word' }}>{room.firstName} {room.lastName} · {room.role} @ {room.company}</p>
+          <p style={{ color: MUTED, fontSize: 14, marginBottom: 32, wordBreak: 'break-word' }}>
+            {[room.firstName, room.lastName].filter(Boolean).join(' ')}
+            {room.role && room.company ? ` · ${room.role} @ ${room.company}` : ''}
+          </p>
 
-        {isMentor ? (
+        {isRoomMentor ? (
           <>
             <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: ACCENT, color: 'white', padding: '12px 24px', borderRadius: 12, textDecoration: 'none', fontWeight: 600, fontSize: 14, marginBottom: 20 }}>start call</a>
 
