@@ -66,7 +66,7 @@ export async function POST(req: Request) {
           <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">Quick question from ${escapeHtml(seekerName)}</h2>
           <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">"${escapeHtml(question)}"</p>
           ${flagWarning}
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">Answer in Dashboard -></a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">Answer in Dashboard →</a>
         </div>
       `,
     });

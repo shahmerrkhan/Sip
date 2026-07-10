@@ -24,7 +24,7 @@ export default function RoomPage() {
   const [flagDetails, setFlagDetails] = useState('');
   const [flagSubmitting, setFlagSubmitting] = useState(false);
   const [consented, setConsented] = useState(false);
-  const popupRef = useRef<Window | null>(null);lse);
+  const popupRef = useRef<Window | null>(null);
 
   const fetchRoom = useCallback(async () => {
     const r = await fetch(`/api/rooms/${id}`);
