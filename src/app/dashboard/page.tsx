@@ -177,7 +177,7 @@ export default function Dashboard() {
           {rolesLoaded && (isSeeker
             ? <RoleSwitchLink to="/seekers" role="seeker" label="switch to seeker" style={{ color: LINK, textDecoration: 'none', fontSize: 13, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 12px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }} />
             : <Link href="/seekers/onboarding" className="desktop-only" style={{ color: MUTED, textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>become a seeker too</Link>)}
-          <span className="desktop-only" style={{ color: MUTED, fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>hey, {user?.firstName} 👋</span>
+            <span className="desktop-only" style={{ color: MUTED, fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>hey, {user?.firstName}</span>
           <SignOutButton>
             <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} style={{ background: 'transparent', color: MUTED, border: '1px solid rgba(255,255,255,0.1)', padding: '7px 16px', borderRadius: 20, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, whiteSpace: 'nowrap' }}>sign out</motion.button>
           </SignOutButton>
