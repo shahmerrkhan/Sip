@@ -171,14 +171,14 @@ export default function Dashboard() {
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
         style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', overflowX: 'auto' }}>
         <Logo />
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'nowrap', overflowX: 'auto' }}>
-          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>🏆 leaderboard</Link>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'nowrap', overflowX: 'auto', maxWidth: '70vw', scrollbarWidth: 'none' }}>
+          <Link href="/leaderboard" className="desktop-only" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 leaderboard</Link>
           {rolesLoaded && (isSeeker
-            ? <RoleSwitchLink to="/seekers" role="seeker" label="switch to seeker" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 14, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 14px', borderRadius: 20 }} />
-            : <Link href="/seekers/onboarding" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>become a seeker too</Link>)}
-          <span style={{ color: '#8B949E', fontSize: 14 }}>hey, {user?.firstName} 👋</span>
+            ? <RoleSwitchLink to="/seekers" role="seeker" label="switch to seeker" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 13, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 12px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }} />
+            : <Link href="/seekers/onboarding" className="desktop-only" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>become a seeker too</Link>)}
+          <span className="desktop-only" style={{ color: '#8B949E', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>hey, {user?.firstName} 👋</span>
           <SignOutButton>
-            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} style={{ background: 'transparent', color: '#8B949E', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 20px', borderRadius: 20, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>sign out</motion.button>
+            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} style={{ background: 'transparent', color: '#8B949E', border: '1px solid rgba(255,255,255,0.1)', padding: '7px 16px', borderRadius: 20, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, whiteSpace: 'nowrap' }}>sign out</motion.button>
           </SignOutButton>
         </div>
       </motion.nav>

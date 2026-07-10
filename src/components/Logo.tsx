@@ -17,8 +17,8 @@ export default function Logo({ style, children }: { style?: React.CSSProperties;
 
     if (!loaded) {
       const [m, s] = await Promise.all([
-        fetch('/api/mentor').then(r => r.ok),
-        fetch('/api/seeker').then(r => r.ok),
+        fetch('/api/mentor').then(r => r.json()).then(d => !!d),
+        fetch('/api/seeker').then(r => r.json()).then(d => !!d),
       ]);
       mentorFlag = m;
       seekerFlag = s;

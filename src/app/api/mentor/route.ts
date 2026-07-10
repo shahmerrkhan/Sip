@@ -128,8 +128,7 @@ export async function GET(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const result = await db.select().from(mentors).where(eq(mentors.clerkId, userId));
-  if (result.length === 0) return NextResponse.json(null, { status: 404 });
-  return NextResponse.json(result[0]);
+  return NextResponse.json(result[0] ?? null, { status: 200 });
 }
 
 export async function PATCH(req: Request) {

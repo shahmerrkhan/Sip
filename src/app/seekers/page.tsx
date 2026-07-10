@@ -181,7 +181,7 @@ function SeekersContent() {
         </div>
       </motion.nav>
 
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '90px 16px 20px' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '90px 16px 20px' }}>
         <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1.5, marginBottom: 20 }}>Find Your Sip</h1>
         <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
           {tabBtn('browse', '☕ browse mentors')}
