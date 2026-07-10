@@ -136,6 +136,17 @@ export const asks = pgTable('asks', {
 ]);
 
 
+export const follows = pgTable('follows', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  seekerClerkId: text('seeker_clerk_id').notNull(),
+  mentorId: uuid('mentor_id').references(() => mentors.id, { onDelete: 'cascade' }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => [
+  index('follows_mentor_id_idx').on(t.mentorId),
+  index('follows_seeker_clerk_id_idx').on(t.seekerClerkId),
+  uniqueIndex('follows_unique_idx').on(t.seekerClerkId, t.mentorId),
+]);
+
 export const consents = pgTable('consents', {
   id: uuid('id').defaultRandom().primaryKey(),
   clerkId: text('clerk_id').notNull(),

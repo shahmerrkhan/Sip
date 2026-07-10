@@ -35,6 +35,9 @@ export default function MentorProfile() {
   const { user } = useUser();
   const [mentor, setMentor] = useState<Mentor | null>(null);
   const [loading, setLoading] = useState(true);
+  const [following, setFollowing] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followBusy, setFollowBusy] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -60,7 +63,18 @@ export default function MentorProfile() {
     fetch(`/api/sip-notes?mentorId=${id}`)
       .then(r => r.ok ? r.json() : [])
       .then(data => setNotes(data));
+    fetch(`/api/mentor/${id}/follow`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) { setFollowing(data.following); setFollowerCount(data.count); } });
   }, [id]);
+
+  async function toggleFollow() {
+    if (!user) return;
+    setFollowBusy(true);
+    const res = await fetch(`/api/mentor/${id}/follow`, { method: following ? 'DELETE' : 'POST' });
+    if (res.ok) { setFollowing(!following); setFollowerCount(c => following ? Math.max(0, c - 1) : c + 1); }
+    setFollowBusy(false);
+  }
 
   async function handleAskSubmit() {
     if (!mentor || !askText) return;
@@ -163,6 +177,15 @@ export default function MentorProfile() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
                   <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -1, margin: 0 }}>{mentor.firstName} {mentor.lastName}</h1>
                   <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 10, background: 'rgba(112,181,249,0.1)', border: '1px solid rgba(112,181,249,0.2)', color: '#70B5F9', fontWeight: 600 }}>{mentor.xp} XP</span>
+                  {user && (
+                    <button onClick={toggleFollow} disabled={followBusy}
+                      style={{ fontSize: 12, padding: '3px 12px', borderRadius: 10, border: `1px solid ${following ? 'rgba(91,219,138,0.3)' : 'rgba(255,255,255,0.1)'}`, background: following ? 'rgba(91,219,138,0.1)' : 'transparent', color: following ? '#5BDB8A' : '#8B949E', fontWeight: 600, cursor: followBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                      {following ? 'following ✓' : 'follow'}
+                    </button>
+                  )}
+                  {followerCount > 0 && (
+                    <span style={{ fontSize: 12, color: '#8B949E' }}>{followerCount} follower{followerCount !== 1 ? 's' : ''}</span>
+                  )}
                 </div>
                 <div style={{ color: '#8B949E', fontSize: 14, marginBottom: 10 }}>
                   {mentor.role} @ {mentor.company}
