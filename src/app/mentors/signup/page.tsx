@@ -1,4 +1,5 @@
 'use client';
+import { BG, BORDER, TEXT, MUTED, ACCENT, LINK } from '@/lib/theme';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
@@ -60,8 +61,8 @@ export default function MentorSignup() {
     } catch { setError('Something went wrong. Try again.'); setLoading(false); }
   }
 
-  const input: React.CSSProperties = { width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#E6EDF3', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
-  const label: React.CSSProperties = { fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 8, fontWeight: 500 };
+  const input: React.CSSProperties = { width: '100%', background: BG, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: TEXT, fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
+  const label: React.CSSProperties = { fontSize: 13, color: MUTED, display: 'block', marginBottom: 8, fontWeight: 500 };
 
   const stepVariants = {
     enter: { opacity: 0, x: 40 },
@@ -70,16 +71,16 @@ export default function MentorSignup() {
   };
 
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
+    <div style={{ background: BG, minHeight: '100vh', color: TEXT }}>
 
       {/* NAV */}
       <motion.nav
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4 }}
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 16px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <Logo />
-        <Link href="/dashboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>← back to dashboard</Link>
+        <Link href="/dashboard" style={{ color: MUTED, textDecoration: 'none', fontSize: 14 }}>← back to dashboard</Link>
       </motion.nav>
 
       <div style={{ maxWidth: 560, margin: '0 auto', padding: '90px 16px 60px' }}>
@@ -87,14 +88,14 @@ export default function MentorSignup() {
         {/* HEADER */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} style={{ marginBottom: 48 }}>
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(112,181,249,0.08)', border: '1px solid rgba(112,181,249,0.2)', padding: '6px 16px', borderRadius: 20, fontSize: 12, color: '#70B5F9', marginBottom: 20, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(112,181,249,0.08)', border: '1px solid rgba(112,181,249,0.2)', padding: '6px 16px', borderRadius: 20, fontSize: 12, color: LINK, marginBottom: 20, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase' }}>
             Mentor Signup
           </motion.div>
           <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -2, lineHeight: 1.1, marginBottom: 12 }}>
             Open Your Door.<br />
             <span style={{ background: 'linear-gradient(135deg, #70B5F9, #0A66C2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Change Someone&apos;s Path.</span>
           </h1>
-          <p style={{ color: '#8B949E', fontSize: 15, lineHeight: 1.7 }}>
+          <p style={{ color: MUTED, fontSize: 15, lineHeight: 1.7 }}>
             You know something someone needs to hear. List yourself, stay in control, show up when you want to.
           </p>
         </motion.div>
@@ -102,20 +103,20 @@ export default function MentorSignup() {
         {/* STEP PROGRESS */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           {[1, 2, 3].map(s => (
-            <motion.div key={s} animate={{ background: step >= s ? '#0A66C2' : 'rgba(255,255,255,0.1)' }} transition={{ duration: 0.3 }}
+            <motion.div key={s} animate={{ background: step >= s ? ACCENT : BORDER }} transition={{ duration: 0.3 }}
               style={{ flex: 1, height: 3, borderRadius: 4 }} />
           ))}
         </motion.div>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} style={{ color: '#8B949E', fontSize: 12, marginBottom: 36 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} style={{ color: MUTED, fontSize: 12, marginBottom: 36 }}>
           step {step} of 3
         </motion.div>
 
         {!isLoaded ? null : !user ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', padding: '60px 0' }}>
             <div style={{ fontSize: 40, marginBottom: 16 }}>🔐</div>
-            <p style={{ color: '#8B949E', marginBottom: 24 }}>Sign in first to create your mentor profile</p>
+            <p style={{ color: MUTED, marginBottom: 24 }}>Sign in first to create your mentor profile</p>
             <Link href="/sign-in">
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} style={{ background: '#0A66C2', color: 'white', border: 'none', padding: '12px 32px', borderRadius: 24, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>sign in to continue</motion.button>
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} style={{ background: ACCENT, color: 'white', border: 'none', padding: '12px 32px', borderRadius: 24, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>sign in to continue</motion.button>
             </Link>
           </motion.div>
         ) : (
@@ -153,7 +154,7 @@ export default function MentorSignup() {
                   whileHover={{ scale: 1.02, background: '#0856A8' }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => { if (!form.firstName || !form.lastName || !form.email || !form.role || !form.company) { setError('Please fill in all fields.'); return; } setError(''); setStep(2); }}
-                  style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
+                  style={{ width: '100%', background: ACCENT, color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
                   next →
                 </motion.button>
               </motion.div>
@@ -165,22 +166,22 @@ export default function MentorSignup() {
                 <div style={{ marginBottom: 20 }}>
                   <label style={label}>Your one-liner bio</label>
                   <textarea value={form.bio} onChange={e => set('bio', e.target.value)} placeholder="what do you actually want to talk about? be real, not corporate." rows={3} style={{ ...input, resize: 'none' }} />
-                  <div style={{ color: '#8B949E', fontSize: 12, marginTop: 6 }}>{form.bio.length}/200 chars</div>
+                  <div style={{ color: MUTED, fontSize: 12, marginTop: 6 }}>{form.bio.length}/200 chars</div>
                 </div>
                 <div style={{ marginBottom: 28 }}>
                 <label style={label}>Topics you&apos;re open to discuss</label>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {TOPIC_OPTIONS.map(t => (
                       <motion.button key={t} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }} onClick={() => toggleTopic(t)}
-                        style={{ padding: '7px 16px', borderRadius: 20, border: '1px solid', borderColor: form.topics.includes(t) ? '#0A66C2' : 'rgba(255,255,255,0.1)', background: form.topics.includes(t) ? 'rgba(10,102,194,0.2)' : 'transparent', color: form.topics.includes(t) ? '#70B5F9' : '#8B949E', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                        style={{ padding: '7px 16px', borderRadius: 20, border: '1px solid', borderColor: form.topics.includes(t) ? ACCENT : BORDER, background: form.topics.includes(t) ? 'rgba(10,102,194,0.2)' : 'transparent', color: form.topics.includes(t) ? LINK : MUTED, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
                         {t}
                       </motion.button>
                     ))}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setStep(1)} style={{ flex: 1, background: 'transparent', color: '#8B949E', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>← back</motion.button>
-                  <motion.button whileHover={{ scale: 1.02, background: '#0856A8' }} whileTap={{ scale: 0.97 }} onClick={() => { if (!form.bio || form.topics.length === 0) { setError('Add a bio and at least one topic.'); return; } setError(''); setStep(3); }} style={{ flex: 2, background: '#0A66C2', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>next →</motion.button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setStep(1)} style={{ flex: 1, background: 'transparent', color: MUTED, border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>← back</motion.button>
+                  <motion.button whileHover={{ scale: 1.02, background: '#0856A8' }} whileTap={{ scale: 0.97 }} onClick={() => { if (!form.bio || form.topics.length === 0) { setError('Add a bio and at least one topic.'); return; } setError(''); setStep(3); }} style={{ flex: 2, background: ACCENT, color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>next →</motion.button>
                 </div>
                 {error && <div style={{ color: '#F87171', fontSize: 13, marginTop: 12 }}>{error}</div>}
               </motion.div>
@@ -192,7 +193,7 @@ export default function MentorSignup() {
                 <div style={{ marginBottom: 16 }}>
                   <label style={label}>Calendar link</label>
                   <input value={form.calendarLink} onChange={e => set('calendarLink', e.target.value)} placeholder="calendly.com/yourname" style={input} />
-                  <div style={{ color: '#8B949E', fontSize: 12, marginTop: 6 }}>This is what seekers get when you accept a request</div>
+                  <div style={{ color: MUTED, fontSize: 12, marginTop: 6 }}>This is what seekers get when you accept a request</div>
                   {form.calendarLink && !/^(https?:\/\/)?(www\.)?calendly\.com\/.+/i.test(form.calendarLink.trim()) && (
                     <div style={{ color: '#F87171', fontSize: 12, marginTop: 6 }}>Must be a calendly.com link.</div>
                   )}
@@ -206,15 +207,15 @@ export default function MentorSignup() {
                 </div>
                 <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>
                   <input type="checkbox" id="showLinkedin" checked={form.showLinkedin} onChange={e => setForm(f => ({ ...f, showLinkedin: e.target.checked }))}
-                    style={{ width: 16, height: 16, accentColor: '#0A66C2', cursor: 'pointer' }} />
-                  <label htmlFor="showLinkedin" style={{ fontSize: 13, color: '#8B949E', cursor: 'pointer' }}>Show my LinkedIn on my public profile</label>
+                    style={{ width: 16, height: 16, accentColor: ACCENT, cursor: 'pointer' }} />
+                  <label htmlFor="showLinkedin" style={{ fontSize: 13, color: MUTED, cursor: 'pointer' }}>Show my LinkedIn on my public profile</label>
                 </div>
                 <div style={{ marginBottom: 32 }}>
                   <label style={label}>Availability vibe</label>
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {['flexible', 'weekends only', 'evenings only', 'by request'].map(a => (
                       <motion.button key={a} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }} onClick={() => set('availability', a)}
-                        style={{ padding: '7px 14px', borderRadius: 20, border: '1px solid', borderColor: form.availability === a ? '#0A66C2' : 'rgba(255,255,255,0.1)', background: form.availability === a ? 'rgba(10,102,194,0.2)' : 'transparent', color: form.availability === a ? '#70B5F9' : '#8B949E', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                        style={{ padding: '7px 14px', borderRadius: 20, border: '1px solid', borderColor: form.availability === a ? ACCENT : BORDER, background: form.availability === a ? 'rgba(10,102,194,0.2)' : 'transparent', color: form.availability === a ? LINK : MUTED, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
                         {a}
                       </motion.button>
                     ))}
@@ -229,13 +230,13 @@ export default function MentorSignup() {
                   )}
                 </AnimatePresence>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setStep(2)} style={{ flex: 1, background: 'transparent', color: '#8B949E', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>← back</motion.button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setStep(2)} style={{ flex: 1, background: 'transparent', color: MUTED, border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>← back</motion.button>
                   <motion.button
                     whileHover={{ scale: loading ? 1 : 1.02, background: loading ? '#1E3A5F' : '#0856A8' }}
                     whileTap={{ scale: 0.97 }}
                     onClick={handleSubmit}
                     disabled={loading || !form.calendarLink || !/^(https?:\/\/)?(www\.)?calendly\.com\/.+/i.test(form.calendarLink.trim()) || (!!form.linkedin && !/^(https?:\/\/)?(www\.)?linkedin\.com\/.+/i.test(form.linkedin.trim()))}
-                    style={{ flex: 2, background: loading ? '#1E3A5F' : '#0A66C2', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
+                    style={{ flex: 2, background: loading ? '#1E3A5F' : ACCENT, color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
                     {loading ? (
                       <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1, repeat: Infinity }}>saving...</motion.span>
                     ) : 'go live ✦'}

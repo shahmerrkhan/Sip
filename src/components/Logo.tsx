@@ -1,7 +1,9 @@
+// src/components/Logo.tsx
 'use client';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { useRoles } from '@/hooks/useRoles';
+import { ACCENT } from '@/lib/theme';
 
 export default function Logo({ style, children }: { style?: React.CSSProperties; children?: React.ReactNode }) {
   const { user, isLoaded } = useUser();
@@ -34,8 +36,8 @@ export default function Logo({ style, children }: { style?: React.CSSProperties;
 
   return (
     <a href="/" onClick={handleClick}
-      style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Space Mono', fontSize: 22, fontWeight: 700, color: '#70B5F9', letterSpacing: -1, textDecoration: 'none', cursor: 'pointer', ...style }}>
-      <img src="/logo.png" alt="Sip" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+      style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Space Mono', fontSize: 28, fontWeight: 700, color: ACCENT, letterSpacing: -1, textDecoration: 'none', cursor: 'pointer', ...style }}>
+      <img src="/logo.png" alt="Sip" style={{ width: 40, height: 40, objectFit: 'contain' }} />
       {children ?? 'sip'}
     </a>
   );

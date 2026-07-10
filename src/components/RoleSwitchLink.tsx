@@ -1,4 +1,5 @@
 'use client';
+import { BG, LINK } from '@/lib/theme';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter, usePathname } from 'next/navigation';
@@ -32,12 +33,12 @@ export default function RoleSwitchLink({ to, role, label, style }: { to: string;
         <AnimatePresence>
           {switching && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0D1117', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              style={{ position: 'fixed', inset: 0, zIndex: 9999, background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 200 }}
                 style={{ textAlign: 'center' }}>
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   style={{ fontSize: 40, marginBottom: 16 }}>☕</motion.div>
-                <div style={{ color: '#70B5F9', fontFamily: 'Space Mono', fontSize: 20, fontWeight: 700 }}>
+                <div style={{ color: LINK, fontFamily: 'Space Mono', fontSize: 20, fontWeight: 700 }}>
                   switching to {role}...
                 </div>
               </motion.div>

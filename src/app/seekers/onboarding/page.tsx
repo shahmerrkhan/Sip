@@ -1,4 +1,5 @@
-﻿'use client';
+'use client';
+import { BG, BORDER, TEXT, MUTED, ACCENT, LINK } from '@/lib/theme';
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
@@ -26,8 +27,8 @@ export default function SeekerOnboarding() {
     if (isLoaded && !user) router.push('/');
   }, [isLoaded, user, router]);
 
-  const input: React.CSSProperties = { width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#E6EDF3', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
-  const label: React.CSSProperties = { fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 8, fontWeight: 500 };
+  const input: React.CSSProperties = { width: '100%', background: BG, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: TEXT, fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
+  const label: React.CSSProperties = { fontSize: 13, color: MUTED, display: 'block', marginBottom: 8, fontWeight: 500 };
 
   async function handleSubmit() {
     if (form.linkedin && !/^(https?:\/\/)?(www\.)?linkedin\.com\/.+/i.test(form.linkedin.trim())) {
@@ -50,14 +51,14 @@ export default function SeekerOnboarding() {
   }
 
   return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+    <div style={{ background: BG, minHeight: '100vh', color: TEXT }}>
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 16px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
-        <Link href="/seekers" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 14 }}>skip for now →</Link>
+        <Link href="/seekers" style={{ color: MUTED, textDecoration: 'none', fontSize: 14 }}>skip for now ?</Link>
       </nav>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '90px 16px 60px' }}>
         <h1 style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1.5, marginBottom: 12 }}>Tell us a bit about you</h1>
-        <p style={{ color: '#8B949E', fontSize: 15, marginBottom: 36 }}>Helps mentors understand who&apos;s reaching out. All optional.</p>
+        <p style={{ color: MUTED, fontSize: 15, marginBottom: 36 }}>Helps mentors understand who&apos;s reaching out. All optional.</p>
 
         <div style={{ marginBottom: 16 }}>
           <label style={label}>Age</label>
@@ -71,14 +72,14 @@ export default function SeekerOnboarding() {
           <label style={label}>What are you into?</label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {TOPICS.map(t => (
-              <button key={t} onClick={() => toggle(t)} style={{ padding: '7px 16px', borderRadius: 20, border: '1px solid', borderColor: form.interests.includes(t) ? '#0A66C2' : 'rgba(255,255,255,0.1)', background: form.interests.includes(t) ? 'rgba(10,102,194,0.2)' : 'transparent', color: form.interests.includes(t) ? '#70B5F9' : '#8B949E', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t}</button>
+              <button key={t} onClick={() => toggle(t)} style={{ padding: '7px 16px', borderRadius: 20, border: '1px solid', borderColor: form.interests.includes(t) ? ACCENT : BORDER, background: form.interests.includes(t) ? 'rgba(10,102,194,0.2)' : 'transparent', color: form.interests.includes(t) ? LINK : MUTED, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{t}</button>
             ))}
           </div>
         </div>
         {error && <div style={{ color: '#F87171', fontSize: 13, marginBottom: 16 }}>{error}</div>}
         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleSubmit} disabled={loading}
-          style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-          {loading ? 'saving...' : 'continue →'}
+          style={{ width: '100%', background: ACCENT, color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+          {loading ? 'saving...' : 'continue ?'}
         </motion.button>
       </div>
     </div>

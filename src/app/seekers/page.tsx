@@ -1,5 +1,6 @@
 
 'use client';
+import { BG, SURFACE, BORDER, TEXT, MUTED, ACCENT, LINK, PURPLE } from '@/lib/theme';
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -23,7 +24,7 @@ type SipRequest = {
   mentor?: { firstName: string; lastName: string; role: string; company: string; calendarLink: string; };
 };
 
-const AVATARS = ['#0A66C2', '#7C3AED', '#059669', '#DC2626', '#D97706', '#0891B2'];
+const AVATARS = [ACCENT, PURPLE, '#059669', '#DC2626', '#D97706', '#0891B2'];
 const INITIALS = (m: Mentor) => `${m.firstName[0]}${m.lastName[0]}`;
 const ALL_FILTERS = ['all', 'tech', 'startups', 'design', 'VC', 'AI/ML', 'product', 'finance', 'research'];
 const STATUS_STYLE: Record<string, { bg: string; color: string; border: string; label: string }> = {
@@ -160,24 +161,24 @@ function SeekersContent() {
   const tabBtn = (id: 'browse' | 'mine', label: string) => (
     <button onClick={() => setTab(id)} style={{
       background: tab === id ? 'rgba(112,181,249,0.12)' : 'transparent',
-      border: `1px solid ${tab === id ? 'rgba(112,181,249,0.4)' : 'rgba(255,255,255,0.1)'}`,
-      color: tab === id ? '#70B5F9' : '#8B949E', padding: '10px 22px', borderRadius: 20,
+      border: `1px solid ${tab === id ? 'rgba(112,181,249,0.4)' : BORDER}`,
+      color: tab === id ? LINK : MUTED, padding: '10px 22px', borderRadius: 20,
       fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
     }}>{label}</button>
   );
 
   return (
-    <div style={{ fontFamily: "'Space Grotesk', sans-serif", background: '#0D1117', minHeight: '100vh', color: '#E6EDF3' }}>
+    <div style={{ fontFamily: "'Space Grotesk', sans-serif", background: BG, minHeight: '100vh', color: TEXT }}>
 
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 40px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', overflowX: 'auto', flexWrap: 'nowrap', maxWidth: '65vw', scrollbarWidth: 'none' }}>
-          <Link href="/leaderboard" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 leaderboard</Link>
+          <Link href="/leaderboard" style={{ color: MUTED, textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>🏆 leaderboard</Link>
           {rolesLoaded && isMentor
-            ? <RoleSwitchLink to="/dashboard" role="mentor" label="switch to mentor" style={{ color: '#70B5F9', textDecoration: 'none', fontSize: 13, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 12px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }} />
-            : <Link href="/mentors/signup" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>become a mentor</Link>}
-          {rolesLoaded && isSeeker && <Link href="/seekers/onboarding" style={{ color: '#8B949E', textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>edit profile</Link>}
+            ? <RoleSwitchLink to="/dashboard" role="mentor" label="switch to mentor" style={{ color: LINK, textDecoration: 'none', fontSize: 13, border: '1px solid rgba(112,181,249,0.2)', padding: '6px 12px', borderRadius: 20, flexShrink: 0, whiteSpace: 'nowrap' }} />
+            : <Link href="/mentors/signup" style={{ color: MUTED, textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>become a mentor</Link>}
+          {rolesLoaded && isSeeker && <Link href="/seekers/onboarding" style={{ color: MUTED, textDecoration: 'none', fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap' }}>edit profile</Link>}
         </div>
       </motion.nav>
 
@@ -197,9 +198,9 @@ function SeekersContent() {
           </h2>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
             {liveRooms.map(r => (
-              <Link key={r.id} href={`/rooms/${r.id}`} style={{ textDecoration: 'none', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 14, padding: '14px 20px', color: '#E6EDF3', minWidth: 220 }}>
+              <Link key={r.id} href={`/rooms/${r.id}`} style={{ textDecoration: 'none', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: 14, padding: '14px 20px', color: TEXT, minWidth: 220 }}>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{r.title}</div>
-                <div style={{ color: '#8B949E', fontSize: 12, marginTop: 4 }}>{r.firstName} {r.lastName} · {r.role} @ {r.company}</div>
+                <div style={{ color: MUTED, fontSize: 12, marginTop: 4 }}>{r.firstName} {r.lastName} · {r.role} @ {r.company}</div>
                 <div style={{ color: '#F87171', fontSize: 12, marginTop: 6, fontWeight: 600 }}>join now →</div>
               </Link>
             ))}
@@ -211,23 +212,23 @@ function SeekersContent() {
         <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 16px 60px' }}>
           <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search by name, role, company, topic..."
-              style={{ flex: 1, minWidth: 240, background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '12px 16px', color: '#E6EDF3', fontSize: 14, outline: 'none', fontFamily: 'inherit' }} />
+              style={{ flex: 1, minWidth: 240, background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '12px 16px', color: TEXT, fontSize: 14, outline: 'none', fontFamily: 'inherit' }} />
           </div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 28, flexWrap: 'wrap' }}>
             {ALL_FILTERS.map(f => (
               <button key={f} onClick={() => setFilter(f)} style={{
                 background: filter === f ? 'rgba(112,181,249,0.12)' : 'transparent',
-                border: `1px solid ${filter === f ? 'rgba(112,181,249,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                color: filter === f ? '#70B5F9' : '#8B949E', padding: '6px 16px', borderRadius: 16,
+                border: `1px solid ${filter === f ? 'rgba(112,181,249,0.4)' : BORDER}`,
+                color: filter === f ? LINK : MUTED, padding: '6px 16px', borderRadius: 16,
                 fontSize: 13, cursor: 'pointer', fontFamily: 'inherit',
               }}>{f}</button>
             ))}
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#8B949E' }}>loading mentors...</div>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: MUTED }}>loading mentors...</div>
           ) : filtered.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 0', color: '#8B949E' }}>
+            <div style={{ textAlign: 'center', padding: '80px 0', color: MUTED }}>
               <div style={{ fontSize: 40, marginBottom: 16 }}>☕</div>
               <p>no mentors in this category yet. check back soon.</p>
             </div>
@@ -238,23 +239,23 @@ function SeekersContent() {
                   <motion.div key={mentor.id} layout initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                     transition={{ duration: 0.35, delay: i * 0.05 }} whileHover={{ y: -6 }}
                     onClick={() => window.location.href = `/mentors/${mentor.id}`}
-                    style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: 24, cursor: 'pointer' }}>
+                    style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: 24, cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                       <div style={{ width: 46, height: 46, borderRadius: '50%', background: AVATARS[i % AVATARS.length], display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 15 }}>{INITIALS(mentor)}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 600, fontSize: 15 }}>{mentor.firstName} {mentor.lastName}</div>
-                        <div style={{ color: '#8B949E', fontSize: 13 }}>{mentor.role} @ {mentor.company}</div>
+                        <div style={{ color: MUTED, fontSize: 13 }}>{mentor.role} @ {mentor.company}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
                       {mentor.topics.split(',').map(t => (
-                        <span key={t} style={{ background: 'rgba(112,181,249,0.07)', border: '1px solid rgba(112,181,249,0.15)', color: '#70B5F9', padding: '3px 10px', borderRadius: 12, fontSize: 12 }}>{t.trim()}</span>
+                        <span key={t} style={{ background: 'rgba(112,181,249,0.07)', border: '1px solid rgba(112,181,249,0.15)', color: LINK, padding: '3px 10px', borderRadius: 12, fontSize: 12 }}>{t.trim()}</span>
                       ))}
                     </div>
-                      <p style={{ color: '#8B949E', fontSize: 13, lineHeight: 1.65, marginBottom: 20 }}>&quot;{mentor.bio}&quot;</p>
+                      <p style={{ color: MUTED, fontSize: 13, lineHeight: 1.65, marginBottom: 20 }}>&quot;{mentor.bio}&quot;</p>
                     <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                       onClick={e => { e.stopPropagation(); if (!user) { router.push('/sign-in'); } else if (rolesLoaded && !isSeeker) { router.push('/seekers/onboarding'); } else { setModal(mentor); } }}
-                      style={{ width: '100%', background: 'rgba(10,102,194,0.12)', border: '1px solid rgba(10,102,194,0.3)', color: '#70B5F9', padding: '11px 0', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ width: '100%', background: 'rgba(10,102,194,0.12)', border: '1px solid rgba(10,102,194,0.3)', color: LINK, padding: '11px 0', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                       request a sip →
                     </motion.button>
                   </motion.div>
@@ -266,31 +267,31 @@ function SeekersContent() {
           {!loading && filtered.length > PAGE_SIZE && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 32, flexWrap: 'wrap' }}>
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === 1 ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === 1 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>{String.fromCharCode(0x2190)} prev</button>
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === 1 ? '#484F58' : MUTED, padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === 1 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>{String.fromCharCode(0x2190)} prev</button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
                 <button key={n} onClick={() => setPage(n)}
-                  style={{ background: page === n ? 'rgba(112,181,249,0.15)' : 'transparent', border: `1px solid ${page === n ? 'rgba(112,181,249,0.4)' : 'rgba(255,255,255,0.1)'}`, color: page === n ? '#70B5F9' : '#8B949E', width: 36, height: 36, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{n}</button>
+                  style={{ background: page === n ? 'rgba(112,181,249,0.15)' : 'transparent', border: `1px solid ${page === n ? 'rgba(112,181,249,0.4)' : BORDER}`, color: page === n ? LINK : MUTED, width: 36, height: 36, borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{n}</button>
               ))}
               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === totalPages ? '#484F58' : '#8B949E', padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === totalPages ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>next {String.fromCharCode(0x2192)}</button>
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: page === totalPages ? '#484F58' : MUTED, padding: '8px 14px', borderRadius: 10, fontSize: 13, cursor: page === totalPages ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>next {String.fromCharCode(0x2192)}</button>
             </div>
           )}
         </section>
       ) : (
         <section style={{ maxWidth: 680, margin: '0 auto', padding: '0 16px 60px' }}>
           {!lookupDone ? (
-            <div style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, textAlign: 'center' }}>
+            <div style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40, textAlign: 'center' }}>
               {!user ? (
                 <>
-                <p style={{ color: '#8B949E', marginBottom: 20 }}>Sign in to see the sips you&apos;ve requested.</p>
-                  <Link href="/sign-in" style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '13px 28px', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>sign in →</Link>
+                <p style={{ color: MUTED, marginBottom: 20 }}>Sign in to see the sips you&apos;ve requested.</p>
+                  <Link href="/sign-in" style={{ display: 'inline-block', background: ACCENT, color: 'white', padding: '13px 28px', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>sign in →</Link>
                 </>
               ) : (
                 <>
-                <p style={{ color: '#8B949E', marginBottom: 20 }}>See the sips you&apos;ve requested as {user.primaryEmailAddress?.emailAddress}.</p>
+                <p style={{ color: MUTED, marginBottom: 20 }}>See the sips you&apos;ve requested as {user.primaryEmailAddress?.emailAddress}.</p>
                   {error && <div style={{ color: '#F87171', fontSize: 13, marginBottom: 12 }}>{error}</div>}
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleLookup} disabled={loadingLookup}
-                    style={{ background: '#0A66C2', color: 'white', border: 'none', padding: '14px 28px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loadingLookup ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                    style={{ background: ACCENT, color: 'white', border: 'none', padding: '14px 28px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loadingLookup ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                     {loadingLookup ? 'looking up...' : 'see my sips →'}
                   </motion.button>
                 </>
@@ -301,7 +302,7 @@ function SeekersContent() {
               {myFlags.length > 0 && (
                 <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: 16, padding: '18px 24px', marginBottom: 20 }}>
                   <div style={{ fontWeight: 700, color: '#FBBF24', marginBottom: 4 }}>You&apos;ve been flagged {myFlags.length > 1 ? `${myFlags.length} times` : 'once'}</div>
-                  <div style={{ color: '#8B949E', fontSize: 13 }}>Repeated flags can lead to a permanent ban. If you think this was a mistake, reach out to support.</div>
+                  <div style={{ color: MUTED, fontSize: 13 }}>Repeated flags can lead to a permanent ban. If you think this was a mistake, reach out to support.</div>
                 </div>
               )}
               {streak && streak.currentStreak > 0 && (
@@ -309,7 +310,7 @@ function SeekersContent() {
                   <div style={{ fontSize: 32 }}>🔥</div>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 18, color: '#F59E0B' }}>{streak.currentStreak} week streak</div>
-                    <div style={{ color: '#8B949E', fontSize: 13 }}>longest: {streak.longestStreak} weeks · log a note after your next sip to keep it going</div>
+                    <div style={{ color: MUTED, fontSize: 13 }}>longest: {streak.longestStreak} weeks · log a note after your next sip to keep it going</div>
                   </div>
                 </div>
               )}
@@ -318,58 +319,58 @@ function SeekersContent() {
                 <div style={{ background: 'rgba(112,181,249,0.06)', border: '1px solid rgba(112,181,249,0.2)', borderRadius: 16, padding: '20px 28px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>Your public profile</div>
-                    <div style={{ color: '#8B949E', fontSize: 13 }}>Share this so people can see who you are, sips you&apos;ve had shared publicly appear here too.</div>
+                    <div style={{ color: MUTED, fontSize: 13 }}>Share this so people can see who you are, sips you&apos;ve had shared publicly appear here too.</div>
                   </div>
                   <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/seekers/${seekerId}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                    style={{ background: copied ? 'rgba(91,219,138,0.15)' : '#0A66C2', color: copied ? '#5BDB8A' : 'white', border: copied ? '1px solid rgba(91,219,138,0.3)' : 'none', padding: '10px 22px', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                    style={{ background: copied ? 'rgba(91,219,138,0.15)' : ACCENT, color: copied ? '#5BDB8A' : 'white', border: copied ? '1px solid rgba(91,219,138,0.3)' : 'none', padding: '10px 22px', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
                     {copied ? 'copied ✓' : 'copy link'}
                   </button>
                 </div>
               )}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
                 {[
-                  { label: 'Total Sent', value: requests.length, color: '#70B5F9' },
+                  { label: 'Total Sent', value: requests.length, color: LINK },
                   { label: 'Accepted', value: accepted.length, color: '#5BDB8A' },
                   { label: 'Pending', value: pending.length, color: '#F59E0B' },
                 ].map(s => (
-                  <div key={s.label} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px 24px', textAlign: 'center' }}>
+                  <div key={s.label} style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px 24px', textAlign: 'center' }}>
                     <div style={{ fontSize: 28, fontWeight: 700, color: s.color, fontFamily: 'Space Mono' }}>{s.value}</div>
-                    <div style={{ color: '#8B949E', fontSize: 12, marginTop: 4 }}>{s.label}</div>
+                    <div style={{ color: MUTED, fontSize: 12, marginTop: 4 }}>{s.label}</div>
                   </div>
                 ))}
               </div>
               {requests.length === 0 ? (
-                <div style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '60px 40px', textAlign: 'center' }}>
+                <div style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '60px 40px', textAlign: 'center' }}>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>☕</div>
-                  <p style={{ color: '#8B949E', marginBottom: 24 }}>No sips found for this email.</p>
-                  <button onClick={() => setTab('browse')} style={{ color: '#70B5F9', background: 'none', border: 'none', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>browse mentors →</button>
+                  <p style={{ color: MUTED, marginBottom: 24 }}>No sips found for this email.</p>
+                  <button onClick={() => setTab('browse')} style={{ color: LINK, background: 'none', border: 'none', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>browse mentors →</button>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {requests.map(r => {
                     const s = STATUS_STYLE[r.status];
                     return (
-                      <div key={r.id} style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24, opacity: r.status === 'declined' ? 0.5 : 1 }}>
+                      <div key={r.id} style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 24, opacity: r.status === 'declined' ? 0.5 : 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
                           <div>
                             <div style={{ fontWeight: 600, fontSize: 16 }}>{r.mentor ? `${r.mentor.firstName} ${r.mentor.lastName}` : 'Mentor'}</div>
-                            <div style={{ color: '#8B949E', fontSize: 13 }}>{r.mentor ? `${r.mentor.role} @ ${r.mentor.company}` : ''}</div>
+                            <div style={{ color: MUTED, fontSize: 13 }}>{r.mentor ? `${r.mentor.role} @ ${r.mentor.company}` : ''}</div>
                           </div>
                           <span style={{ fontSize: 12, padding: '4px 12px', borderRadius: 12, background: s.bg, color: s.color, border: `1px solid ${s.border}`, fontWeight: 600, height: 'fit-content' }}>{s.label}</span>
                         </div>
-                        <p style={{ color: '#8B949E', fontSize: 14, marginBottom: 16 }}>&quot;{r.message}&quot;</p>
+                        <p style={{ color: MUTED, fontSize: 14, marginBottom: 16 }}>&quot;{r.message}&quot;</p>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ color: '#8B949E', fontSize: 12 }}>{new Date(r.createdAt).toLocaleDateString()}</span>
+                          <span style={{ color: MUTED, fontSize: 12 }}>{new Date(r.createdAt).toLocaleDateString()}</span>
                           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                             {r.status === 'accepted' && (
                               <button onClick={() => toggleConsent(r.id, r.seekerConsentToShow)} disabled={togglingConsent === r.id}
-                                style={{ background: r.seekerConsentToShow ? 'rgba(91,219,138,0.1)' : 'transparent', border: `1px solid ${r.seekerConsentToShow ? 'rgba(91,219,138,0.3)' : 'rgba(255,255,255,0.1)'}`, color: r.seekerConsentToShow ? '#5BDB8A' : '#8B949E', padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                                style={{ background: r.seekerConsentToShow ? 'rgba(91,219,138,0.1)' : 'transparent', border: `1px solid ${r.seekerConsentToShow ? 'rgba(91,219,138,0.3)' : BORDER}`, color: r.seekerConsentToShow ? '#5BDB8A' : MUTED, padding: '7px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                                 {r.seekerConsentToShow ? 'showing on profile ✓' : 'show on profile'}
                               </button>
                             )}
                             {r.status === 'accepted' && r.mentor?.calendarLink && (
                               <a href={r.mentor.calendarLink} target="_blank" rel="noopener noreferrer"
-                                style={{ background: '#0A66C2', color: 'white', padding: '8px 18px', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                                style={{ background: ACCENT, color: 'white', padding: '8px 18px', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                                 book your sip →
                               </a>
                             )}
@@ -381,7 +382,7 @@ function SeekersContent() {
                 </div>
               )}
               <button onClick={() => { setLookupDone(false); setRequests([]); }}
-                style={{ marginTop: 24, background: 'none', border: 'none', color: '#8B949E', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ marginTop: 24, background: 'none', border: 'none', color: MUTED, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
                 ← check a different email
               </button>
             </div>
@@ -395,9 +396,9 @@ function SeekersContent() {
             onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
             <motion.div initial={{ scale: 0.92, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.92, opacity: 0, y: 20 }}
-              style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 22, padding: 36, width: '100%', maxWidth: 440 }}>
+              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 22, padding: 36, width: '100%', maxWidth: 440 }}>
               <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>request a sip ☕</div>
-              <div style={{ color: '#8B949E', fontSize: 14, marginBottom: 28 }}>sending to {modal.firstName} {modal.lastName} · {modal.role} @ {modal.company}</div>
+              <div style={{ color: MUTED, fontSize: 14, marginBottom: 28 }}>sending to {modal.firstName} {modal.lastName} · {modal.role} @ {modal.company}</div>
               {sent ? (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>
                   <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
@@ -406,22 +407,22 @@ function SeekersContent() {
               ) : (
                 <div>
                   <div style={{ marginBottom: 16 }}>
-                    <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>your name</label>
+                    <label style={{ fontSize: 13, color: MUTED, display: 'block', marginBottom: 6 }}>your name</label>
                     <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                      style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: '#E6EDF3', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                      style={{ width: '100%', background: BG, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                   </div>
                   <div style={{ marginBottom: 16 }}>
-                    <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>your email</label>
+                    <label style={{ fontSize: 13, color: MUTED, display: 'block', marginBottom: 6 }}>your email</label>
                     <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} type="email"
-                      style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: '#E6EDF3', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                      style={{ width: '100%', background: BG, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                   </div>
                   <div style={{ marginBottom: 28 }}>
-                  <label style={{ fontSize: 13, color: '#8B949E', display: 'block', marginBottom: 6 }}>what&apos;s on your mind?</label>
+                  <label style={{ fontSize: 13, color: MUTED, display: 'block', marginBottom: 6 }}>what&apos;s on your mind?</label>
                     <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} rows={3}
-                      style={{ width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: '#E6EDF3', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                      style={{ width: '100%', background: BG, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                   </div>
                   <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleSubmit}
-                    style={{ width: '100%', background: submitting ? '#1E3A5F' : '#0A66C2', color: 'white', border: 'none', padding: '13px 0', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                    style={{ width: '100%', background: submitting ? '#1E3A5F' : ACCENT, color: 'white', border: 'none', padding: '13px 0', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                     {submitting ? 'sending...' : 'send it ✦'}
                   </motion.button>
                 </div>

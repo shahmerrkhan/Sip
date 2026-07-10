@@ -1,3 +1,4 @@
+// src/app/page.tsx
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -6,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRoles } from '@/hooks/useRoles';
 import Logo from '@/components/Logo';
+import { BG, SURFACE, BORDER, TEXT, MUTED, ACCENT, AVATARS } from '@/lib/theme';
 
 type Mentor = {
   id: string;
@@ -19,18 +21,10 @@ type Mentor = {
   availability: string;
 };
 
-const AVATARS = ['#C9622B', '#3E6B5C', '#8B5CF6', '#B45309', '#2D6A9F', '#9F2D4E'];
 const INITIALS = (m: Mentor) => `${m.firstName[0]}${m.lastName[0]}`;
 
 const WORDS = ['no cold DMs.', 'no scheduling links.', 'no gatekeeping.', 'no waiting.'];
 type AIMatch = { id: string; firstName: string; lastName: string; role: string; company: string; reason: string };
-
-const ACCENT = '#E8622A';
-const BG = '#0A0A0A';
-const SURFACE = '#141414';
-const BORDER = 'rgba(255,255,255,0.08)';
-const TEXT = '#F2F1EC';
-const MUTED = '#8A8A85';
 
 function IconBolt() {
   return <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" stroke={ACCENT} strokeWidth="2" strokeLinejoin="round" fill="none"/></svg>;
@@ -205,7 +199,7 @@ export default function Home() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 20px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: scrolled ? 'rgba(10,10,10,0.95)' : 'rgba(10,10,10,0.5)', backdropFilter: 'blur(20px)', borderBottom: scrolled ? `1px solid ${BORDER}` : '1px solid transparent', transition: 'background 0.3s, border-color 0.3s' }}>
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 20px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: scrolled ? 'rgba(10,14,22,0.95)' : 'rgba(10,14,22,0.5)', backdropFilter: 'blur(20px)', borderBottom: scrolled ? `1px solid ${BORDER}` : '1px solid transparent', transition: 'background 0.3s, border-color 0.3s' }}>
         <Logo />
         {!user && (
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
@@ -235,7 +229,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25, duration: 0.55 }}
           style={{ fontSize: 'clamp(44px, 6vw, 80px)', fontWeight: 600, lineHeight: 1.05, letterSpacing: -2.5, margin: '0 0 20px', color: TEXT, maxWidth: 780 }}>
-          Real mentors,<br />talking right now —
+          Real mentors,<br />talking right now -
           <span style={{ display: 'inline-block', height: '1.05em', overflow: 'hidden', verticalAlign: 'bottom', marginLeft: 12 }}>
             <AnimatePresence mode="wait">
               <motion.span
@@ -256,7 +250,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           style={{ fontSize: 17, color: MUTED, maxWidth: 480, lineHeight: 1.7, marginBottom: 36 }}>
-          People who actually know their stuff, already open to talking. Click, connect, learn — no scheduling back-and-forth.
+          People who actually know their stuff, already open to talking. Click, connect, learn - no scheduling back-and-forth.
         </motion.p>
 
         <motion.div
@@ -389,7 +383,7 @@ export default function Home() {
           {aiMatches && (
             <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {aiMatches.length === 0 ? (
-                <p style={{ color: MUTED, fontSize: 14 }}>no strong matches right now — try the directory below.</p>
+                <p style={{ color: MUTED, fontSize: 14 }}>no strong matches right now - try the directory below.</p>
               ) : (
                 aiMatches.map(m => (
                   <div key={m.id} onClick={() => window.location.href = `/mentors/${m.id}`} style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '16px 20px', cursor: 'pointer' }}>
@@ -415,7 +409,7 @@ export default function Home() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setFilter(f)}
-              style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid', borderColor: filter === f ? ACCENT : BORDER, background: filter === f ? 'rgba(232,98,42,0.1)' : 'transparent', color: filter === f ? ACCENT : MUTED, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+              style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid', borderColor: filter === f ? ACCENT : BORDER, background: filter === f ? 'rgba(59,130,246,0.1)' : 'transparent', color: filter === f ? ACCENT : MUTED, fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
               {f}
             </motion.button>
           ))}
@@ -566,13 +560,13 @@ export default function Home() {
                     </div>
                     <div style={{ marginBottom: 28 }}>
                       <label style={{ fontSize: 13, color: MUTED, display: 'block', marginBottom: 6 }}>what&apos;s on your mind?</label>
-                      <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="one or two sentences — what are you trying to figure out?" rows={3} style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                      <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="one or two sentences - what are you trying to figure out?" rows={3} style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                     </div>
                     <motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleSubmit}
-                      style={{ width: '100%', background: submitting ? 'rgba(232,98,42,0.4)' : ACCENT, color: '#fff', border: 'none', padding: '13px 0', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
+                      style={{ width: '100%', background: submitting ? 'rgba(59,130,246,0.4)' : ACCENT, color: '#fff', border: 'none', padding: '13px 0', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
                       {submitting ? 'sending...' : 'send it'}
                     </motion.button>
                   </motion.div>

@@ -1,4 +1,5 @@
 'use client';
+import { BG, SURFACE, BORDER, TEXT, MUTED, ACCENT, LINK } from '@/lib/theme';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -142,33 +143,33 @@ export default function MentorProfile() {
     setSubmitting(false);
   }
 
-  const inputStyle: React.CSSProperties = { width: '100%', background: '#0D1117', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: '#E6EDF3', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
+  const inputStyle: React.CSSProperties = { width: '100%', background: BG, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 16px', color: TEXT, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' };
 
   if (loading) return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ color: '#8B949E' }}>loading...</motion.div>
+    <div style={{ background: BG, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ color: MUTED }}>loading...</motion.div>
     </div>
   );
 
   if (!mentor) return (
-    <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+    <div style={{ background: BG, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
       <div style={{ fontSize: 48 }}>☕</div>
-      <p style={{ color: '#8B949E' }}>Mentor not found.</p>
-      <Link href="/" style={{ color: '#70B5F9', textDecoration: 'none' }}>← back to directory</Link>
+      <p style={{ color: MUTED }}>Mentor not found.</p>
+      <Link href="/" style={{ color: LINK, textDecoration: 'none' }}>← back to directory</Link>
     </div>
   );
 
   const totalNotePages = Math.max(1, Math.ceil(notes.length / NOTES_PER_PAGE));
   const pagedNotes = notes.slice(notesPage * NOTES_PER_PAGE, notesPage * NOTES_PER_PAGE + NOTES_PER_PAGE);
-  const boxStyle: React.CSSProperties = { background: '#161B22', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', minHeight: 0 };
+  const boxStyle: React.CSSProperties = { background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 28, display: 'flex', flexDirection: 'column', minHeight: 0 };
 
   return (
-    <div style={{ background: '#0D1117', height: isMobile ? 'auto' : '100vh', minHeight: '100vh', color: '#E6EDF3', overflow: isMobile ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: BG, height: isMobile ? 'auto' : '100vh', minHeight: '100vh', color: TEXT, overflow: isMobile ? 'visible' : 'hidden', display: 'flex', flexDirection: 'column' }}>
 
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
-        style={{ flex: '0 0 auto', padding: '0 16px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        style={{ flex: '0 0 auto', padding: '0 16px', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(13,17,23,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Logo />
-        <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'} style={{ background: 'none', border: 'none', color: '#8B949E', fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← back</button>
+        <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'} style={{ background: 'none', border: 'none', color: MUTED, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>← back</button>
       </motion.nav>
 
       <div style={{ flex: 1, minHeight: 0, maxWidth: 1200, width: '100%', margin: '0 auto', padding: isMobile ? '16px' : '20px 24px', display: 'flex', flexDirection: 'column', gap: 16, boxSizing: 'border-box', overflowY: isMobile ? 'visible' : 'auto' }}>
@@ -180,35 +181,35 @@ export default function MentorProfile() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
             style={{ ...boxStyle, flex: isMobile ? 'none' : '1.4', overflowY: isMobile ? 'visible' : 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: 20 }}>
-              <motion.div whileHover={{ scale: 1.06 }} style={{ width: 64, height: 64, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, flexShrink: 0 }}>
+              <motion.div whileHover={{ scale: 1.06 }} style={{ width: 64, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 22, flexShrink: 0 }}>
                 {mentor.firstName[0]}{mentor.lastName[0]}
               </motion.div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
                   <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -1, margin: 0 }}>{mentor.firstName} {mentor.lastName}</h1>
-                  <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 10, background: 'rgba(112,181,249,0.1)', border: '1px solid rgba(112,181,249,0.2)', color: '#70B5F9', fontWeight: 600 }}>{mentor.xp} XP</span>
+                  <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 10, background: 'rgba(112,181,249,0.1)', border: '1px solid rgba(112,181,249,0.2)', color: LINK, fontWeight: 600 }}>{mentor.xp} XP</span>
                   {user && (
                     <button onClick={toggleFollow} disabled={followBusy}
-                      style={{ fontSize: 12, padding: '3px 12px', borderRadius: 10, border: `1px solid ${following ? 'rgba(91,219,138,0.3)' : 'rgba(255,255,255,0.1)'}`, background: following ? 'rgba(91,219,138,0.1)' : 'transparent', color: following ? '#5BDB8A' : '#8B949E', fontWeight: 600, cursor: followBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                      style={{ fontSize: 12, padding: '3px 12px', borderRadius: 10, border: `1px solid ${following ? 'rgba(91,219,138,0.3)' : BORDER}`, background: following ? 'rgba(91,219,138,0.1)' : 'transparent', color: following ? '#5BDB8A' : MUTED, fontWeight: 600, cursor: followBusy ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                       {following ? 'following ✓' : 'follow'}
                     </button>
                   )}
                   {followerCount > 0 && (
-                    <span style={{ fontSize: 12, color: '#8B949E' }}>{followerCount} follower{followerCount !== 1 ? 's' : ''}</span>
+                    <span style={{ fontSize: 12, color: MUTED }}>{followerCount} follower{followerCount !== 1 ? 's' : ''}</span>
                   )}
                 </div>
-                <div style={{ color: '#8B949E', fontSize: 14, marginBottom: 10 }}>
+                <div style={{ color: MUTED, fontSize: 14, marginBottom: 10 }}>
                   {mentor.role} @ {mentor.company}
                   {mentor.showLinkedin && mentor.linkedin && (
-                    <> · <a href={mentor.linkedin.startsWith('http') ? mentor.linkedin : `https://${mentor.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: '#70B5F9', textDecoration: 'none' }}>LinkedIn ↗</a></>
+                    <> · <a href={mentor.linkedin.startsWith('http') ? mentor.linkedin : `https://${mentor.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: LINK, textDecoration: 'none' }}>LinkedIn ↗</a></>
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <motion.span animate={{ opacity: mentor.isOpen ? [1, 0.4, 1] : 1 }} transition={{ duration: 2, repeat: Infinity }}
-                    style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: mentor.isOpen ? 'rgba(91,219,138,0.1)' : 'rgba(139,148,158,0.1)', color: mentor.isOpen ? '#5BDB8A' : '#8B949E', border: `1px solid ${mentor.isOpen ? 'rgba(91,219,138,0.3)' : 'rgba(139,148,158,0.2)'}`, fontWeight: 600 }}>
+                    style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: mentor.isOpen ? 'rgba(91,219,138,0.1)' : 'rgba(139,148,158,0.1)', color: mentor.isOpen ? '#5BDB8A' : MUTED, border: `1px solid ${mentor.isOpen ? 'rgba(91,219,138,0.3)' : 'rgba(139,148,158,0.2)'}`, fontWeight: 600 }}>
                     {mentor.isOpen ? '● open' : '○ closed'}
                   </motion.span>
-                  <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: 'rgba(112,181,249,0.08)', color: '#70B5F9', border: '1px solid rgba(112,181,249,0.15)' }}>
+                  <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: 'rgba(112,181,249,0.08)', color: LINK, border: '1px solid rgba(112,181,249,0.15)' }}>
                     {mentor.availability}
                   </span>
                   {mentor.avgResponseMinutes != null && (
@@ -224,7 +225,7 @@ export default function MentorProfile() {
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {mentor.topics.split(',').map(t => (
-                <span key={t} style={{ background: 'rgba(112,181,249,0.07)', border: '1px solid rgba(112,181,249,0.15)', color: '#70B5F9', padding: '5px 14px', borderRadius: 14, fontSize: 13 }}>{t.trim()}</span>
+                <span key={t} style={{ background: 'rgba(112,181,249,0.07)', border: '1px solid rgba(112,181,249,0.15)', color: LINK, padding: '5px 14px', borderRadius: 14, fontSize: 13 }}>{t.trim()}</span>
               ))}
             </div>
           </motion.div>
@@ -232,16 +233,16 @@ export default function MentorProfile() {
           {/* TOP RIGHT: STATS + BADGES */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}
             style={{ ...boxStyle, flex: isMobile ? 'none' : '1', overflowY: isMobile ? 'visible' : 'auto' }}>
-            <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, color: '#8B949E', textTransform: 'uppercase', letterSpacing: 0.5 }}>Stats</h2>
+            <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 14, color: MUTED, textTransform: 'uppercase', letterSpacing: 0.5 }}>Stats</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>
               {[
-                { label: 'XP', value: mentor.xp.toLocaleString(), color: '#70B5F9' },
+                { label: 'XP', value: mentor.xp.toLocaleString(), color: LINK },
                 { label: 'Sips', value: mentor.sipCount, color: '#5BDB8A' },
                 { label: 'Badges', value: mentor.badges.split(',').filter(Boolean).length, color: '#F59E0B' },
               ].map(s => (
-                <div key={s.label} style={{ background: '#0D1117', borderRadius: 12, padding: '12px 8px', textAlign: 'center' }}>
+                <div key={s.label} style={{ background: BG, borderRadius: 12, padding: '12px 8px', textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 700, color: s.color, fontFamily: 'Space Mono' }}>{s.value}</div>
-                  <div style={{ color: '#8B949E', fontSize: 11, marginTop: 4 }}>{s.label}</div>
+                  <div style={{ color: MUTED, fontSize: 11, marginTop: 4 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -265,16 +266,16 @@ export default function MentorProfile() {
             style={{ ...boxStyle, flex: isMobile ? 'none' : '1', maxHeight: isMobile ? 320 : 'none' }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>What people took away</h2>
             {notes.length === 0 ? (
-              <div style={{ color: '#8B949E', fontSize: 13, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+              <div style={{ color: MUTED, fontSize: 13, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                 No notes yet. Be the first to leave one.
               </div>
             ) : (
               <>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflowY: 'auto', flex: 1, marginBottom: 12 }}>
                   {pagedNotes.map(n => (
-                    <div key={n.id} style={{ background: '#0D1117', borderRadius: 12, padding: '14px 16px' }}>
+                    <div key={n.id} style={{ background: BG, borderRadius: 12, padding: '14px 16px' }}>
                       <p style={{ color: '#C9D1D9', fontSize: 13, lineHeight: 1.55, marginBottom: 6 }}>&quot;{n.note}&quot;</p>
-                      <div style={{ color: '#8B949E', fontSize: 11 }}>{n.seekerName}</div>
+                      <div style={{ color: MUTED, fontSize: 11 }}>{n.seekerName}</div>
                     </div>
                   ))}
                 </div>
@@ -282,7 +283,7 @@ export default function MentorProfile() {
                   <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
                     {Array.from({ length: totalNotePages }).map((_, i) => (
                       <button key={i} onClick={() => setNotesPage(i)}
-                        style={{ width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: i === notesPage ? '#0A66C2' : 'transparent', color: i === notesPage ? 'white' : '#8B949E', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        style={{ width: 28, height: 28, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: i === notesPage ? ACCENT : 'transparent', color: i === notesPage ? 'white' : MUTED, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
                         {i + 1}
                       </button>
                     ))}
@@ -302,7 +303,7 @@ export default function MentorProfile() {
                 { key: 'ask', label: 'Ask something' },
               ] as const).map(t => (
                 <button key={t.key} onClick={() => setActiveTab(t.key)}
-                  style={{ flex: 1, padding: '10px 8px', borderRadius: 10, border: `1px solid ${activeTab === t.key ? 'rgba(112,181,249,0.3)' : 'rgba(255,255,255,0.08)'}`, background: activeTab === t.key ? 'rgba(112,181,249,0.1)' : 'transparent', color: activeTab === t.key ? '#70B5F9' : '#8B949E', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 1, padding: '10px 8px', borderRadius: 10, border: `1px solid ${activeTab === t.key ? 'rgba(112,181,249,0.3)' : BORDER}`, background: activeTab === t.key ? 'rgba(112,181,249,0.1)' : 'transparent', color: activeTab === t.key ? LINK : MUTED, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                   {t.label}
                 </button>
               ))}
@@ -319,7 +320,7 @@ export default function MentorProfile() {
                       </div>
                     ) : (
                       <div>
-                        <p style={{ color: '#8B949E', fontSize: 13, marginBottom: 16 }}>No cold messages. Just show up.</p>
+                        <p style={{ color: MUTED, fontSize: 13, marginBottom: 16 }}>No cold messages. Just show up.</p>
                         {!mentor.isOpen && (
                           <div style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 10, padding: '10px 14px', color: '#F59E0B', fontSize: 13, marginBottom: 16 }}>
                             Closed to requests right now, but you can still send one.
@@ -335,7 +336,7 @@ export default function MentorProfile() {
                           <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="What are you trying to figure out?" rows={3} style={{ ...inputStyle, resize: 'none' }} />
                         </div>
                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setPendingSubmit('request')} disabled={submitting}
-                          style={{ width: '100%', background: '#0A66C2', color: 'white', border: 'none', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                          style={{ width: '100%', background: ACCENT, color: 'white', border: 'none', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                           {submitting ? 'Sending...' : 'Send it *'}
                         </motion.button>
                       </div>
@@ -351,7 +352,7 @@ export default function MentorProfile() {
                       </div>
                     ) : (
                       <div>
-                        <p style={{ color: '#8B949E', fontSize: 13, marginBottom: 16 }}>Had a sip with {mentor.firstName}? Leave a quick note.</p>
+                        <p style={{ color: MUTED, fontSize: 13, marginBottom: 16 }}>Had a sip with {mentor.firstName}? Leave a quick note.</p>
                         <div style={{ marginBottom: 12 }}>
                           <input value={noteForm.name} onChange={e => setNoteForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" style={inputStyle} />
                         </div>
@@ -380,13 +381,13 @@ export default function MentorProfile() {
                       </div>
                     ) : (
                       <div>
-                        <p style={{ color: '#8B949E', fontSize: 13, marginBottom: 16 }}>Not ready for a full sip? Ask something quick. Limited to 2 per mentor per week.</p>
+                        <p style={{ color: MUTED, fontSize: 13, marginBottom: 16 }}>Not ready for a full sip? Ask something quick. Limited to 2 per mentor per week.</p>
                         <div style={{ marginBottom: 12 }}>
                           <textarea value={askText} onChange={e => setAskText(e.target.value)} placeholder="What do you want to know?" rows={3} maxLength={500} style={{ ...inputStyle, resize: 'none' }} />
                         </div>
                         <div style={{ marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                          <input type="checkbox" id="askConsent" checked={askConsent} onChange={e => setAskConsent(e.target.checked)} style={{ marginTop: 3, accentColor: '#0A66C2', cursor: 'pointer' }} />
-                          <label htmlFor="askConsent" style={{ fontSize: 12, color: '#8B949E', cursor: 'pointer', lineHeight: 1.5 }}>Ok to feature this publicly on Sip if answered (only your first name shown, never your email)</label>
+                          <input type="checkbox" id="askConsent" checked={askConsent} onChange={e => setAskConsent(e.target.checked)} style={{ marginTop: 3, accentColor: ACCENT, cursor: 'pointer' }} />
+                          <label htmlFor="askConsent" style={{ fontSize: 12, color: MUTED, cursor: 'pointer', lineHeight: 1.5 }}>Ok to feature this publicly on Sip if answered (only your first name shown, never your email)</label>
                         </div>
                         {askError && (
                           <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 10, padding: '10px 14px', color: '#F87171', fontSize: 13, marginBottom: 16 }}>
@@ -394,7 +395,7 @@ export default function MentorProfile() {
                           </div>
                         )}
                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setPendingSubmit('ask')} disabled={submittingAsk}
-                          style={{ width: '100%', background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: '#70B5F9', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submittingAsk ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                          style={{ width: '100%', background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: LINK, padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submittingAsk ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                           {submittingAsk ? 'Sending...' : 'Ask'}
                         </motion.button>
                       </div>

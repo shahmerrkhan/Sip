@@ -1,4 +1,5 @@
 'use client';
+import { SURFACE, TEXT, MUTED, LINK } from '@/lib/theme';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,16 +19,16 @@ export default function ConfirmDialog({
           <motion.div initial={{ scale: 0.9, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 24 }}
             onClick={e => e.stopPropagation()}
-            style={{ background: '#161B22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px 28px 24px', width: 340, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-            {title && <div style={{ fontSize: 17, fontWeight: 700, color: '#E6EDF3', marginBottom: 8, fontFamily: 'Space Mono' }}>{title}</div>}
-            <p style={{ color: '#8B949E', fontSize: 14, lineHeight: 1.6, marginBottom: 22 }}>{message}</p>
+            style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px 28px 24px', width: 340, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+            {title && <div style={{ fontSize: 17, fontWeight: 700, color: TEXT, marginBottom: 8, fontFamily: 'Space Mono' }}>{title}</div>}
+            <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.6, marginBottom: 22 }}>{message}</p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onCancel}
-                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#8B949E', padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: MUTED, padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                 {cancelLabel}
               </motion.button>
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onConfirm}
-                style={{ background: danger ? 'rgba(220,38,38,0.15)' : 'rgba(112,181,249,0.15)', border: `1px solid ${danger ? 'rgba(220,38,38,0.4)' : 'rgba(112,181,249,0.4)'}`, color: danger ? '#F87171' : '#70B5F9', padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ background: danger ? 'rgba(220,38,38,0.15)' : 'rgba(112,181,249,0.15)', border: `1px solid ${danger ? 'rgba(220,38,38,0.4)' : 'rgba(112,181,249,0.4)'}`, color: danger ? '#F87171' : LINK, padding: '9px 18px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                 {confirmLabel}
               </motion.button>
             </div>
