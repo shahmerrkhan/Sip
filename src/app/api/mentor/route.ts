@@ -128,7 +128,16 @@ export async function GET(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const result = await db.select().from(mentors).where(eq(mentors.clerkId, userId));
-  return NextResponse.json(result[0] ?? null, { status: 200 });
+  const m = result[0];
+  if (!m) return NextResponse.json(null, { status: 200 });
+
+  let referrerName: string | null = null;
+  if (m.invitedByClerkId) {
+    const referrerMentor = await db.select().from(mentors).where(eq(mentors.clerkId, m.invitedByClerkId));
+    referrerName = referrerMentor[0] ? `${referrerMentor[0].firstName} ${referrerMentor[0].lastName}` : null;
+  }
+
+  return NextResponse.json({ ...m, referrerName }, { status: 200 });
 }
 
 export async function PATCH(req: Request) {

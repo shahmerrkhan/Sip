@@ -13,7 +13,7 @@ import { BG, SURFACE, BORDER, TEXT, MUTED, ACCENT, LINK, SUCCESS2, WARNING, DANG
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
   bio: string; topics: string; calendarLink: string | null; contactEmail: string | null; availability: string;
-  isOpen: boolean; xp: number; sipCount: number; badges: string;
+  isOpen: boolean; xp: number; sipCount: number; badges: string; referrerName?: string | null;
 };
 type Request = {
   id: string; seekerName: string; seekerEmail: string; message: string; status: string; createdAt: string;
@@ -272,6 +272,9 @@ export default function Dashboard() {
                 <div>
                   <h1 style={{ fontSize: 36, fontWeight: 700, letterSpacing: -1.5, marginBottom: 6 }}>Your Dashboard</h1>
                   <p style={{ color: MUTED, fontSize: 15 }}>{mentor.role} @ {mentor.company}</p>
+                  {mentor.referrerName && (
+                    <p style={{ color: LINK, fontSize: 13, marginTop: 6 }}>Invited by {mentor.referrerName} ☕</p>
+                  )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={toggleOpen} disabled={togglingOpen}
