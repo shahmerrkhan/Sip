@@ -5,7 +5,7 @@ export default function SignUpPage() {
     <div style={{ background: '#0D1117', minHeight: '100vh', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', color: '#E6EDF3', fontFamily: 'Space Grotesk, sans-serif' }}>
 
       {/* LEFT PANEL */}
-      <div style={{ flex: 1, minWidth: 340, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 24px', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ flex: 1, minWidth: 340, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '48px 24px', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ fontFamily: 'Space Mono', fontSize: 26, fontWeight: 700, color: '#70B5F9', marginBottom: 48 }}>sip</div>
         <h1 style={{ fontSize: 40, fontWeight: 700, letterSpacing: -2, lineHeight: 1.1, marginBottom: 16 }}>
           Open your door.<br />
@@ -36,13 +36,18 @@ export default function SignUpPage() {
             colorForeground: '#E6EDF3',
             colorPrimary: '#0A66C2',
             colorInput: '#E6EDF3',
+            colorInputText: '#0D1117',
             borderRadius: '12px',
           },
           elements: {
-            card: { border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'none' },
+            card: { border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'none', width: '100%', maxWidth: 420 },
             headerTitle: { color: '#E6EDF3' },
             headerSubtitle: { color: '#8B949E' },
             formFieldLabel: { color: '#8B949E' },
+            formFieldInput: { color: '#0D1117' },
+            formFieldHintText: { color: '#8B949E', lineHeight: 1.5, marginTop: 6 },
+            formFieldSuccessText: { color: '#5BDB8A', lineHeight: 1.5, marginTop: 4 },
+            formFieldWarningText: { lineHeight: 1.5, marginTop: 4 },
             footerActionLink: { color: '#70B5F9' },
           }
         }} />

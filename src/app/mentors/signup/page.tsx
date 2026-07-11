@@ -17,7 +17,7 @@ export default function MentorSignup() {
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '', role: '', company: '',
-    bio: '', topics: [] as string[], calendarLink: '', availability: 'flexible',
+    bio: '', topics: [] as string[], calendarLink: '', contactEmail: '', availability: 'flexible',
     linkedin: '', showLinkedin: false,
   });
 
@@ -33,7 +33,7 @@ export default function MentorSignup() {
           firstName: data.firstName, lastName: data.lastName, email: data.email,
           role: data.role, company: data.company, bio: data.bio,
           topics: data.topics ? data.topics.split(',').filter(Boolean) : [],
-          calendarLink: data.calendarLink, availability: data.availability,
+          calendarLink: data.calendarLink || '', contactEmail: data.contactEmail || '', availability: data.availability,
           linkedin: data.linkedin || '', showLinkedin: data.showLinkedin,
         }));
       } else {
@@ -191,11 +191,23 @@ export default function MentorSignup() {
             {step === 3 && (
               <motion.div key="step3" variants={stepVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3, ease: 'easeInOut' }}>
                 <div style={{ marginBottom: 16 }}>
-                  <label style={label}>Calendar link</label>
+                  <label style={label}>Calendar link (optional)</label>
                   <input value={form.calendarLink} onChange={e => set('calendarLink', e.target.value)} placeholder="calendly.com/yourname" style={input} />
-                  <div style={{ color: MUTED, fontSize: 12, marginTop: 6 }}>This is what seekers get when you accept a request</div>
                   {form.calendarLink && !/^(https?:\/\/)?(www\.)?calendly\.com\/.+/i.test(form.calendarLink.trim()) && (
                     <div style={{ color: '#F87171', fontSize: 12, marginTop: 6 }}>Must be a calendly.com link.</div>
+                  )}
+                </div>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={label}>Contact email (optional)</label>
+                  <input value={form.contactEmail} onChange={e => set('contactEmail', e.target.value)} type="email" placeholder="you@example.com" style={input} />
+                  {form.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contactEmail.trim()) && (
+                    <div style={{ color: '#F87171', fontSize: 12, marginTop: 6 }}>Enter a valid email.</div>
+                  )}
+                  <div style={{ color: MUTED, fontSize: 12, marginTop: 6 }}>
+                    Add a calendar link, an email, or both — this is what seekers get when you accept a request. If you add both, you&apos;ll choose which to share each time you accept.
+                  </div>
+                  {!form.calendarLink && !form.contactEmail && (
+                    <div style={{ color: '#F87171', fontSize: 12, marginTop: 6 }}>Add at least a calendar link or an email.</div>
                   )}
                 </div>
                 <div style={{ marginBottom: 16 }}>
@@ -235,7 +247,7 @@ export default function MentorSignup() {
                     whileHover={{ scale: loading ? 1 : 1.02, background: loading ? '#1E3A5F' : '#0856A8' }}
                     whileTap={{ scale: 0.97 }}
                     onClick={handleSubmit}
-                    disabled={loading || !form.calendarLink || !/^(https?:\/\/)?(www\.)?calendly\.com\/.+/i.test(form.calendarLink.trim()) || (!!form.linkedin && !/^(https?:\/\/)?(www\.)?linkedin\.com\/.+/i.test(form.linkedin.trim()))}
+                    disabled={loading || (!form.calendarLink && !form.contactEmail) || (!!form.calendarLink && !/^(https?:\/\/)?(www\.)?calendly\.com\/.+/i.test(form.calendarLink.trim())) || (!!form.contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contactEmail.trim())) || (!!form.linkedin && !/^(https?:\/\/)?(www\.)?linkedin\.com\/.+/i.test(form.linkedin.trim()))}
                     style={{ flex: 2, background: loading ? '#1E3A5F' : ACCENT, color: 'white', border: 'none', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'background 0.2s' }}>
                     {loading ? (
                       <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1, repeat: Infinity }}>saving...</motion.span>

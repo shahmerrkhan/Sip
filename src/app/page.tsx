@@ -58,6 +58,7 @@ export default function Home() {
   const [filter, setFilter] = useState('all');
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [modalError, setModalError] = useState('');
   const [count, setCount] = useState(0);
   const [wordIndex, setWordIndex] = useState(0);
   const [scrolled, setScrolled] = useState(false);
@@ -180,15 +181,20 @@ export default function Home() {
   async function handleSubmit() {
     if (!form.name || !form.email || !form.message || !modal) return;
     setSubmitting(true);
+    setModalError('');
     const res = await fetch('/api/request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mentorId: modal.id, seekerName: form.name, seekerEmail: form.email, message: form.message }),
     });
-    if (res.ok) { setSent(true); }
-    else { const data = await res.json(); alert(data.error || 'Something went wrong'); }
+    if (res.ok) {
+      setSent(true);
+      setTimeout(() => { setModal(null); setSent(false); setForm(f => ({ ...f, message: '' })); }, 2200);
+    } else {
+      const data = await res.json();
+      setModalError(data.error || 'Something went wrong');
+    }
     setSubmitting(false);
-    setTimeout(() => { setModal(null); setSent(false); setForm(f => ({ ...f, message: '' })); }, 2200);
   }
 
   return (
@@ -259,16 +265,22 @@ export default function Home() {
           transition={{ delay: 0.52, duration: 0.5 }}
           style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           {user ? (
-            <div style={{ display: 'flex', gap: 12 }}>
-              {rolesLoaded && isMentor && isSeeker && <Link href="/choose-role" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>go to dashboard <IconArrow color="#fff" /></Link>}
-              {rolesLoaded && isMentor && !isSeeker && <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>go to dashboard <IconArrow color="#fff" /></Link>}
-              {rolesLoaded && isSeeker && !isMentor && (
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              {!rolesLoaded ? (
+                <motion.div animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 1.2, repeat: Infinity }} style={{ width: 178, height: 48, borderRadius: 8, background: 'rgba(255,255,255,0.06)' }} />
+              ) : (
                 <>
-                  <Link href="/seekers" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>find your sip <IconArrow color="#fff" /></Link>
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleInstantSip} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', color: TEXT, border: `1px solid ${BORDER}`, padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}><IconBolt /> instant sip</motion.button>
+                  {isMentor && isSeeker && <Link href="/choose-role" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>go to dashboard <IconArrow color="#fff" /></Link>}
+                  {isMentor && !isSeeker && <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>go to dashboard <IconArrow color="#fff" /></Link>}
+                  {isSeeker && !isMentor && (
+                    <>
+                      <Link href="/seekers" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>find your sip <IconArrow color="#fff" /></Link>
+                      <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleInstantSip} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', color: TEXT, border: `1px solid ${BORDER}`, padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}><IconBolt /> instant sip</motion.button>
+                    </>
+                  )}
+                  {!isMentor && !isSeeker && <Link href="/seekers" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>find your sip <IconArrow color="#fff" /></Link>}
                 </>
               )}
-              {rolesLoaded && !isMentor && !isSeeker && <Link href="/seekers" style={{ display: 'flex', alignItems: 'center', gap: 8, background: ACCENT, color: '#fff', border: 'none', padding: '13px 24px', borderRadius: 8, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>find your sip <IconArrow color="#fff" /></Link>}
             </div>
           ) : (
             <>
@@ -529,7 +541,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={e => { if (e.target === e.currentTarget) setModal(null); }}
+            onClick={e => { if (e.target === e.currentTarget) { setModal(null); setModalError(''); } }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, backdropFilter: 'blur(4px)' }}>
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 10 }}
@@ -552,16 +564,21 @@ export default function Home() {
                   <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <div style={{ marginBottom: 16 }}>
                       <label style={{ fontSize: 13, color: MUTED, display: 'block', marginBottom: 6 }}>your name</label>
-                      <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="what do people call you?" style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                      <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="what do people call you?" autoComplete="name" name="name" style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                     </div>
                     <div style={{ marginBottom: 16 }}>
                       <label style={{ fontSize: 13, color: MUTED, display: 'block', marginBottom: 6 }}>your email</label>
-                      <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="so they can reach back" type="email" style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                      <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="so they can reach back" type="email" autoComplete="email" name="email" style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                     </div>
                     <div style={{ marginBottom: 28 }}>
                       <label style={{ fontSize: 13, color: MUTED, display: 'block', marginBottom: 6 }}>what&apos;s on your mind?</label>
                       <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="one or two sentences - what are you trying to figure out?" rows={3} style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '11px 14px', color: TEXT, fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                     </div>
+                    {modalError && (
+                      <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 8, padding: '10px 14px', color: '#F87171', fontSize: 13, marginBottom: 16 }}>
+                        {modalError}
+                      </div>
+                    )}
                     <motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}

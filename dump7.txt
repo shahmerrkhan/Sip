@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+﻿import { auth } from '@clerk/nextjs/server';
 import { db } from '@/db';
 import { mentors, seekers, referralEvents } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -29,14 +29,14 @@ async function notifyMatchingSeekers(mentor: typeof mentors.$inferSelect) {
     await transporter.sendMail({
       from: `Sip <${process.env.GMAIL_USER}>`,
       to: seeker.email,
-      subject: `A mentor matching your interests just joined Sip ☕`,
+      subject: `A mentor matching your interests just joined Sip â˜•`,
       html: `
         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0D1117;color:#E6EDF3;padding:40px;border-radius:16px;">
-          <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip ☕</div>
+          <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip â˜•</div>
           <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">New mentor for you</h2>
           <p style="color:#C9D1D9;font-size:15px;line-height:1.7;margin-bottom:8px;"><strong>${escapeHtml(mentor.firstName)} ${escapeHtml(mentor.lastName)}</strong>, ${escapeHtml(mentor.role)} @ ${escapeHtml(mentor.company)}, just opened up on Sip.</p>
           <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">Topics: ${escapeHtml(mentor.topics)}</p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/seekers" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">View Mentor →</a>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/seekers" style="display:inline-block;background:#0A66C2;color:white;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:600;font-size:15px;">View Mentor â†’</a>
         </div>
       `,
     });
@@ -52,9 +52,9 @@ export async function POST(req: Request) {
   if (!success) return NextResponse.json({ error: 'Too many requests. Slow down a bit.' }, { status: 429 });
 
   const body = await req.json();
-  const { firstName, lastName, email, role, company, bio, topics, calendarLink, contactEmail, availability, linkedin, showLinkedin, ref } = body;
+  const { firstName, lastName, email, role, company, bio, topics, calendarLink, availability, linkedin, showLinkedin, ref } = body;
   
-  if (!firstName || !lastName || !email || !role || !company || !bio || !topics || (!calendarLink && !contactEmail)) {
+  if (!firstName || !lastName || !email || !role || !company || !bio || !topics || !calendarLink) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
   if (bio.length > 500) return NextResponse.json({ error: 'Bio is too long' }, { status: 400 });
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
 
   if (existing.length > 0) {
     const updated = await db.update(mentors)
-      .set({ firstName, lastName, email, role, company, bio, topics, calendarLink: calendarLink || null, contactEmail: contactEmail || null, availability, linkedin, showLinkedin: !!showLinkedin })
+      .set({ firstName, lastName, email, role, company, bio, topics, calendarLink, availability, linkedin, showLinkedin: !!showLinkedin })
       .where(eq(mentors.clerkId, userId))
       .returning();
     return NextResponse.json(updated[0]);
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 
   const mentor = await db.insert(mentors).values({
     clerkId: userId, firstName, lastName, email, role, company, bio, topics,
-    calendarLink: calendarLink || null, contactEmail: contactEmail || null, availability: availability || 'flexible', linkedin, showLinkedin: !!showLinkedin,
+    calendarLink, availability: availability || 'flexible', linkedin, showLinkedin: !!showLinkedin,
     referralCode: generateReferralCode(),
     invitedByClerkId,
   }).returning();

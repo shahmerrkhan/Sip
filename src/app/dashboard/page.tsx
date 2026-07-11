@@ -12,7 +12,7 @@ import { BG, SURFACE, BORDER, TEXT, MUTED, ACCENT, LINK, SUCCESS2, WARNING, DANG
 
 type Mentor = {
   id: string; firstName: string; lastName: string; role: string; company: string;
-  bio: string; topics: string; calendarLink: string; availability: string;
+  bio: string; topics: string; calendarLink: string | null; contactEmail: string | null; availability: string;
   isOpen: boolean; xp: number; sipCount: number; badges: string;
 };
 type Request = {
@@ -53,6 +53,19 @@ export default function Dashboard() {
   const [togglingOpen, setTogglingOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [togglingConsent, setTogglingConsent] = useState<string | null>(null);
+  const [accepting, setAccepting] = useState<string | null>(null);
+  const [choosingContactFor, setChoosingContactFor] = useState<string | null>(null);
+
+  async function acceptRequest(requestId: string, contactMethod?: 'calendar' | 'email') {
+    setAccepting(requestId);
+    const res = await fetch(`/api/requests/${requestId}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'accepted', contactMethod }),
+    });
+    if (res.ok) setRequests(prev => prev.map(x => x.id === requestId ? { ...x, status: 'accepted' } : x));
+    setAccepting(null);
+    setChoosingContactFor(null);
+  }
 
   async function toggleConsent(requestId: string, current: boolean) {
     setTogglingConsent(requestId);
@@ -167,6 +180,56 @@ export default function Dashboard() {
         onConfirm={confirmDeleteNote}
         onCancel={() => setConfirmDeleteId(null)}
       />
+
+      <AnimatePresence>
+        {choosingContactFor && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={e => { if (e.target === e.currentTarget) setChoosingContactFor(null); }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 380 }}>
+              <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>How should they reach you?</h3>
+              <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>Pick what gets sent to this seeker.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button onClick={() => acceptRequest(choosingContactFor, 'calendar')} disabled={accepting === choosingContactFor}
+                  style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: LINK, padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: accepting === choosingContactFor ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  Calendar link
+                </button>
+                <button onClick={() => acceptRequest(choosingContactFor, 'email')} disabled={accepting === choosingContactFor}
+                  style={{ background: 'rgba(91,219,138,0.12)', border: '1px solid rgba(91,219,138,0.3)', color: SUCCESS2, padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: accepting === choosingContactFor ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  Email only
+                </button>
+                <button onClick={() => setChoosingContactFor(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: MUTED, padding: '10px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>cancel</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {choosingContactFor && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={e => { if (e.target === e.currentTarget) setChoosingContactFor(null); }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 380 }}>
+              <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>How should they reach you?</h3>
+              <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>Pick what gets sent to this seeker.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <button onClick={() => acceptRequest(choosingContactFor, 'calendar')} disabled={accepting === choosingContactFor}
+                  style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: LINK, padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: accepting === choosingContactFor ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  Calendar link
+                </button>
+                <button onClick={() => acceptRequest(choosingContactFor, 'email')} disabled={accepting === choosingContactFor}
+                  style={{ background: 'rgba(91,219,138,0.12)', border: '1px solid rgba(91,219,138,0.3)', color: SUCCESS2, padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: accepting === choosingContactFor ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+                  Email only
+                </button>
+                <button onClick={() => setChoosingContactFor(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: MUTED, padding: '10px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>cancel</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* NAV */}
       <motion.nav initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}
@@ -399,12 +462,13 @@ export default function Dashboard() {
                           {r.status === 'pending' && (
                             <div style={{ display: 'flex', gap: 8 }}>
                               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-                                onClick={async () => {
-                                  const res = await fetch(`/api/requests/${r.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'accepted' }) });
-                                  if (res.ok) setRequests(prev => prev.map(x => x.id === r.id ? { ...x, status: 'accepted' } : x));
+                                disabled={accepting === r.id}
+                                onClick={() => {
+                                  if (mentor?.calendarLink && mentor?.contactEmail) setChoosingContactFor(r.id);
+                                  else acceptRequest(r.id);
                                 }}
-                                style={{ background: 'rgba(91,219,138,0.15)', border: '1px solid rgba(91,219,138,0.3)', color: SUCCESS2, padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-                                accept ✓
+                                style={{ background: 'rgba(91,219,138,0.15)', border: '1px solid rgba(91,219,138,0.3)', color: SUCCESS2, padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: accepting === r.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                                {accepting === r.id ? 'accepting...' : 'accept ✓'}
                               </motion.button>
                               <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
                                 onClick={async () => {

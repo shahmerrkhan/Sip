@@ -42,6 +42,7 @@ export default function MentorProfile() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [requestError, setRequestError] = useState('');
   const [notes, setNotes] = useState<SipNote[]>([]);
   const [notesPage, setNotesPage] = useState(0);
   const [noteForm, setNoteForm] = useState({ name: '' });
@@ -66,6 +67,15 @@ export default function MentorProfile() {
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    setForm(f => ({
+      ...f,
+      name: f.name || user.firstName || user.fullName || '',
+      email: f.email || user.emailAddresses?.[0]?.emailAddress || '',
+    }));
+  }, [user]);
 
   useEffect(() => {
     fetch(`/api/mentor/${id}`)
@@ -133,13 +143,14 @@ export default function MentorProfile() {
   async function handleSubmit() {
     if (!mentor || !form.name || !form.email || !form.message) return;
     setSubmitting(true);
+    setRequestError('');
     const res = await fetch('/api/request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mentorId: mentor.id, seekerName: form.name, seekerEmail: form.email, message: form.message }),
     });
     if (res.ok) { setSent(true); }
-    else { const data = await res.json(); alert(data.error || 'Something went wrong'); }
+    else { const data = await res.json(); setRequestError(data.error || 'Something went wrong'); }
     setSubmitting(false);
   }
 
@@ -327,14 +338,19 @@ export default function MentorProfile() {
                           </div>
                         )}
                         <div style={{ marginBottom: 12 }}>
-                          <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" style={inputStyle} />
+                          <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your name" autoComplete="name" name="name" style={inputStyle} />
                         </div>
                         <div style={{ marginBottom: 12 }}>
-                          <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} type="email" placeholder="Your email" style={inputStyle} />
+                          <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} type="email" placeholder="Your email" autoComplete="email" name="email" style={inputStyle} />
                         </div>
                         <div style={{ marginBottom: 16 }}>
                           <textarea value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} placeholder="What are you trying to figure out?" rows={3} style={{ ...inputStyle, resize: 'none' }} />
                         </div>
+                        {requestError && (
+                          <div style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.3)', borderRadius: 10, padding: '10px 14px', color: '#F87171', fontSize: 13, marginBottom: 16 }}>
+                            {requestError}
+                          </div>
+                        )}
                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setPendingSubmit('request')} disabled={submitting}
                           style={{ width: '100%', background: ACCENT, color: 'white', border: 'none', padding: '13px', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: submitting ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                           {submitting ? 'Sending...' : 'Send it *'}

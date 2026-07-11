@@ -295,7 +295,7 @@ export default function RoomPage() {
               <div>
                 <p style={{ color: '#5BDB8A', fontWeight: 600, marginBottom: 10 }}>you&apos;re up -- check the new tab that opened.</p>
                 {room.roomUrl && (
-                  <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ color: LINK, fontSize: 13, textDecoration: 'underline' }}>tab didn&apos;t open? click here to join</a>
+                  <a href={room.roomUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', background: ACCENT, color: 'white', padding: '10px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 600, fontSize: 13 }}>tab didn&apos;t open? click here to join</a>
                 )}
               </div>
             ) : myEntry.status === 'done' ? (

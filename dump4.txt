@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, uuid, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
+﻿import { pgTable, text, timestamp, boolean, uuid, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 export const referralEvents = pgTable('referral_events', {
@@ -20,8 +20,7 @@ export const mentors = pgTable('mentors', {
   company: text('company').notNull(),
   bio: text('bio').notNull(),
   topics: text('topics').notNull(),
-  calendarLink: text('calendar_link'),
-  contactEmail: text('contact_email'),
+  calendarLink: text('calendar_link').notNull(),
   availability: text('availability').notNull(),
   linkedin: text('linkedin'),
   showLinkedin: boolean('show_linkedin').default(false).notNull(),
