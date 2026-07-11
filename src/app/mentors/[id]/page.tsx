@@ -46,6 +46,9 @@ export default function MentorProfile() {
   const [notes, setNotes] = useState<SipNote[]>([]);
   const [notesPage, setNotesPage] = useState(0);
   const [noteForm, setNoteForm] = useState({ name: '' });
+  const [showLinkedInPrompt, setShowLinkedInPrompt] = useState(false);
+  const [linkedinDraft, setLinkedinDraft] = useState('');
+  const [liCopied, setLiCopied] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [noteSent, setNoteSent] = useState(false);
   const [noteError, setNoteError] = useState('');
@@ -130,6 +133,9 @@ export default function MentorProfile() {
       const created = await res.json();
       setNotes(n => [created, ...n]);
       setNoteSent(true);
+      const trimmedNote = noteText.length > 220 ? noteText.slice(0, 220).trim() + '...' : noteText;
+      setLinkedinDraft(`Just had a great conversation with ${mentor?.firstName} ${mentor?.lastName}, ${mentor?.role} @ ${mentor?.company}, on Sip ☕\n\n${trimmedNote}\n\nNo cold DMs, just showed up. sip-lyart.vercel.app`);
+      setShowLinkedInPrompt(true);
       setNoteForm({ name: '' });
       setNoteText('');
       setNoteError('');
@@ -436,6 +442,34 @@ export default function MentorProfile() {
           }}
         />
       )}
+
+      <AnimatePresence>
+        {showLinkedInPrompt && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={e => { if (e.target === e.currentTarget) setShowLinkedInPrompt(false); }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, backdropFilter: 'blur(4px)' }}>
+            <motion.div initial={{ scale: 0.95, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              style={{ background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 32, width: '100%', maxWidth: 460 }}>
+              <div style={{ fontWeight: 700, fontSize: 19, marginBottom: 6 }}>share this on LinkedIn?</div>
+              <div style={{ color: MUTED, fontSize: 13, marginBottom: 16 }}>Copy the draft, then paste it into a new LinkedIn post.</div>
+              <textarea value={linkedinDraft} onChange={e => setLinkedinDraft(e.target.value)} rows={7}
+                style={{ width: '100%', background: BG, border: `1px solid ${BORDER}`, borderRadius: 8, padding: '12px 14px', color: TEXT, fontSize: 13.5, lineHeight: 1.6, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit', marginBottom: 16 }} />
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => { navigator.clipboard.writeText(linkedinDraft); setLiCopied(true); setTimeout(() => setLiCopied(false), 2000); }}
+                  style={{ flex: 1, background: liCopied ? 'rgba(91,219,138,0.15)' : 'rgba(255,255,255,0.05)', color: liCopied ? '#5BDB8A' : TEXT, border: `1px solid ${liCopied ? 'rgba(91,219,138,0.3)' : BORDER}`, padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  {liCopied ? 'copied ✓' : 'copy text'}
+                </button>
+                <a href="https://www.linkedin.com/feed/?shareActive=true" target="_blank" rel="noopener noreferrer"
+                  onClick={() => { navigator.clipboard.writeText(linkedinDraft); }}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: ACCENT, color: 'white', padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                  open LinkedIn
+                </a>
+              </div>
+              <button onClick={() => setShowLinkedInPrompt(false)} style={{ display: 'block', margin: '14px auto 0', background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>skip</button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
