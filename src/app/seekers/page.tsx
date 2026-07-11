@@ -229,7 +229,6 @@ function SeekersContent() {
             <div style={{ textAlign: 'center', padding: '60px 0', color: MUTED }}>loading mentors...</div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 0', color: MUTED }}>
-              <div style={{ fontSize: 40, marginBottom: 16 }}>☕</div>
               <p>no mentors in this category yet. check back soon.</p>
             </div>
           ) : (
@@ -307,7 +306,6 @@ function SeekersContent() {
               )}
               {streak && streak.currentStreak > 0 && (
                 <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.03))', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 16, padding: '18px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ fontSize: 32 }}>🔥</div>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 18, color: '#F59E0B' }}>{streak.currentStreak} week streak</div>
                     <div style={{ color: MUTED, fontSize: 13 }}>longest: {streak.longestStreak} weeks · log a note after your next sip to keep it going</div>
@@ -341,7 +339,6 @@ function SeekersContent() {
               </div>
               {requests.length === 0 ? (
                 <div style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '60px 40px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>☕</div>
                   <p style={{ color: MUTED, marginBottom: 24 }}>No sips found for this email.</p>
                   <button onClick={() => setTab('browse')} style={{ color: LINK, background: 'none', border: 'none', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}>browse mentors →</button>
                 </div>
@@ -397,7 +394,7 @@ function SeekersContent() {
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
             <motion.div initial={{ scale: 0.92, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.92, opacity: 0, y: 20 }}
               style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 22, padding: 36, width: '100%', maxWidth: 440 }}>
-              <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>request a sip ☕</div>
+              <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 4 }}>request a sip</div>
               <div style={{ color: MUTED, fontSize: 14, marginBottom: 28 }}>sending to {modal.firstName} {modal.lastName} · {modal.role} @ {modal.company}</div>
               {sent ? (
                 <div style={{ textAlign: 'center', padding: '40px 0' }}>

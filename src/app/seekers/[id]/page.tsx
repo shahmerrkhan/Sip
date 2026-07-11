@@ -32,7 +32,6 @@ export default function SeekerProfile() {
 
   if (!seeker) return (
     <div style={{ background: BG, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontSize: 48 }}>☕</div>
       <p style={{ color: MUTED }}>Seeker not found.</p>
       <Link href="/" style={{ color: LINK, textDecoration: 'none' }}>← back to directory</Link>
     </div>

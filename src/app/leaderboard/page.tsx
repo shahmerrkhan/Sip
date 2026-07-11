@@ -11,17 +11,16 @@ type Mentor = {
   xp: number; sipCount: number; badges: string; isOpen: boolean;
 };
 
-const BADGE_META: Record<string, { label: string; emoji: string; color: string }> = {
-  'first-sip':  { label: 'First Sip',  emoji: '☕', color: '#D97706' },
-  'regular':    { label: 'Regular',    emoji: '🔥', color: '#DC2626' },
-  'veteran':    { label: 'Veteran',    emoji: '⚡', color: PURPLE },
-  'legend':     { label: 'Legend',     emoji: '💎', color: '#0891B2' },
-  'goat':       { label: 'GOAT',       emoji: '🐐', color: '#059669' },
+const BADGE_META: Record<string, { label: string; color: string }> = {
+  'first-sip':  { label: 'First Sip',  color: '#D97706' },
+  'regular':    { label: 'Regular',    color: '#DC2626' },
+  'veteran':    { label: 'Veteran',    color: PURPLE },
+  'legend':     { label: 'Legend',     color: '#0891B2' },
+  'goat':       { label: 'GOAT',       color: '#059669' },
 };
 
 const AVATARS = [ACCENT, PURPLE, '#059669', '#DC2626', '#D97706', '#0891B2'];
 const RANK_COLORS = ['#F59E0B', '#94A3B8', '#CD7F32'];
-const RANK_LABELS = ['🥇', '🥈', '🥉'];
 
 export default function Leaderboard() {
   const [mentors, setMentors] = useState<Mentor[]>([]);
@@ -51,8 +50,6 @@ export default function Leaderboard() {
 
         {/* HEADER */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: 56, textAlign: 'center' }}>
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            style={{ fontSize: 56, marginBottom: 16 }}>🏆</motion.div>
           <h1 style={{ fontSize: 48, fontWeight: 700, letterSpacing: -2.5, marginBottom: 12 }}>Leaderboard</h1>
           <p style={{ color: MUTED, fontSize: 16 }}>The people showing up the hardest. Earn XP every time someone requests a sip.</p>
         </motion.div>
@@ -61,8 +58,8 @@ export default function Leaderboard() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 48 }}>
           {Object.entries(BADGE_META).map(([key, b]) => (
-            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6, background: SURFACE, border: '1px solid rgba(255,255,255,0.07)', padding: '8px 16px', borderRadius: 20 }}>
-              <span style={{ fontSize: 15 }}>{b.emoji}</span>
+            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 6, background: SURFACE, border: `1px solid ${b.color}40`, padding: '8px 16px', borderRadius: 20 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: b.color }} />
               <span style={{ fontSize: 13, color: MUTED }}>{b.label}</span>
             </div>
           ))}
@@ -78,7 +75,6 @@ export default function Leaderboard() {
           </div>
         ) : mentors.length === 0 ? (
           <div style={{ textAlign: 'center', color: MUTED, padding: '80px 0' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>☕</div>
             <p>No mentors yet. Be the first to go live.</p>
           </div>
         ) : (
@@ -90,8 +86,8 @@ export default function Leaderboard() {
                 style={{ background: i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.06)` : SURFACE, border: `1px solid ${i < 3 ? `rgba(${i===0?'245,158,11':i===1?'148,163,184':'205,127,50'},0.25)` : 'rgba(255,255,255,0.07)'}`, borderRadius: 16, padding: '16px', display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.2s', cursor: 'default' }}>
 
                 {/* rank */}
-                <div style={{ width: 36, textAlign: 'center', fontSize: i < 3 ? 22 : 14, color: i < 3 ? RANK_COLORS[i] : MUTED, fontWeight: 700, fontFamily: 'Space Mono', flexShrink: 0 }}>
-                  {i < 3 ? RANK_LABELS[i] : `#${i + 1}`}
+                <div style={{ width: 36, textAlign: 'center', fontSize: i < 3 ? 18 : 14, color: i < 3 ? RANK_COLORS[i] : MUTED, fontWeight: 700, fontFamily: 'Space Mono', flexShrink: 0 }}>
+                  #{i + 1}
                 </div>
 
                 {/* avatar */}
@@ -106,8 +102,8 @@ export default function Leaderboard() {
                   {m.badges && (
                     <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                       {m.badges.split(',').filter(Boolean).map(b => (
-                        <span key={b} style={{ fontSize: 11, padding: '2px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#C9D1D9' }}>
-                          {BADGE_META[b]?.emoji} {BADGE_META[b]?.label}
+                        <span key={b} style={{ fontSize: 11, padding: '2px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: `1px solid ${BADGE_META[b]?.color}40`, color: '#C9D1D9' }}>
+                          {BADGE_META[b]?.label}
                         </span>
                       ))}
                     </div>

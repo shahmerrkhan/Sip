@@ -29,10 +29,10 @@ async function notifyMatchingSeekers(mentor: typeof mentors.$inferSelect) {
     await transporter.sendMail({
       from: `Sip <${process.env.GMAIL_USER}>`,
       to: seeker.email,
-      subject: `A mentor matching your interests just joined Sip ☕`,
+      subject: `A mentor matching your interests just joined Sip`,
       html: `
         <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0D1117;color:#E6EDF3;padding:40px;border-radius:16px;">
-          <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip ☕</div>
+          <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip</div>
           <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">New mentor for you</h2>
           <p style="color:#C9D1D9;font-size:15px;line-height:1.7;margin-bottom:8px;"><strong>${escapeHtml(mentor.firstName)} ${escapeHtml(mentor.lastName)}</strong>, ${escapeHtml(mentor.role)} @ ${escapeHtml(mentor.company)}, just opened up on Sip.</p>
           <p style="color:#8B949E;font-size:14px;line-height:1.7;margin-bottom:24px;">Topics: ${escapeHtml(mentor.topics)}</p>

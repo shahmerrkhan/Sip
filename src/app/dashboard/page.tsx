@@ -57,6 +57,9 @@ export default function Dashboard() {
   const [togglingConsent, setTogglingConsent] = useState<string | null>(null);
   const [accepting, setAccepting] = useState<string | null>(null);
   const [choosingContactFor, setChoosingContactFor] = useState<string | null>(null);
+  const [shareNoteDraft, setShareNoteDraft] = useState('');
+  const [showShareNote, setShowShareNote] = useState(false);
+  const [shareNoteCopied, setShareNoteCopied] = useState(false);
 
   async function acceptRequest(requestId: string, contactMethod?: 'calendar' | 'email') {
     setAccepting(requestId);
@@ -210,25 +213,28 @@ export default function Dashboard() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {choosingContactFor && (
+        {showShareNote && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={e => { if (e.target === e.currentTarget) setChoosingContactFor(null); }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: 28, width: '100%', maxWidth: 380 }}>
-              <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>How should they reach you?</h3>
-              <p style={{ color: MUTED, fontSize: 13, marginBottom: 20 }}>Pick what gets sent to this seeker.</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button onClick={() => acceptRequest(choosingContactFor, 'calendar')} disabled={accepting === choosingContactFor}
-                  style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: LINK, padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: accepting === choosingContactFor ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
-                  Calendar link
+            onClick={e => { if (e.target === e.currentTarget) setShowShareNote(false); }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, backdropFilter: 'blur(4px)' }}>
+            <motion.div initial={{ scale: 0.95, opacity: 0, y: 10 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: 32, width: '100%', maxWidth: 460 }}>
+              <div style={{ fontWeight: 700, fontSize: 19, marginBottom: 6 }}>share this on LinkedIn?</div>
+              <div style={{ color: MUTED, fontSize: 13, marginBottom: 16 }}>Copy the draft, then paste it into a new LinkedIn post.</div>
+              <textarea value={shareNoteDraft} onChange={e => setShareNoteDraft(e.target.value)} rows={7}
+                style={{ width: '100%', background: BG, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '12px 14px', color: TEXT, fontSize: 13.5, lineHeight: 1.6, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit', marginBottom: 16 }} />
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => { navigator.clipboard.writeText(shareNoteDraft); setShareNoteCopied(true); setTimeout(() => setShareNoteCopied(false), 2000); }}
+                  style={{ flex: 1, background: shareNoteCopied ? 'rgba(91,219,138,0.15)' : 'rgba(255,255,255,0.05)', color: shareNoteCopied ? '#5BDB8A' : TEXT, border: `1px solid ${shareNoteCopied ? 'rgba(91,219,138,0.3)' : 'rgba(255,255,255,0.1)'}`, padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  {shareNoteCopied ? 'copied ✓' : 'copy text'}
                 </button>
-                <button onClick={() => acceptRequest(choosingContactFor, 'email')} disabled={accepting === choosingContactFor}
-                  style={{ background: 'rgba(91,219,138,0.12)', border: '1px solid rgba(91,219,138,0.3)', color: SUCCESS2, padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: accepting === choosingContactFor ? 'not-allowed' : 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
-                  Email only
-                </button>
-                <button onClick={() => setChoosingContactFor(null)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: MUTED, padding: '10px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>cancel</button>
+                <a href="https://www.linkedin.com/feed/?shareActive=true" target="_blank" rel="noopener noreferrer"
+                  onClick={() => { navigator.clipboard.writeText(shareNoteDraft); }}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: ACCENT, color: 'white', padding: '12px 0', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                  open LinkedIn
+                </a>
               </div>
+              <button onClick={() => setShowShareNote(false)} style={{ display: 'block', margin: '14px auto 0', background: 'none', border: 'none', color: MUTED, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>skip</button>
             </motion.div>
           </motion.div>
         )}
@@ -273,7 +279,7 @@ export default function Dashboard() {
                   <h1 style={{ fontSize: 36, fontWeight: 700, letterSpacing: -1.5, marginBottom: 6 }}>Your Dashboard</h1>
                   <p style={{ color: MUTED, fontSize: 15 }}>{mentor.role} @ {mentor.company}</p>
                   {mentor.referrerName && (
-                    <p style={{ color: LINK, fontSize: 13, marginTop: 6 }}>Invited by {mentor.referrerName} ☕</p>
+                    <p style={{ color: LINK, fontSize: 13, marginTop: 6 }}>Invited by {mentor.referrerName}</p>
                   )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -345,7 +351,7 @@ export default function Dashboard() {
                     ))}
                   </div>
                 ) : (
-                  <p style={{ color: MUTED, fontSize: 13 }}>No badges yet — your first sip request earns you the ☕ First Sip badge.</p>
+                  <p style={{ color: MUTED, fontSize: 13 }}>No badges yet. Your first sip request earns you the First Sip badge.</p>
                 )}
               </motion.div>
 
@@ -423,11 +429,22 @@ export default function Dashboard() {
                       <div key={n.id} style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '20px 24px' }}>
                         <div style={{ fontWeight: 600, marginBottom: 4 }}>{n.seekerName}</div>
                         <p style={{ color: TEXT, fontSize: 14, lineHeight: 1.6, marginBottom: 14 }}>&quot;{n.note}&quot;</p>
-                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-                          onClick={() => deleteNote(n.id)} disabled={deletingNote === n.id}
-                          style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: DANGER, padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: deletingNote === n.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
-                          {deletingNote === n.id ? 'removing...' : 'remove from profile'}
-                        </motion.button>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                            onClick={() => {
+                              const trimmed = n.note.length > 200 ? n.note.slice(0, 200).trim() + '...' : n.note;
+                              setShareNoteDraft(`"${trimmed}"\n\n— ${n.seekerName}`);
+                              setShowShareNote(true);
+                            }}
+                            style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: LINK, padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                            share
+                          </motion.button>
+                          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+                            onClick={() => deleteNote(n.id)} disabled={deletingNote === n.id}
+                            style={{ background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: DANGER, padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: deletingNote === n.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                            {deletingNote === n.id ? 'removing...' : 'remove from profile'}
+                          </motion.button>
+                        </div>
                       </div>
                     ))}
                   </div>

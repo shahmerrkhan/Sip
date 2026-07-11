@@ -21,12 +21,12 @@ function formatResponseTime(minutes: number): string {
 }
 type SipNote = { id: string; seekerName: string; note: string; createdAt: string; };
 
-const BADGE_META: Record<string, { label: string; emoji: string }> = {
-  'first-sip': { label: 'First Sip', emoji: '☕' },
-  'regular':   { label: 'Regular',   emoji: '🔥' },
-  'veteran':   { label: 'Veteran',   emoji: '⚡' },
-  'legend':    { label: 'Legend',    emoji: '💎' },
-  'goat':      { label: 'GOAT',      emoji: '🐐' },
+const BADGE_META: Record<string, { label: string }> = {
+  'first-sip': { label: 'First Sip' },
+  'regular':   { label: 'Regular' },
+  'veteran':   { label: 'Veteran' },
+  'legend':    { label: 'Legend' },
+  'goat':      { label: 'GOAT' },
 };
 
 const NOTES_PER_PAGE = 3;
@@ -134,7 +134,7 @@ export default function MentorProfile() {
       setNotes(n => [created, ...n]);
       setNoteSent(true);
       const trimmedNote = noteText.length > 220 ? noteText.slice(0, 220).trim() + '...' : noteText;
-      setLinkedinDraft(`Just had a great conversation with ${mentor?.firstName} ${mentor?.lastName}, ${mentor?.role} @ ${mentor?.company}, on Sip ☕\n\n${trimmedNote}\n\nNo cold DMs, just showed up. sip-lyart.vercel.app`);
+      setLinkedinDraft(`Had a good conversation with ${mentor?.firstName} ${mentor?.lastName} (${mentor?.role} @ ${mentor?.company}) recently.\n\n${trimmedNote}`);
       setShowLinkedInPrompt(true);
       setNoteForm({ name: '' });
       setNoteText('');
@@ -170,7 +170,6 @@ export default function MentorProfile() {
 
   if (!mentor) return (
     <div style={{ background: BG, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontSize: 48 }}>☕</div>
       <p style={{ color: MUTED }}>Mentor not found.</p>
       <Link href="/" style={{ color: LINK, textDecoration: 'none' }}>← back to directory</Link>
     </div>
@@ -231,7 +230,7 @@ export default function MentorProfile() {
                   </span>
                   {mentor.avgResponseMinutes != null && (
                     <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, background: 'rgba(91,219,138,0.08)', color: '#5BDB8A', border: '1px solid rgba(91,219,138,0.15)' }}>
-                      ⚡ responds in {formatResponseTime(mentor.avgResponseMinutes)}
+                      responds in {formatResponseTime(mentor.avgResponseMinutes)}
                     </span>
                   )}
                 </div>
@@ -267,7 +266,7 @@ export default function MentorProfile() {
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {mentor.badges.split(',').filter(Boolean).map(b => (
                   <span key={b} style={{ fontSize: 12, padding: '5px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#C9D1D9' }}>
-                    {BADGE_META[b]?.emoji} {BADGE_META[b]?.label}
+                    {BADGE_META[b]?.label}
                   </span>
                 ))}
               </div>

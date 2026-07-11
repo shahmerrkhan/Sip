@@ -122,7 +122,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         subject: `Update on your sip request`,
         html: `
           <div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#0D1117;color:#E6EDF3;padding:40px;border-radius:16px;">
-            <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip ☕</div>
+            <div style="font-size:28px;font-weight:700;color:#70B5F9;margin-bottom:8px;">sip</div>
             <h2 style="font-size:22px;margin-bottom:16px;color:#E6EDF3;">Not this time</h2>
             <p style="color:#C9D1D9;font-size:15px;line-height:1.7;margin-bottom:24px;">
             ${escapeHtml(mentor.firstName)} wasn't able to connect right now. Don't sweat it — there are plenty of other people open on Sip.
