@@ -36,7 +36,6 @@ export default function SignInPage() {
             colorForeground: '#E6EDF3',
             colorPrimary: '#0A66C2',
             colorInput: '#E6EDF3',
-            colorInputText: '#0D1117',
             borderRadius: '12px',
           },
           elements: {
