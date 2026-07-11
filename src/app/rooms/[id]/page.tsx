@@ -113,8 +113,8 @@ export default function RoomPage() {
     const res = await fetch(`/api/rooms/${id}/mode`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }),
     });
-    if (res.ok) setRoom(await res.json());
-    setModeUpdating(false);
+    if (res.ok) { const updated = await res.json(); setRoom(prev => prev ? { ...prev, mode: updated.mode } : prev); }
+    setModeUpdating(false);if (res.ok) { const updated = await res.json(); setRoom(prev => prev ? { ...prev, mode: updated.mode } : prev); }
   }
 
   function toggleSelect(entryId: string) {
