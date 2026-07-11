@@ -1,7 +1,7 @@
 'use client';
 import { BG, BORDER, TEXT, MUTED, ACCENT, LINK } from '@/lib/theme';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,9 +9,19 @@ import Logo from '@/components/Logo';
 
 const TOPIC_OPTIONS = ['tech', 'startups', 'design', 'VC', 'AI/ML', 'product', 'finance', 'research', 'co-op', 'grad school'];
 
-export default function MentorSignup() {
+export default function MentorSignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <MentorSignup />
+    </Suspense>
+  );
+}
+
+function MentorSignup() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const ref = searchParams.get('ref');
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,7 +64,7 @@ export default function MentorSignup() {
       const res = await fetch('/api/mentor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, topics: form.topics.join(',') }),
+        body: JSON.stringify({ ...form, topics: form.topics.join(','), ref }),
       });
       if (!res.ok) { const data = await res.json(); setError(data.error || 'Something went wrong'); setLoading(false); return; }
       router.push('/dashboard');
