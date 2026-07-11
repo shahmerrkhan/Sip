@@ -52,6 +52,8 @@ export default function Dashboard() {
   const [loadingMentor, setLoadingMentor] = useState(true);
   const [togglingOpen, setTogglingOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [refCopied, setRefCopied] = useState(false);
+  const [referrals, setReferrals] = useState<{ referralCode: string | null; totalInvites: number; totalConverted: number } | null>(null);
   const [togglingConsent, setTogglingConsent] = useState<string | null>(null);
   const [accepting, setAccepting] = useState<string | null>(null);
   const [choosingContactFor, setChoosingContactFor] = useState<string | null>(null);
@@ -83,7 +85,8 @@ export default function Dashboard() {
   const [isLive, setIsLive] = useState(false);
   
   const fetchData = useCallback(async () => {
-  const [mRes, rRes, liveRes, aRes] = await Promise.all([fetch('/api/mentor'), fetch('/api/requests'), fetch('/api/rooms'), fetch('/api/asks')]);
+  const [mRes, rRes, liveRes, aRes, refRes] = await Promise.all([fetch('/api/mentor'), fetch('/api/requests'), fetch('/api/rooms'), fetch('/api/asks'), fetch('/api/referrals/me')]);
+  if (refRes.ok) setReferrals(await refRes.json());
   if (mRes.ok) {
     const m = await mRes.json();
     setMentor(m);
@@ -356,6 +359,30 @@ export default function Dashboard() {
                   {copied ? 'copied ✓' : 'copy link'}
                 </motion.button>
               </motion.div>
+
+              {/* REFERRALS */}
+              {referrals?.referralCode && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.36 }}
+                  style={{ background: 'rgba(91,219,138,0.06)', border: '1px solid rgba(91,219,138,0.2)', borderRadius: 16, padding: '20px 28px', marginBottom: 32 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: referrals.totalInvites > 0 ? 16 : 0 }}>
+                    <div>
+                      <div style={{ fontWeight: 600, marginBottom: 4 }}>Invite other mentors</div>
+                      <div style={{ color: MUTED, fontSize: 13 }}>Know someone who'd be good at this? Send them your link.</div>
+                    </div>
+                    <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                      onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/mentors/signup?ref=${referrals.referralCode}`); setRefCopied(true); setTimeout(() => setRefCopied(false), 2000); }}
+                      style={{ background: refCopied ? 'rgba(91,219,138,0.15)' : 'rgba(91,219,138,0.15)', color: SUCCESS2, border: '1px solid rgba(91,219,138,0.3)', padding: '10px 22px', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
+                      {refCopied ? 'copied ✓' : 'copy invite link'}
+                    </motion.button>
+                  </div>
+                  {referrals.totalInvites > 0 && (
+                    <div style={{ display: 'flex', gap: 20, fontSize: 13, color: MUTED }}>
+                      <span><strong style={{ color: TEXT }}>{referrals.totalInvites}</strong> invited</span>
+                      <span><strong style={{ color: TEXT }}>{referrals.totalConverted}</strong> gave their first sip</span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
               {/* PENDING NOTES */}
               {pendingNotes.length > 0 && (
