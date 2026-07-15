@@ -24,8 +24,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       .orderBy(queueEntries.joinedAt);
     const active = await db.select().from(queueEntries)
       .where(and(eq(queueEntries.roomId, id), eq(queueEntries.status, 'active')));
+    const done = await db.select().from(queueEntries)
+      .where(and(eq(queueEntries.roomId, id), eq(queueEntries.status, 'done')))
+      .orderBy(sql`${queueEntries.doneAt} desc`)
+      .limit(50);
 
-    const allEntries = [...result, ...active];
+    const allEntries = [...result, ...active, ...done];
     const clerkIds = [...new Set(allEntries.map(e => e.seekerClerkId).filter(Boolean))] as string[];
 
     let visitCounts: Record<string, number> = {};
@@ -61,6 +65,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({
       waiting: result.map(attach),
       active: active.map(attach),
+      done: done.map(attach),
     });
   } catch (err) {
     return handleApiError(err, 'GET /api/rooms/[id]/queue');
@@ -89,12 +94,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const alreadyIn = existing.find(e => e.status === 'waiting' || e.status === 'active');
     if (alreadyIn) return NextResponse.json(alreadyIn);
 
-    const { seekerName } = await req.json();
+    const { seekerName, topic } = await req.json();
     if (!seekerName) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    if (topic && typeof topic === 'string' && topic.length > 140) {
+      return NextResponse.json({ error: 'Topic is too long' }, { status: 400 });
+    }
 
     try {
       const created = await db.insert(queueEntries).values({
-        roomId: id, seekerClerkId: userId, seekerName, status: 'waiting',
+        roomId: id, seekerClerkId: userId, seekerName, topic: topic || null, status: 'waiting',
       }).returning();
       return NextResponse.json(created[0]);
     } catch (insertErr: any) {

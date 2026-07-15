@@ -75,6 +75,8 @@ export const rooms = pgTable('rooms', {
 export const requests = pgTable('requests', {
   id: uuid('id').defaultRandom().primaryKey(),
   mentorId: uuid('mentor_id').references(() => mentors.id, { onDelete: 'cascade' }).notNull(),
+  originAskId: uuid('origin_ask_id').references(() => asks.id, { onDelete: 'set null' }),
+  originRoomId: uuid('origin_room_id').references(() => rooms.id, { onDelete: 'set null' }),
   seekerClerkId: text('seeker_clerk_id'),
   seekerName: text('seeker_name').notNull(),
   seekerEmail: text('seeker_email').notNull(),
@@ -88,6 +90,7 @@ export const requests = pgTable('requests', {
 }, (t) => [
   index('requests_mentor_id_idx').on(t.mentorId),
   index('requests_seeker_clerk_id_idx').on(t.seekerClerkId),
+  index('requests_origin_ask_id_idx').on(t.originAskId),
 ]);
 
 export const sipNotes = pgTable('sip_notes', {
@@ -107,6 +110,7 @@ export const queueEntries = pgTable('queue_entries', {
   roomId: uuid('room_id').references(() => rooms.id, { onDelete: 'cascade' }).notNull(),
   seekerClerkId: text('seeker_clerk_id').notNull(),
   seekerName: text('seeker_name').notNull(),
+  topic: text('topic'),
   status: text('status').default('waiting').notNull(), // waiting | active | done | left
   joinedAt: timestamp('joined_at').defaultNow().notNull(),
   calledAt: timestamp('called_at'),

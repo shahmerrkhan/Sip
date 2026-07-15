@@ -70,6 +70,11 @@ function SeekersContent() {
     if (user) localStorage.setItem('sip_last_role', 'seeker');
   }, [user]);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user) handleLookup();
+  }, [user]);
+
   const fetchMentors = useCallback(async () => {
     const res = await fetch('/api/mentor?all=true');
     if (res.ok) setMentors(await res.json());
@@ -158,13 +163,19 @@ function SeekersContent() {
     setTogglingConsent(null);
   }
 
-  const tabBtn = (id: 'browse' | 'mine', label: string) => (
+  const tabBtn = (id: 'browse' | 'mine', label: string, badge?: number) => (
     <button onClick={() => setTab(id)} style={{
       background: tab === id ? 'rgba(112,181,249,0.12)' : 'transparent',
       border: `1px solid ${tab === id ? 'rgba(112,181,249,0.4)' : BORDER}`,
       color: tab === id ? LINK : MUTED, padding: '10px 22px', borderRadius: 20,
       fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
-    }}>{label}</button>
+      display: 'flex', alignItems: 'center', gap: 6,
+    }}>
+      {label}
+      {!!badge && (
+        <span style={{ background: '#F59E0B', color: '#0D1117', borderRadius: 999, fontSize: 11, fontWeight: 700, padding: '1px 7px' }}>{badge}</span>
+      )}
+    </button>
   );
 
   return (
@@ -186,7 +197,7 @@ function SeekersContent() {
         <h1 style={{ fontSize: 34, fontWeight: 700, letterSpacing: -1.5, marginBottom: 20 }}>Find Your Sip</h1>
         <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
           {tabBtn('browse', 'browse mentors')}
-          {tabBtn('mine', 'my sips')}
+          {tabBtn('mine', 'my sips', pending.length)}
         </div>
       </div>
 

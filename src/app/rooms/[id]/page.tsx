@@ -8,7 +8,7 @@ import { useRoles } from '@/hooks/useRoles';
 import { ConsentGate } from '@/components/ConsentGate';
 
 type Room = { id: string; title: string; roomUrl: string; status: string; mode: string; firstName: string; lastName: string; role: string; company: string; mentorClerkId: string };
-type QueueEntry = { id: string; seekerClerkId: string; seekerName: string; status: string; visitCount?: number; flagCount?: number };
+type QueueEntry = { id: string; seekerClerkId: string; seekerName: string; topic?: string; status: string; visitCount?: number; flagCount?: number; doneAt?: string | null };
 
 export default function RoomPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,8 +22,10 @@ export default function RoomPage() {
   const [room, setRoom] = useState<Room | null>(null);
   const [waiting, setWaiting] = useState<QueueEntry[]>([]);
   const [actives, setActives] = useState<QueueEntry[]>([]);
+  const [recap, setRecap] = useState<QueueEntry[]>([]);
   const [myEntry, setMyEntry] = useState<QueueEntry | null>(null);
   const [joining, setJoining] = useState(false);
+  const [topicInput, setTopicInput] = useState('');
   const [calling, setCalling] = useState<string | null>(null);
   const [flagOpen, setFlagOpen] = useState(false);
   const [flagTarget, setFlagTarget] = useState<{ id: string; name: string } | null>(null);
@@ -34,6 +36,7 @@ export default function RoomPage() {
   const [modeUpdating, setModeUpdating] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [batchBusy, setBatchBusy] = useState(false);
+  const [connecting, setConnecting] = useState<string | null>(null);
   const popupRef = useRef<Window | null>(null);
 
   const fetchRoom = useCallback(async () => {
@@ -47,6 +50,7 @@ export default function RoomPage() {
     const data = await r.json();
     setWaiting(data.waiting);
     setActives(data.active);
+    setRecap(data.done || []);
     if (user) {
       const mine = [...data.waiting, ...data.active].find((e: QueueEntry) => e.seekerClerkId === user.id);
       setMyEntry(mine || null);
@@ -80,7 +84,7 @@ export default function RoomPage() {
     setJoining(true);
     const seekerName = user.firstName || user.fullName || 'Someone';
     const res = await fetch(`/api/rooms/${id}/queue`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seekerName }),
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seekerName, topic: topicInput.trim() || undefined }),
     });
     if (res.ok) setMyEntry(await res.json());
     setJoining(false);
@@ -105,6 +109,14 @@ export default function RoomPage() {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'done' }),
     });
     fetchQueue();
+  }
+
+  async function requestConnect(seekerClerkId: string, seekerName: string) {
+    setConnecting(seekerClerkId);
+    await fetch(`/api/rooms/${id}/connect-request`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seekerClerkId, seekerName }),
+    });
+    setConnecting(null);
   }
 
   async function setMode(mode: 'individual' | 'batch') {
@@ -231,9 +243,28 @@ export default function RoomPage() {
                           {!!w.flagCount && (
                             <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged - {w.flagCount}</span>
                           )}
+                          {w.topic && (
+                            <span style={{ fontSize: 12, color: MUTED, fontStyle: 'italic' }}>&quot;{w.topic}&quot;</span>
+                          )}
                         </div>
                       </label>
                     ))}
+                  </div>
+                )}
+
+                {recap.length > 0 && (
+                  <div style={{ marginTop: 28 }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Recap ({recap.length})</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {recap.map(r => (
+                        <div key={r.id} style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px 16px' }}>
+                          <span style={{ fontWeight: 600 }}>{r.seekerName}</span>
+                          {r.topic && (
+                            <span style={{ fontSize: 12, color: MUTED, fontStyle: 'italic', marginLeft: 8 }}>&quot;{r.topic}&quot;</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>
@@ -242,16 +273,20 @@ export default function RoomPage() {
                 {actives[0] && (
                   <div style={{ background: 'rgba(91,219,138,0.08)', border: '1px solid rgba(91,219,138,0.25)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
                     <div style={{ fontSize: 12, color: '#5BDB8A', fontWeight: 600, marginBottom: 4 }}>currently active</div>
-                    <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {actives[0].seekerName}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 600 }}>{actives[0].seekerName}</span>
                       {!!actives[0].visitCount && actives[0].visitCount > 1 && (
                         <span style={{ fontSize: 11, color: LINK, background: 'rgba(112,181,249,0.1)', padding: '2px 8px', borderRadius: 8 }}>visit #{actives[0].visitCount}</span>
                       )}
                       {!!actives[0].flagCount && (
-                        <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged before - {actives[0].flagCount}</span>
+                        <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged - {actives[0].flagCount}</span>
                       )}
                     </div>
+                    {actives[0].topic && (
+                      <div style={{ fontSize: 12, color: MUTED, fontStyle: 'italic', marginTop: 4 }}>&quot;{actives[0].topic}&quot;</div>
+                    )}
                     <button onClick={() => markDone(actives[0].id)} style={{ marginTop: 10, marginRight: 8, background: 'rgba(220,38,38,0.1)', border: '1px solid rgba(220,38,38,0.2)', color: '#F87171', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>mark done</button>
+                    <button onClick={() => requestConnect(actives[0].seekerClerkId, actives[0].seekerName)} disabled={connecting === actives[0].seekerClerkId} style={{ marginTop: 10, marginRight: 8, background: 'rgba(91,219,138,0.1)', border: '1px solid rgba(91,219,138,0.3)', color: '#5BDB8A', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: connecting === actives[0].seekerClerkId ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>{connecting === actives[0].seekerClerkId ? 'sending...' : 'request 1:1'}</button>
                     <button onClick={() => { setFlagTarget({ id: actives[0].seekerClerkId, name: actives[0].seekerName }); setFlagOpen(true); }} style={{ marginTop: 10, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', color: '#FBBF24', padding: '7px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>flag & remove</button>
                   </div>
                 )}
@@ -272,6 +307,9 @@ export default function RoomPage() {
                           {!!w.flagCount && (
                             <span style={{ fontSize: 11, color: '#FBBF24', background: 'rgba(251,191,36,0.1)', padding: '2px 8px', borderRadius: 8 }}>flagged - {w.flagCount}</span>
                           )}
+                          {w.topic && (
+                            <span style={{ fontSize: 12, color: MUTED, fontStyle: 'italic' }}>&quot;{w.topic}&quot;</span>
+                          )}
                         </div>
                         {i === 0 && !actives[0] && (
                           <button onClick={() => callNext(w.id)} disabled={calling === w.id} style={{ background: 'rgba(112,181,249,0.12)', border: '1px solid rgba(112,181,249,0.3)', color: LINK, padding: '9px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: calling === w.id ? 'not-allowed' : 'pointer', fontFamily: 'inherit', minHeight: 40 }}>
@@ -282,15 +320,34 @@ export default function RoomPage() {
                     ))}
                   </div>
                 )}
+
+                {recap.length > 0 && (
+                  <div style={{ marginTop: 28 }}>
+                    <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Recap ({recap.length})</h2>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {recap.map(r => (
+                        <div key={r.id} style={{ background: SURFACE, border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '12px 16px' }}>
+                          <span style={{ fontWeight: 600 }}>{r.seekerName}</span>
+                          {r.topic && (
+                            <span style={{ fontSize: 12, color: MUTED, fontStyle: 'italic', marginLeft: 8 }}>&quot;{r.topic}&quot;</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </>
         ) : (
           <>
             {!myEntry ? (
-              <button onClick={joinQueue} disabled={joining} style={{ background: ACCENT, color: 'white', border: 'none', padding: '13px 28px', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: joining ? 'not-allowed' : 'pointer', fontFamily: 'inherit', width: '100%', maxWidth: 320, minHeight: 48 }}>
-                {joining ? 'joining...' : 'join queue'}
-              </button>
+              <>
+                <input value={topicInput} onChange={e => setTopicInput(e.target.value)} placeholder="what do you want to ask about? (optional)" maxLength={140} style={{ width: '100%', maxWidth: 320, background: SURFACE, border: '1px solid rgba(255,255,255,0.1)', color: TEXT, borderRadius: 10, padding: '10px 14px', marginBottom: 10, fontFamily: 'inherit', fontSize: 14 }} />
+                <button onClick={joinQueue} disabled={joining} style={{ background: ACCENT, color: 'white', border: 'none', padding: '13px 28px', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: joining ? 'not-allowed' : 'pointer', fontFamily: 'inherit', width: '100%', maxWidth: 320, minHeight: 48 }}>
+                  {joining ? 'joining...' : 'join queue'}
+                </button>
+              </>
             ) : myEntry.status === 'active' ? (
               <div>
                 <p style={{ color: '#5BDB8A', fontWeight: 600, marginBottom: 10 }}>you&apos;re up -- check the new tab that opened.</p>
