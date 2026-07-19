@@ -108,8 +108,12 @@ export default function Home() {
   }, []);
 
   const fetchLiveRooms = useCallback(async () => {
-    const res = await fetch('/api/rooms');
-    if (res.ok) setLiveRooms(await res.json());
+    try {
+      const res = await fetch('/api/rooms');
+      if (res.ok) setLiveRooms(await res.json());
+    } catch (e) {
+      console.warn('fetchLiveRooms failed', e);
+    }
   }, []);
 
   useEffect(() => {

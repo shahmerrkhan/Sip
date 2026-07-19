@@ -19,9 +19,9 @@ type Mentor = {
 };
 type SipRequest = {
   id: string; mentorId: string; seekerName: string; seekerEmail: string; message: string;
-  status: 'pending' | 'accepted' | 'declined'; createdAt: string;
+  status: 'pending' | 'accepted' | 'declined'; createdAt: string; originRoomId?: string | null;
   seekerConsentToShow: boolean; mentorConsentToShow: boolean;
-  mentor?: { firstName: string; lastName: string; role: string; company: string; calendarLink: string; };
+  mentor?: { firstName: string; lastName: string; role: string; company: string; calendarLink: string; contactEmail?: string; };
 };
 
 const AVATARS = [ACCENT, PURPLE, '#059669', '#DC2626', '#D97706', '#0891B2'];
@@ -85,8 +85,12 @@ function SeekersContent() {
 
   const [liveRooms, setLiveRooms] = useState<LiveRoom[]>([]);
   const fetchLiveRooms = useCallback(async () => {
-    const res = await fetch('/api/rooms');
-    if (res.ok) setLiveRooms(await res.json());
+    try {
+      const res = await fetch('/api/rooms');
+      if (res.ok) setLiveRooms(await res.json());
+    } catch (e) {
+      console.warn('fetchLiveRooms failed', e);
+    }
   }, []);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -379,7 +383,14 @@ function SeekersContent() {
                             {r.status === 'accepted' && r.mentor?.calendarLink && (
                               <a href={r.mentor.calendarLink} target="_blank" rel="noopener noreferrer"
                                 style={{ background: ACCENT, color: 'white', padding: '8px 18px', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
-                                book your sip →
+                                book your sip â†’
+                              </a>
+                            )}
+                            {r.originRoomId && r.status !== 'declined' && (r.mentor?.calendarLink || r.mentor?.contactEmail) && (
+                              <a href={r.mentor.calendarLink ? r.mentor.calendarLink : `mailto:${r.mentor.contactEmail}?subject=${encodeURIComponent('Scheduling our 1:1')}`}
+                                target="_blank" rel="noopener noreferrer"
+                                style={{ background: ACCENT, color: 'white', padding: '8px 18px', borderRadius: 12, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                                click here to schedule call â†’
                               </a>
                             )}
                           </div>
@@ -389,10 +400,6 @@ function SeekersContent() {
                   })}
                 </div>
               )}
-              <button onClick={() => { setLookupDone(false); setRequests([]); }}
-                style={{ marginTop: 24, background: 'none', border: 'none', color: MUTED, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
-                ← check a different email
-              </button>
             </div>
           )}
         </section>

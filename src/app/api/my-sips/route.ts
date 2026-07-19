@@ -23,6 +23,7 @@ export async function GET() {
         mentorConsentToShow: requests.mentorConsentToShow, createdAt: requests.createdAt, respondedAt: requests.respondedAt,
         mentorFirstName: mentors.firstName, mentorLastName: mentors.lastName,
         mentorRole: mentors.role, mentorCompany: mentors.company, mentorCalendarLink: mentors.calendarLink,
+        mentorContactEmail: mentors.contactEmail, originRoomId: requests.originRoomId,
       })
       .from(requests)
       .leftJoin(mentors, eq(requests.mentorId, mentors.id))
@@ -32,10 +33,11 @@ export async function GET() {
       id: r.id, mentorId: r.mentorId, seekerName: r.seekerName, seekerEmail: r.seekerEmail,
       seekerLinkedin: r.seekerLinkedin, message: r.message, status: r.status,
       seekerConsentToShow: r.seekerConsentToShow, mentorConsentToShow: r.mentorConsentToShow,
-      createdAt: r.createdAt, respondedAt: r.respondedAt,
+      createdAt: r.createdAt, respondedAt: r.respondedAt, originRoomId: r.originRoomId,
       mentor: r.mentorFirstName ? {
         firstName: r.mentorFirstName, lastName: r.mentorLastName,
         role: r.mentorRole, company: r.mentorCompany, calendarLink: r.mentorCalendarLink,
+        contactEmail: r.mentorContactEmail,
       } : null,
     }));
 
